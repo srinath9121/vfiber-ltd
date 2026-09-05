@@ -221,42 +221,23 @@ function animate() {
     ch4Hud.style.display = 'none';
   }
 
-  // Telemetry HUD top bar readout, progress line, and scrubber update
-  const hud = document.getElementById('telemetry-hud');
-  const readout = document.getElementById('telemetry-readout');
-  const line = document.getElementById('telemetry-progress-line');
+  // Scrubber update
   const scrubber = document.getElementById('chapter-scrubber');
-
-  if (hud) {
-    hud.style.opacity = '1';
-    hud.style.pointerEvents = 'auto';
-    if (scrubber) {
-      scrubber.style.opacity = '1';
-      scrubber.style.pointerEvents = 'auto';
-    }
-    if (line) line.style.width = `${(sf / 6.0) * 100}%`;
-    if (readout) {
-      let ch = 'CH.00 // EARTH ORBIT';
-      if (sf >= 0.95 && sf < 1.80) ch = 'CH.01 // REGIONAL NETWORK';
-      else if (sf >= 1.80 && sf < 2.80) ch = 'CH.02 // POLE STRUCTURAL';
-      else if (sf >= 2.80 && sf < 3.60) ch = 'CH.03 // SIGNAL COUPLING';
-      else if (sf >= 3.60 && sf < 4.60) ch = 'CH.04 // LOOSE-TUBE FIBER CORE';
-      else if (sf >= 4.60 && sf < 5.40) ch = 'CH.05 // ODF EQUIPMENT BAY';
-      else if (sf >= 5.40) ch = 'CH.06 // PLANETARY CULMINATION';
-      readout.textContent = `${ch} [SF ${sf.toFixed(2)}]`;
-    }
-
-    // Sync scrubber active node
-    document.querySelectorAll('.scrub-node').forEach((btn) => {
-      const bSf = parseFloat(btn.getAttribute('data-sf'));
-      const dist = Math.abs(sf - bSf);
-      if (dist < 0.45) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
+  if (scrubber) {
+    scrubber.style.opacity = '1';
+    scrubber.style.pointerEvents = 'auto';
   }
+
+  // Sync scrubber active node
+  document.querySelectorAll('.scrub-node').forEach((btn) => {
+    const bSf = parseFloat(btn.getAttribute('data-sf'));
+    const dist = Math.abs(sf - bSf);
+    if (dist < 0.45) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
 
   renderer.render(scene, camera);
 }
@@ -277,7 +258,7 @@ window.addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 window.addEventListener('click', (e) => {
-  if (e.target.closest('#chapter-scrubber') || e.target.closest('#telemetry-hud') || e.target.closest('#odf-port-card')) {
+  if (e.target.closest('#chapter-scrubber') || e.target.closest('#odf-port-card')) {
     return;
   }
   if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {

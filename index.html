@@ -434,60 +434,6 @@
         text-transform: uppercase;
       }
 
-      /* ── Top Telemetry HUD Bar ── */
-      #telemetry-hud {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 48px;
-        z-index: 500;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 2rem;
-        background: rgba(3, 8, 16, 0.72);
-        backdrop-filter: blur(14px) saturate(1.4);
-        -webkit-backdrop-filter: blur(14px) saturate(1.4);
-        border-bottom: 1px solid rgba(0, 207, 255, 0.18);
-        transition: opacity 0.5s ease;
-        pointer-events: auto;
-      }
-      .hud-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.16em;
-        color: #ffffff;
-      }
-      .hud-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #00CFFF;
-        box-shadow: 0 0 10px #00CFFF;
-      }
-      #telemetry-readout {
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        color: #00CFFF;
-        text-shadow: 0 0 8px rgba(0, 207, 255, 0.4);
-      }
-      #telemetry-progress-line {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #C41E3A, #00CFFF, #00ffaa);
-        width: 0%;
-        box-shadow: 0 0 8px rgba(0, 207, 255, 0.8);
-        transition: width 0.08s linear;
-      }
-
       /* ── Bottom Chapter Scrubber Bar ── */
       #chapter-scrubber {
         position: fixed;
@@ -574,16 +520,6 @@
   <body>
     <div id="app"></div>
 
-    <!-- Top Telemetry HUD Bar -->
-    <header id="telemetry-hud" style="opacity: 1;">
-      <div class="hud-brand">
-        <img src="/logo.jpg" alt="VF Technologies" style="width:26px; height:26px; object-fit:contain; border-radius:2px;" />
-        <span>VF TECHNOLOGIES // OPTICAL & STRUCTURAL TELEMETRY</span>
-      </div>
-      <div id="telemetry-readout">CH.00 // EARTH ORBIT [SF 0.00]</div>
-      <div id="telemetry-progress-line"></div>
-    </header>
-
     <!-- Bottom Chapter Scrubber Bar -->
     <nav id="chapter-scrubber" aria-label="Story Chapters Navigation" style="opacity: 1;">
       <button class="scrub-node active" data-sf="0.00">00: ORBIT</button>
@@ -604,7 +540,7 @@
     <!-- Chapter 0 — Hero Title & Official VF Technologies Logo -->
     <div id="chapter0-text" class="overlay">
       <div class="hero-brand-header">
-        <img src="/logo.jpg" alt="VF Technologies Logo" class="hero-logo" />
+        <img src="/logo.png" alt="VF Technologies Logo" class="hero-logo" />
         <div>
           <div class="company">VF Technologies</div>
           <div class="tagline">Powering a Better Tomorrow</div>

@@ -163,10 +163,13 @@ export class HeroGateEngine {
     }
     this.bgCtx.putImageData(imgData, 0, 0);
 
-    // Vignette
-    const vg = this.bgCtx.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, H * 0.8);
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    // Aggressive edge vignette for artistic focal contrast
+    const maxDim = Math.max(W, H);
+    const vg = this.bgCtx.createRadialGradient(W / 2, H / 2, maxDim * 0.15, W / 2, H / 2, maxDim * 0.65);
+    vg.addColorStop(0, 'rgba(3, 7, 18, 0.0)');
+    vg.addColorStop(0.40, 'rgba(3, 7, 18, 0.40)');
+    vg.addColorStop(0.75, 'rgba(3, 7, 18, 0.85)');
+    vg.addColorStop(1.0, 'rgba(3, 7, 18, 0.98)');
     this.bgCtx.fillStyle = vg;
     this.bgCtx.fillRect(0, 0, W, H);
 
@@ -180,13 +183,14 @@ export class HeroGateEngine {
     const ctx = this.bgCtx;
     ctx.save();
 
-    // 1. Photonic radial aura behind hand
-    const hg = ctx.createRadialGradient(cx, cy - 30, 20, cx, cy - 30, 260);
-    hg.addColorStop(0, 'rgba(0, 207, 255, 0.28)');
-    hg.addColorStop(0.4, 'rgba(196, 30, 58, 0.15)');
-    hg.addColorStop(1, 'rgba(5, 10, 20, 0)');
+    // 1. Artist focal radial light bloom centered exactly behind the hand
+    const hg = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy - 20, 320);
+    hg.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
+    hg.addColorStop(0.25, 'rgba(0, 207, 255, 0.24)');
+    hg.addColorStop(0.60, 'rgba(0, 207, 255, 0.07)');
+    hg.addColorStop(1.0, 'rgba(3, 7, 18, 0)');
     ctx.fillStyle = hg;
-    ctx.fillRect(cx - 300, cy - 300, 600, 600);
+    ctx.fillRect(cx - 400, cy - 400, 800, 800);
 
     // 2. Articulated Palm with Thenar Eminence & Deep-Space Teal/Navy Shading
     ctx.beginPath();

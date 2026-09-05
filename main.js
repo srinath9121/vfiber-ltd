@@ -221,11 +221,26 @@ function animate() {
     ch4Hud.style.pointerEvents = 'none';
     ch4Hud.style.display = 'none';
   }
-  const ch6Hud = document.getElementById('chapter6-text');
-  if (ch6Hud && (sf < 5.15 || sf >= 5.82)) {
-    ch6Hud.style.opacity = '0';
-    ch6Hud.style.pointerEvents = 'none';
-    ch6Hud.style.display = 'none';
+  // Telemetry HUD top bar readout and progress bar update
+  const hud = document.getElementById('telemetry-hud');
+  const readout = document.getElementById('telemetry-readout');
+  const line = document.getElementById('telemetry-progress-line');
+
+  if (hud && !heroGateEngine.unlocked) {
+    hud.style.opacity = '0';
+  } else if (hud) {
+    hud.style.opacity = '1';
+    if (line) line.style.width = `${(sf / 6.0) * 100}%`;
+    if (readout) {
+      let ch = 'CH.00 // EARTH ORBIT';
+      if (sf >= 0.95 && sf < 1.80) ch = 'CH.01 // REGIONAL NETWORK';
+      else if (sf >= 1.80 && sf < 2.80) ch = 'CH.02 // TELECOM TOWER';
+      else if (sf >= 2.80 && sf < 3.60) ch = 'CH.03 // SIGNAL COUPLING';
+      else if (sf >= 3.60 && sf < 4.60) ch = 'CH.04 // FIBER CORE';
+      else if (sf >= 4.60 && sf < 5.40) ch = 'CH.05 // DEMARCATION BAY';
+      else if (sf >= 5.40) ch = 'CH.06 // PLANETARY RETURN';
+      readout.textContent = `${ch} [SF ${sf.toFixed(2)}]`;
+    }
   }
 
   renderer.render(scene, camera);

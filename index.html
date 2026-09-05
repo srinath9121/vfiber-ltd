@@ -415,17 +415,55 @@
         text-transform: uppercase;
         text-shadow: 0 0 12px rgba(0, 207, 255, 0.6);
       }
-      .prompt-sub {
+      /* ── Telemetry HUD Top Bar ── */
+      #telemetry-hud {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 36px;
+        z-index: 9999;
+        pointer-events: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 28px;
         font-family: 'Space Grotesk', monospace;
-        font-size: 0.65rem;
-        letter-spacing: 0.18em;
-        color: rgba(0, 207, 255, 0.65);
+        font-size: 0.68rem;
+        letter-spacing: 0.22em;
+        color: rgba(255, 255, 255, 0.7);
         text-transform: uppercase;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+      }
+      #telemetry-hud .hud-progress-line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        width: 0%;
+        background: #00CFFF;
+        box-shadow: 0 0 10px rgba(0, 207, 255, 0.85);
+        transition: width 0.1s ease-out;
+      }
+      #telemetry-hud .hud-left-badge {
+        color: #00CFFF;
+        font-weight: 600;
+      }
+      #telemetry-hud .hud-right-badge {
+        color: rgba(255, 255, 255, 0.85);
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
+
+    <!-- Telemetry Progress & Status HUD -->
+    <div id="telemetry-hud">
+      <span class="hud-left-badge">VF ENGINEERING TELEMETRY</span>
+      <span id="telemetry-readout" class="hud-right-badge">CH.00 // EARTH ORBIT</span>
+      <div id="telemetry-progress-line" class="hud-progress-line"></div>
+    </div>
 
     <!-- Phase 20A Hero Draw Strand Interactive Gate Overlay -->
     <div id="hero-gate" role="button" tabindex="0" aria-label="Draw a fiber strand to enter VF Technologies or press Enter">

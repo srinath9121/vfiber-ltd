@@ -79,8 +79,8 @@ scene.add(networkChapterGroup);
 // camera position and lookAt target across all chapters.
 
 const CAM = [
-  // Beat 0: Earth Deep Space Orbit & Transatlantic Signal Entrance
-  { at: 0.00, pos: new THREE.Vector3(0.0, 1.45, 8.2),    target: new THREE.Vector3(0.0, 1.85, 0.0) },
+  // Beat 0: Earth Deep Space Orbit & Transatlantic Signal Entrance (Zoomed out full orbital framing)
+  { at: 0.00, pos: new THREE.Vector3(0.0, 1.20, 13.5),   target: new THREE.Vector3(0.0, 0.40, 0.0) },
   // Beat 1: Regional Western USA Hub & Network Nodes Touchdown
   { at: 0.95, pos: new THREE.Vector3(0.18, 1.88, 4.65),  target: new THREE.Vector3(0.0, 1.84, 3.06) },
   // Beat 2: Telecom Lattice Tower & Infrastructure Framing

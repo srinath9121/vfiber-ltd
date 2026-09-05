@@ -1,28 +1,91 @@
 // scroll.js — virtual scroll engine
-// Exports scrollFloat (read-only), initScroll(), updateScroll()
+// Source of truth for story progress: scrollFloat (0 to MAX_SCROLL) and normalized storyProgress (0 to 1)
 
+export const MAX_SCROLL = 6.0;
 export let scrollFloat = 0;
-let targetFloat = 0;
-const MAX_SCROLL = 5.0;
+export let storyProgress = 0;
 
+let targetFloat = 0;
 let touchStartY = 0;
 let isPinching = false;
+
+export function setTargetScroll(val) {
+  targetFloat = Math.max(0, Math.min(MAX_SCROLL, val));
+}
+
+if (typeof window !== 'undefined') {
+  window.setTargetScroll = setTargetScroll;
+  window.setScrollImmediate = (val) => {
+    targetFloat = scrollFloat = Math.max(0, Math.min(MAX_SCROLL, val));
+    storyProgress = scrollFloat / MAX_SCROLL;
+  };
+  window.getScrollFloat = () => scrollFloat;
+
+  const readHashScroll = () => {
+    const match = window.location.hash.match(/sf=([\d.]+)/);
+    if (match) {
+      const val = parseFloat(match[1]);
+      if (!isNaN(val)) {
+        isScrollLocked = false;
+        window.setScrollImmediate(val);
+      }
+    }
+  };
+  window.addEventListener('hashchange', readHashScroll);
+  readHashScroll();
+}
+
+export let isScrollLocked = true;
+
+export function setScrollLocked(locked) {
+  isScrollLocked = locked;
+  if (locked) {
+    targetFloat = 0;
+    scrollFloat = 0;
+    storyProgress = 0;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.setScrollLocked = setScrollLocked;
+}
 
 export function initScroll() {
   // Mouse wheel
   window.addEventListener('wheel', (e) => {
+    if (isScrollLocked) return;
     targetFloat += e.deltaY * 0.001;
     targetFloat = Math.max(0, Math.min(MAX_SCROLL, targetFloat));
   }, { passive: true });
 
+  // Keyboard navigation for accessibility and smooth testing
+  window.addEventListener('keydown', (e) => {
+    if (isScrollLocked) return;
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      e.preventDefault();
+      targetFloat = Math.min(MAX_SCROLL, targetFloat + (e.key === 'PageDown' ? 0.6 : 0.2));
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      targetFloat = Math.max(0, targetFloat - (e.key === 'PageUp' ? 0.6 : 0.2));
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      targetFloat = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      targetFloat = MAX_SCROLL;
+    }
+  });
+
   // Touch — single finger drag
   window.addEventListener('touchstart', (e) => {
+    if (isScrollLocked) return;
     if (e.touches.length > 1) { isPinching = true; return; }
     isPinching = false;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
+    if (isScrollLocked) return;
     if (e.touches.length > 1 || isPinching) { isPinching = true; return; }
     const delta = touchStartY - e.touches[0].clientY;
     targetFloat += delta * 0.003;
@@ -31,11 +94,30 @@ export function initScroll() {
   }, { passive: true });
 
   window.addEventListener('touchend', (e) => {
+    if (isScrollLocked) return;
     if (e.touches.length < 2) isPinching = false;
   }, { passive: true });
 }
 
+export let scrollVelocity = 0;
+export let scrollDirection = 0; // +1 = forward, -1 = reverse, 0 = stationary
+
+let prevFloat = 0;
+
 // Called every frame inside animate()
 export function updateScroll() {
-  scrollFloat += (targetFloat - scrollFloat) * 0.05;
+  prevFloat = scrollFloat;
+  scrollFloat += (targetFloat - scrollFloat) * 0.06;
+  // Keep clamped between 0 and MAX_SCROLL
+  if (scrollFloat < 0.0001) scrollFloat = 0;
+  if (scrollFloat > MAX_SCROLL - 0.0001) scrollFloat = MAX_SCROLL;
+  storyProgress = scrollFloat / MAX_SCROLL;
+
+  scrollVelocity = scrollFloat - prevFloat;
+  if (Math.abs(scrollVelocity) > 0.00001) {
+    scrollDirection = scrollVelocity > 0 ? 1 : -1;
+  } else {
+    scrollDirection = 0;
+  }
 }
+

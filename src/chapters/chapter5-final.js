@@ -12,32 +12,20 @@ let statsAnimated = false;
 
 export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, networkGroup, beamsGroup) {
 
-  if (scrollFloat > 4.3) {
-    // Fade tunnel out (sf 4.3 → 4.7)
-    if (fiberMaterial) {
-      fiberMaterial.uniforms.uOpacity.value =
-        clamp(map(scrollFloat, 4.3, 4.7, 0.85, 0), 0, 0.85);
-    }
-
-    // Earth returns (sf 4.3 → 4.8)
+  if (scrollFloat > 5.85) {
+    // Earth returns (sf 5.85 → 6.00)
     if (earthMesh) {
       earthMesh.material.transparent = true;
       earthMesh.material.opacity =
-        clamp(map(scrollFloat, 4.3, 4.8, 0, 1), 0, 1);
+        clamp(map(scrollFloat, 5.85, 6.00, 0, 1), 0, 1);
     }
 
     // Show network + beam groups
     if (networkGroup) networkGroup.visible = true;
     if (beamsGroup)   beamsGroup.visible   = true;
 
-    // Camera pulls back to final position
-    camera.position.x = 0;
-    camera.position.y = 1;
-    camera.position.z = map(scrollFloat, 4.3, 5.0, -5, 7);
-    camera.lookAt(0, 0, 0);
-
     // GSAP stat counters — trigger once
-    if (scrollFloat > 4.5 && !statsAnimated) {
+    if (scrollFloat > 5.92 && !statsAnimated) {
       statsAnimated = true;
 
       gsap.to({ val: 0 }, {
@@ -63,7 +51,7 @@ export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, ne
   }
 
   // Reset counters if user scrolls back
-  if (scrollFloat < 4.0 && statsAnimated) {
+  if (scrollFloat < 5.80 && statsAnimated) {
     statsAnimated = false;
     const s1 = document.getElementById('stat1');
     const s2 = document.getElementById('stat2');
@@ -74,7 +62,7 @@ export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, ne
   // Chapter 5 text overlay
   const t5 = document.getElementById('chapter5-text');
   if (t5) {
-    if (scrollFloat > 4.5) {
+    if (scrollFloat > 5.90) {
       t5.style.opacity       = '1';
       t5.style.pointerEvents = 'all';
     } else {

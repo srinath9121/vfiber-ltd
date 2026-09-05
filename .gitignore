@@ -1,3 +1,11 @@
 node_modules/
 dist/
 .env
+.vercel/
+
+# Internal specs & draft files
+FIBER_REFERENCE_AUDIT.md
+PHASE*.md
+VF_*.md
+zero-demo.html
+

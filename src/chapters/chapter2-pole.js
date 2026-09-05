@@ -1,115 +1,470 @@
-// chapter2-pole.js — Utility pole procedural geometry + structural data overlay
-// Shader Gradient skill applied: subtle atmospheric depth gradient behind pole
-// Liquid Glass skill applied: chapter2-text overlay uses glass surface styling
+// chapter2-pole.js — Realistic Telecom Infrastructure Reconstruction (Phase 3)
+// img2threejs procedural reconstruction based on primary reference: public/references/1000198366.jpg
+// Features: 4-legged tapered steel lattice tower, 9-tier structural K/X-braces, multi-tier microwave drum dishes,
+// 3-sector cellular panel antennas with mechanical tilt, central cable waveguide tray, aviation beacon,
+// and physical signal coupling junction receiving the carrier signal protagonist.
 
 import * as THREE from 'three';
 import { clamp, map } from '../utils/math.js';
+import { ImageTransformShader } from '../shaders/shaders.js';
+import { assetRegistry } from '../utils/assets.js';
 
-// ── Pole Group ────────────────────────────────────────────────────────────────
+// ── Infrastructure Master Group ───────────────────────────────────────────────
 
 export const poleGroup = new THREE.Group();
-poleGroup.position.set(0, -4, 0); // starts below frame, rises on scroll
+poleGroup.renderOrder = 2;
 
-const woodMat = new THREE.MeshStandardMaterial({
-  color: 0x3d2b1f,
-  roughness: 0.85,
-  metalness: 0.05
+// ── PBR Engineering Materials (Phase 10 — Grounded in tower 1.jpg, tower 3.jpg, tower 4.jpg) ─
+// Galvanized steel in real conditions shows a warm grey with slight blue-silver sheen,
+// micro-roughness from hot-dip zinc crystallization, and non-uniform specular highlights.
+
+const steelMat = new THREE.MeshStandardMaterial({
+  color: 0xa8b0bc,       // Bright galvanized zinc silver (ref: tower 3.jpg close-up — steel is BRIGHT)
+  roughness: 0.48,       // Hot-dip zinc spangle — slight texture but still reflective
+  metalness: 0.88,
+  envMapIntensity: 0.7   // Galvanized faces catch environmental light
 });
 
-// Main shaft — tapered cylinder
-const shaft = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.04, 0.06, 6, 12),
-  woodMat
+const baseLegRedMat = new THREE.MeshStandardMaterial({
+  color: 0xb52d12,       // Weathered safety-red aviation paint (ref: tower 1.jpg base tier)
+  roughness: 0.62,       // Paint surface oxidation creates higher roughness than bare steel
+  metalness: 0.35        // Paint over steel — mostly dielectric surface, low metalness
+});
+
+const darkCoaxMat = new THREE.MeshStandardMaterial({
+  color: 0x1a1e24,       // UV-weathered black PVC jacket (ref: tower 4.jpg cable runs)
+  roughness: 0.78,       // Matte rubberized PVC surface — high roughness, almost no specular
+  metalness: 0.08        // Pure dielectric — rubber/PVC has near-zero metalness
+});
+
+const clampMat = new THREE.MeshStandardMaterial({
+  color: 0x9ca3af,       // Bright stainless steel clamp faces (ref: tower 4.jpg)
+  roughness: 0.30,       // Machine-stamped stainless — smoother than galvanized legs
+  metalness: 0.94        // High metalness — clean stainless reflections
+});
+
+const darkHardwareMat = new THREE.MeshStandardMaterial({
+  color: 0x222832,
+  roughness: 0.65,
+  metalness: 0.88
+});
+
+const radomeMat = new THREE.MeshStandardMaterial({
+  color: 0xf0f3f6,       // Crisp bright off-white fiberglass composite (ref: tower 2.jpg & 5.jpg — dish faces are bright white)
+  roughness: 0.38,       // Subtle fiberglass gel-coat texture
+  metalness: 0.04        // Dielectric composite
+});
+
+const dishShroudMat = new THREE.MeshStandardMaterial({
+  color: 0x333b45,       // Weathered industrial aluminium shroud with riveted rim
+  roughness: 0.52,
+  metalness: 0.72,
+  side: THREE.DoubleSide
+});
+
+const panelMat = new THREE.MeshStandardMaterial({
+  color: 0xb8c0ca,       // Weathered white/grey ABS radome housing (ref: tower 1.jpg sector panels)
+  roughness: 0.48,       // Outdoor-aged ABS develops micro-texture
+  metalness: 0.10        // Plastic radome — dielectric
+});
+
+const concreteFootingMat = new THREE.MeshStandardMaterial({
+  color: 0x3d434a,       // Poured concrete pier — slightly warmer grey
+  roughness: 0.92,       // Cast concrete has very high roughness
+  metalness: 0.04        // Concrete is almost pure dielectric
+});
+
+// ── Dimensional Specifications (from reference 1000198366.jpg) ────────────────
+
+const towerHeight = 9.0;
+const baseWidth   = 0.90; // half-width at ground plane
+const topWidth    = 0.22; // half-width at crown platform
+const tiers       = 9;    // structural tier levels
+
+// 1. Concrete Foundation Footings (4 corner piers)
+for (let c = 0; c < 4; c++) {
+  const angle = (c / 4) * Math.PI * 2 + Math.PI / 4;
+  const x = Math.cos(angle) * baseWidth;
+  const z = Math.sin(angle) * baseWidth;
+
+  const pier = new THREE.Mesh(
+    new THREE.BoxGeometry(0.16, 0.25, 0.16),
+    concreteFootingMat
+  );
+  pier.position.set(x, 0.125, z);
+  poleGroup.add(pier);
+}
+
+// 2. Four Corner Tapered Structural Steel Legs (Safety-red ground tier transitioning to galvanized steel)
+for (let corner = 0; corner < 4; corner++) {
+  const angle = (corner / 4) * Math.PI * 2 + Math.PI / 4;
+  const bx = Math.cos(angle) * baseWidth;
+  const bz = Math.sin(angle) * baseWidth;
+  const tx = Math.cos(angle) * topWidth;
+  const tz = Math.sin(angle) * topWidth;
+
+  const legSegments = 16;
+  for (let s = 0; s < legSegments; s++) {
+    const t0 = s / legSegments;
+    const t1 = (s + 1) / legSegments;
+    const y0 = t0 * towerHeight;
+    const y1 = t1 * towerHeight;
+    const x0 = bx + (tx - bx) * t0;
+    const z0 = bz + (tz - bz) * t0;
+    const x1 = bx + (tx - bx) * t1;
+    const z1 = bz + (tz - bz) * t1;
+
+    const segHeight = y1 - y0;
+    const legRadius = 0.034 * (1.0 - t0 * 0.45); // Tapers from 0.034m to 0.019m
+
+    // Bottom tier uses safety-red aviation/structural paint, upper tiers use galvanized steel
+    const legMatToUse = (s < 2) ? baseLegRedMat : steelMat;
+
+    const legMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(legRadius * 0.9, legRadius, segHeight, 6),
+      legMatToUse
+    );
+    legMesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+
+    // Orient along leg trajectory
+    const dir = new THREE.Vector3(x1 - x0, y1 - y0, z1 - z0).normalize();
+    legMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    poleGroup.add(legMesh);
+  }
+}
+
+// 3. Multi-Tier Lattice Framework: Horizontal Chord Rings & Diagonal X-Braces
+const braceLinePts = [];
+
+for (let level = 0; level <= tiers; level++) {
+  const t = level / tiers;
+  const y = t * towerHeight;
+  const w = baseWidth + (topWidth - baseWidth) * t;
+
+  // 4 corner coordinates at this elevation
+  const corners = [];
+  for (let c = 0; c < 4; c++) {
+    const angle = (c / 4) * Math.PI * 2 + Math.PI / 4;
+    corners.push(new THREE.Vector3(Math.cos(angle) * w, y, Math.sin(angle) * w));
+  }
+
+  // Horizontal perimeter chords
+  for (let c = 0; c < 4; c++) {
+    const next = (c + 1) % 4;
+    braceLinePts.push(corners[c].x, corners[c].y, corners[c].z);
+    braceLinePts.push(corners[next].x, corners[next].y, corners[next].z);
+  }
+
+  // Diagonal X-Braces between this level and the next
+  if (level < tiers) {
+    const tNext = (level + 1) / tiers;
+    const yNext = tNext * towerHeight;
+    const wNext = baseWidth + (topWidth - baseWidth) * tNext;
+
+    for (let c = 0; c < 4; c++) {
+      const next = (c + 1) % 4;
+      const angleA = (c / 4) * Math.PI * 2 + Math.PI / 4;
+      const angleB = (next / 4) * Math.PI * 2 + Math.PI / 4;
+
+      const pA  = new THREE.Vector3(Math.cos(angleA) * w,     y,     Math.sin(angleA) * w);
+      const pB  = new THREE.Vector3(Math.cos(angleB) * w,     y,     Math.sin(angleB) * w);
+      const pA1 = new THREE.Vector3(Math.cos(angleA) * wNext, yNext, Math.sin(angleA) * wNext);
+      const pB1 = new THREE.Vector3(Math.cos(angleB) * wNext, yNext, Math.sin(angleB) * wNext);
+
+      // Diagonal 1: pA -> pB1
+      braceLinePts.push(pA.x, pA.y, pA.z, pB1.x, pB1.y, pB1.z);
+      // Diagonal 2: pB -> pA1
+      braceLinePts.push(pB.x, pB.y, pB.z, pA1.x, pA1.y, pA1.z);
+    }
+  }
+}
+
+const braceGeo = new THREE.BufferGeometry();
+braceGeo.setAttribute('position', new THREE.Float32BufferAttribute(braceLinePts, 3));
+export const braceMesh = new THREE.LineSegments(
+  braceGeo,
+  new THREE.LineBasicMaterial({ color: 0x5c636e, transparent: true, opacity: 0.88 }) // Warm zinc brace tone (ref: tower 1.jpg)
 );
-shaft.position.y = 3;
-poleGroup.add(shaft);
+poleGroup.add(braceMesh);
 
-// Top cross arm
-const arm1 = new THREE.Mesh(
-  new THREE.BoxGeometry(2.5, 0.07, 0.07),
-  woodMat
+// 4. Central Waveguide Ladder & Cable Conduit (runs from base to crown)
+const cableTrayGeom = new THREE.BoxGeometry(0.08, towerHeight, 0.05);
+const cableTrayMesh = new THREE.Mesh(cableTrayGeom, darkHardwareMat);
+cableTrayMesh.position.set(0, towerHeight / 2, 0);
+poleGroup.add(cableTrayMesh);
+
+// Ladder rungs (every 0.35m)
+const rungGeom = new THREE.CylinderGeometry(0.007, 0.007, 0.28, 6);
+rungGeom.rotateZ(Math.PI / 2);
+for (let ry = 0.4; ry < towerHeight - 0.2; ry += 0.35) {
+  const rung = new THREE.Mesh(rungGeom, steelMat);
+  rung.position.set(0, ry, 0.08);
+  poleGroup.add(rung);
+}
+
+// Coaxial Cable Riser Array (8 black coaxial cables clamped along spine — Reference 1000198367.jpg)
+const coaxRadius = 0.008;
+const coaxCableGeom = new THREE.CylinderGeometry(coaxRadius, coaxRadius, towerHeight - 0.4, 8);
+for (let i = 0; i < 8; i++) {
+  const offsetX = -0.035 + (i % 4) * 0.024;
+  const offsetZ = (i < 4) ? -0.03 : -0.015;
+  const coaxMesh = new THREE.Mesh(coaxCableGeom, darkCoaxMat);
+  coaxMesh.position.set(offsetX, towerHeight / 2, offsetZ);
+  poleGroup.add(coaxMesh);
+}
+
+// Stainless Steel Coaxial Clamps (every 0.70m along the cable tray)
+const clampGeom = new THREE.BoxGeometry(0.09, 0.018, 0.04);
+for (let cy = 0.6; cy < towerHeight - 0.5; cy += 0.70) {
+  const cableClamp = new THREE.Mesh(clampGeom, clampMat);
+  cableClamp.position.set(0, cy, -0.022);
+  poleGroup.add(cableClamp);
+}
+
+// 5. Microwave Parabolic Drum Antennas (Photographically reconstructed from tower 2.jpg & tower 5.jpg)
+// Features: deep cylindrical weather shroud, projecting perimeter rim flange, flat planar radome face,
+// central waveguide feed-horn cap, and tapered rear parabolic reflector bowl.
+function createMicrowaveDrum(radius, depth, y, angleOffset) {
+  const drumGroup = new THREE.Group();
+
+  // Cylindrical protective aluminium shroud / cowl
+  const shroud = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, depth, 24, 1, true),
+    dishShroudMat
+  );
+  shroud.rotation.x = Math.PI / 2;
+  drumGroup.add(shroud);
+
+  // Outer shroud perimeter rim flange collar (ref: tower 5.jpg close-up rim)
+  const rimFlange = new THREE.Mesh(
+    new THREE.TorusGeometry(radius * 1.01, radius * 0.035, 8, 24),
+    clampMat
+  );
+  rimFlange.position.z = depth * 0.5;
+  drumGroup.add(rimFlange);
+
+  // Flat planar composite front radome face disc (ref: tower 2.jpg — flat bright white face)
+  const radomeFace = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.98, radius * 0.98, 0.015, 24),
+    radomeMat
+  );
+  radomeFace.rotation.x = Math.PI / 2;
+  radomeFace.position.z = depth * 0.48;
+  drumGroup.add(radomeFace);
+
+  // Central feed-horn waveguide cap (ref: tower 2.jpg feedhorn protruding in center)
+  const feedHorn = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.08, radius * 0.09, 0.04, 12),
+    darkHardwareMat
+  );
+  feedHorn.rotation.x = Math.PI / 2;
+  feedHorn.position.z = depth * 0.48 + 0.02;
+  drumGroup.add(feedHorn);
+
+  // Tapered rear parabolic reflector bowl (ref: tower 5.jpg rear bowl geometry)
+  const rearBowl = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.98, radius * 0.32, depth * 0.6, 24, 1, false),
+    dishShroudMat
+  );
+  rearBowl.rotation.x = -Math.PI / 2;
+  rearBowl.position.z = -depth * 0.2;
+  drumGroup.add(rearBowl);
+
+  // Rear mounting bracket & standoff pipe arm
+  const armWidth = baseWidth + (topWidth - baseWidth) * (y / towerHeight);
+  const mountDist = armWidth + radius * 0.65;
+
+  const bracket = new THREE.Mesh(
+    new THREE.BoxGeometry(0.08, 0.12, 0.14),
+    darkHardwareMat
+  );
+  bracket.position.z = -depth * 0.52;
+  drumGroup.add(bracket);
+
+  const arm = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.016, 0.016, mountDist, 8),
+    darkHardwareMat
+  );
+  arm.position.set(0, 0, -mountDist / 2);
+  arm.rotation.x = Math.PI / 2;
+  drumGroup.add(arm);
+
+  drumGroup.position.set(
+    Math.cos(angleOffset) * mountDist,
+    y,
+    Math.sin(angleOffset) * mountDist
+  );
+  drumGroup.rotation.y = -angleOffset;
+  drumGroup.rotation.x = 0.05; // Slight realistic upward/downward elevation tilt
+
+  return drumGroup;
+}
+
+// Tier 1 Microwave Dishes (Lower-mid, height 4.8m) — Dual Large Drums
+poleGroup.add(createMicrowaveDrum(0.32, 0.22, towerHeight * 0.53, 0));
+poleGroup.add(createMicrowaveDrum(0.32, 0.22, towerHeight * 0.53, Math.PI));
+
+// Tier 2 Microwave Dishes (Upper-mid, height 6.2m) — Dual Medium Drums (90° cross azimuth)
+poleGroup.add(createMicrowaveDrum(0.24, 0.18, towerHeight * 0.69, Math.PI / 2));
+poleGroup.add(createMicrowaveDrum(0.24, 0.18, towerHeight * 0.69, -Math.PI / 2));
+
+// Tier 3 Compact Microwave Dishes (Sub-top, height 7.4m)
+poleGroup.add(createMicrowaveDrum(0.18, 0.14, towerHeight * 0.82, Math.PI / 4));
+poleGroup.add(createMicrowaveDrum(0.18, 0.14, towerHeight * 0.82, -Math.PI * 0.75));
+
+// 6. Cellular Sector Panel Antennas (Tier 4, height 8.2m, 3-Sector Triangular Array)
+// Reference 1000198366.jpg & ngWR99...jpg: vertical rectangular radomes with mechanical down-tilt
+function createSectorPanel(y, angleOffset) {
+  const sectorGroup = new THREE.Group();
+
+  // Rectangular antenna radome housing
+  const panel = new THREE.Mesh(
+    new THREE.BoxGeometry(0.09, 0.72, 0.18),
+    panelMat
+  );
+  panel.rotation.x = 0.10; // Realistic 6-degree mechanical down-tilt
+  sectorGroup.add(panel);
+
+  // Vertical pipe mount
+  const mountPipe = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.015, 0.015, 0.85, 8),
+    steelMat
+  );
+  mountPipe.position.z = -0.10;
+  sectorGroup.add(mountPipe);
+
+  // Horizontal standoff bracket to tower
+  const armWidth = baseWidth + (topWidth - baseWidth) * (y / towerHeight);
+  const mountDist = armWidth + 0.24;
+
+  const standoff = new THREE.Mesh(
+    new THREE.BoxGeometry(0.05, 0.05, mountDist),
+    darkHardwareMat
+  );
+  standoff.position.z = -mountDist / 2;
+  sectorGroup.add(standoff);
+
+  sectorGroup.position.set(
+    Math.cos(angleOffset) * mountDist,
+    y,
+    Math.sin(angleOffset) * mountDist
+  );
+  sectorGroup.rotation.y = -angleOffset;
+
+  return sectorGroup;
+}
+
+// 3-Sector array (120° spacing)
+poleGroup.add(createSectorPanel(towerHeight * 0.91, 0));
+poleGroup.add(createSectorPanel(towerHeight * 0.91, Math.PI * 2 / 3));
+poleGroup.add(createSectorPanel(towerHeight * 0.91, Math.PI * 4 / 3));
+
+// 7. Top Mast & Aviation Warning Obstacle Light
+const mast = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.015, 0.022, 1.4, 8),
+  darkHardwareMat
 );
-arm1.position.y = 5.5;
-poleGroup.add(arm1);
+mast.position.y = towerHeight + 0.7;
+poleGroup.add(mast);
 
-// Middle cross arm
-const arm2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.8, 0.07, 0.07),
-  woodMat
+// Ruby Red Aviation Obstruction Beacon (#C41E3A)
+const beaconMat = new THREE.MeshStandardMaterial({
+  color: 0xC41E3A,
+  emissive: 0xC41E3A,
+  emissiveIntensity: 3.5,
+  transparent: true,
+  opacity: 0.9
+});
+const beaconMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.038, 12, 12),
+  beaconMat
 );
-arm2.position.y = 4.8;
-poleGroup.add(arm2);
+beaconMesh.position.y = towerHeight + 1.42;
+poleGroup.add(beaconMesh);
 
-// ── Insulators (6 total) ──────────────────────────────────────────────────────
+// 8. PHYSICAL SIGNAL COUPLING JUNCTION BOX (Demarcation Interface)
+// The physical hardware component where the Phase 2 carrier signal terminates/connects!
+const junctionBox = new THREE.Mesh(
+  new THREE.BoxGeometry(0.22, 0.32, 0.16),
+  darkHardwareMat
+);
+junctionBox.position.set(0.28, 1.35, 0.28);
+poleGroup.add(junctionBox);
 
-const insulatorMat = new THREE.MeshStandardMaterial({
+// Conduit running into the cable tray
+const conduit = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.016, 0.016, 0.8, 8),
+  steelMat
+);
+conduit.position.set(0.14, 1.35, 0.14);
+conduit.rotation.z = Math.PI / 4;
+poleGroup.add(conduit);
+
+// Connection Terminal Optical Port (Ignites upon carrier signal arrival)
+const terminalMat = new THREE.MeshStandardMaterial({
   color: 0xffffff,
-  roughness: 0.3,
-  metalness: 0.1
+  emissive: 0xC41E3A,
+  emissiveIntensity: 1.0,
+  roughness: 0.2,
+  metalness: 0.6,
+  transparent: true,
+  opacity: 0.0
 });
-const insulatorGeom = new THREE.SphereGeometry(0.08, 12, 12);
-
-const insulatorPositions = [
-  // arm1 (y=5.5): left, center, right
-  new THREE.Vector3(-1.2, 5.5, 0),
-  new THREE.Vector3(   0, 5.5, 0),
-  new THREE.Vector3( 1.2, 5.5, 0),
-  // arm2 (y=4.8): left, center, right
-  new THREE.Vector3(-0.9, 4.8, 0),
-  new THREE.Vector3(   0, 4.8, 0),
-  new THREE.Vector3( 0.9, 4.8, 0),
-];
-
-insulatorPositions.forEach((pos) => {
-  const ins = new THREE.Mesh(insulatorGeom, insulatorMat);
-  ins.position.copy(pos);
-  poleGroup.add(ins);
-});
-
-// ── Structural Data Overlay Lines (#00CFFF) ───────────────────────────────────
-// 8 lines connecting insulator positions to shaft center — represents load paths
-
-const shaftTop = new THREE.Vector3(0, 6, 0);
-const shaftMid = new THREE.Vector3(0, 3, 0);
-const shaftBase = new THREE.Vector3(0, 0, 0);
-
-const dataLinePoints = [
-  // Load lines from arm1 insulators → shaft center
-  insulatorPositions[0], shaftTop,
-  insulatorPositions[2], shaftTop,
-  insulatorPositions[1], shaftMid,
-  // Load lines from arm2 insulators → shaft mid
-  insulatorPositions[3], shaftMid,
-  insulatorPositions[5], shaftMid,
-  // Vertical structural lines
-  shaftTop, shaftMid,
-  shaftMid, shaftBase,
-  // Diagonal brace visualization
-  insulatorPositions[0], insulatorPositions[5],
-];
-
-const dataLineGeo = new THREE.BufferGeometry();
-const dataLineVerts = [];
-dataLinePoints.forEach((pt) => dataLineVerts.push(pt.x, pt.y, pt.z));
-dataLineGeo.setAttribute('position', new THREE.Float32BufferAttribute(dataLineVerts, 3));
-
-export const dataLines = new THREE.LineSegments(
-  dataLineGeo,
-  new THREE.LineBasicMaterial({ color: 0x00CFFF, transparent: true, opacity: 0.0 })
+export const signalTerminalMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.045, 16, 16),
+  terminalMat
 );
-poleGroup.add(dataLines);
+signalTerminalMesh.position.set(0.38, 1.35, 0.34);
+poleGroup.add(signalTerminalMesh);
+
+// Subtle Cyan Coupling Aura (NO radar rings)
+const terminalHalo = new THREE.Mesh(
+  new THREE.SphereGeometry(0.075, 16, 16),
+  new THREE.MeshBasicMaterial({
+    color: 0x00CFFF,
+    transparent: true,
+    opacity: 0.0,
+    depthWrite: false
+  })
+);
+signalTerminalMesh.add(terminalHalo);
+
+// 9. Vertical Waveguide Conduit Energy Pulse (Climbs spine to crown)
+const waveguidePulseMat = new THREE.MeshBasicMaterial({
+  color: 0xC41E3A,
+  transparent: true,
+  opacity: 0.0
+});
+const waveguidePulseMesh = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.024, 0.024, 0.5, 8),
+  waveguidePulseMat
+);
+waveguidePulseMesh.position.set(0, 1.4, 0);
+poleGroup.add(waveguidePulseMesh);
+
+// 10. Crown Optical Emitter at top mast (y = towerHeight + 1.42)
+const crownEmitterMat = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  emissive: 0xC41E3A,
+  emissiveIntensity: 0.0,
+  transparent: true,
+  opacity: 0.0
+});
+export const crownEmitterMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.065, 16, 16),
+  crownEmitterMat
+);
+crownEmitterMesh.position.set(0, towerHeight + 1.42, 0);
+poleGroup.add(crownEmitterMesh);
 
 // ── Atmospheric Depth Plane (Shader Gradient skill) ───────────────────────────
-// Subtle dark-to-navy gradient plane behind pole — adds cinematic depth
-// Uses ShaderMaterial: no external dependency, pure GLSL inline
-
 const atmosphereMat = new THREE.ShaderMaterial({
   transparent: true,
   depthWrite: false,
   uniforms: {
     uOpacity: { value: 0.0 },
-    uColor1:  { value: new THREE.Color(0x050a14) }, // deep space
-    uColor2:  { value: new THREE.Color(0x0d1f3c) }, // navy depth
+    uColor1:  { value: new THREE.Color(0x050a14) },
+    uColor2:  { value: new THREE.Color(0x0d1f3c) }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -124,50 +479,148 @@ const atmosphereMat = new THREE.ShaderMaterial({
     uniform vec3 uColor2;
     varying vec2 vUv;
     void main() {
-      // Radial vignette — brighter navy center, deep space edges
       float dist = length(vUv - vec2(0.5));
-      vec3 col = mix(uColor2, uColor1, smoothstep(0.1, 0.7, dist));
+      vec3 col = mix(uColor2, uColor1, smoothstep(0.1, 0.75, dist));
       gl_FragColor = vec4(col, uOpacity * (1.0 - dist * 0.6));
     }
   `
 });
 
 export const atmospherePlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(30, 20),
+  new THREE.SphereGeometry(45, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5),
   atmosphereMat
 );
-atmospherePlane.position.set(0, 3, -3);
+atmospherePlane.rotation.x = Math.PI / 2;
+atmospherePlane.position.set(0, 4, -10);
+atmospherePlane.renderOrder = -1;
 
-// ── Update (called every frame) ───────────────────────────────────────────────
+// ── Photographic Depth Transformation Plane (Ref: public/references/tower 1.jpg) ──
+const towerTexLoader = new THREE.TextureLoader();
+const towerTexture = towerTexLoader.load('/references/tower 1.jpg');
+towerTexture.colorSpace = THREE.SRGBColorSpace;
+
+const towerImageMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  uniforms: {
+    uTexture:    { value: towerTexture },
+    uProgress:   { value: 0.0 },
+    uOpacity:    { value: 0.0 },
+    uTime:       { value: 0.0 },
+    uDistortion: { value: 0.04 }
+  },
+  vertexShader: ImageTransformShader.vertexShader,
+  fragmentShader: ImageTransformShader.fragmentShader
+});
+
+const towerDepthPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(12, 18),
+  towerImageMat
+);
+towerDepthPlane.position.set(0.4, 6.0, -2.8);
+towerDepthPlane.renderOrder = -1;
+poleGroup.add(towerDepthPlane);
+
+// ── Update Lifecycle (Controlled by master scrollFloat) ────────────────────────
 
 export function updateChapter2(scrollFloat) {
-  // Pole rises into frame between sf 2.0 and 2.5
-  const poleProgress = clamp(map(scrollFloat, 2.0, 2.5, 0, 1), 0, 1);
-  // Ease-out: smoother arrival
-  const eased = 1 - Math.pow(1 - poleProgress, 3);
-  poleGroup.position.y = -4 + eased * 4;
-
-  // Pole overall opacity (pole fades in with rise)
-  const poleOpacity = clamp(map(scrollFloat, 2.0, 2.4, 0, 1), 0, 1);
-  poleGroup.traverse((child) => {
-    if (child.isMesh && child.material) {
-      child.material.transparent = true;
-      child.material.opacity = child === dataLines ? child.material.opacity : poleOpacity;
+  const isVisible = (scrollFloat >= 1.65 && scrollFloat <= 3.45);
+  poleGroup.visible = isVisible;
+  atmospherePlane.visible = isVisible;
+  if (!isVisible) {
+    const ch2Text = document.getElementById('chapter2-text');
+    if (ch2Text) {
+      ch2Text.style.opacity = '0';
+      ch2Text.style.display = 'none';
+      ch2Text.style.pointerEvents = 'none';
     }
-  });
-
-  // Data lines fade in later (structural analysis reveal)
-  dataLines.material.opacity = clamp(map(scrollFloat, 2.3, 2.7, 0, 0.65), 0, 0.65);
-
-  // Atmospheric depth plane fade
-  atmosphereMat.uniforms.uOpacity.value = clamp(map(scrollFloat, 2.0, 2.4, 0, 0.92), 0, 0.92);
-
-  // Slow idle pole rotation (cinematic orbit effect)
-  if (scrollFloat >= 2.0 && scrollFloat < 3.0) {
-    poleGroup.rotation.y += 0.002;
+    return;
   }
 
-  // Chapter 2 text overlay (Liquid Glass — see index.html)
-  const t2 = document.getElementById('chapter2-text');
-  if (t2) t2.style.opacity = (scrollFloat > 2.3 && scrollFloat < 2.9) ? '1' : '0';
+  const time = performance.now() * 0.001;
+
+  // 1. Grounded Infrastructure Anchor (statically anchored at y = 0.0)
+  poleGroup.position.set(0.4, 0.0, -0.6);
+
+  // 2. Physical Spatial Occlusion Progression:
+  // tower photograph (sf 1.65->1.85) -> structural silhouette (sf 1.85->2.05) -> physical steel lattice (sf 2.00->2.30)
+  const towerFadeIn  = clamp(map(scrollFloat, 1.80, 2.15, 0, 1), 0, 1);
+  const towerFadeOut = clamp(map(scrollFloat, 3.20, 3.40, 1, 0), 0, 1);
+  const towerOpacity = towerFadeIn * towerFadeOut;
+
+  // Photo appears in background first (sf 1.65->1.85), then smoothly hands over to 3D physical lattice
+  const photoFadeIn  = clamp(map(scrollFloat, 1.65, 1.82, 0, 0.70), 0, 0.70);
+  const photoHandover = clamp(map(scrollFloat, 1.88, 2.18, 1, 0), 0, 1);
+  const photoOpacity = photoFadeIn * photoHandover * towerFadeOut;
+
+  poleGroup.traverse((child) => {
+    if (child.isMesh && child.material && !child.material.isShaderMaterial &&
+        child !== signalTerminalMesh && child !== beaconMesh &&
+        child !== crownEmitterMesh && child !== waveguidePulseMesh) {
+      child.material.transparent = true;
+      child.material.opacity = towerOpacity;
+    }
+  });
+  braceMesh.material.opacity = towerOpacity * 0.85;
+
+  // 3. Red Aviation Beacon Pulse (1 Hz aviation warning standard)
+  const beaconPulse = 2.5 + 2.0 * Math.pow(Math.sin(time * 3.14), 4.0);
+  beaconMat.emissiveIntensity = beaconPulse * towerOpacity;
+
+  // 4. Physical Carrier Signal Coupling (Terminal at junction box)
+  const connectionProgress = clamp(map(scrollFloat, 2.10, 2.45, 0, 1), 0, 1) * towerFadeOut;
+  terminalMat.opacity = connectionProgress;
+  terminalHalo.material.opacity = connectionProgress * 0.40;
+
+  if (connectionProgress > 0) {
+    terminalMat.emissiveIntensity = 3.0 + 2.0 * Math.sin(time * 4.5);
+    terminalHalo.scale.setScalar(1.0 + 0.18 * Math.sin(time * 3.8));
+  }
+
+  // 5. Vertical Waveguide Energy Surge (Signal climbs interior conduit from y = 1.4 to y = 10.42, sf 2.70 -> 3.05)
+  const surgeProgress = clamp(map(scrollFloat, 2.70, 3.05, 0, 1), 0, 1);
+  if (surgeProgress > 0.01 && surgeProgress < 0.99) {
+    waveguidePulseMesh.position.y = 1.4 + surgeProgress * 9.0;
+    waveguidePulseMat.opacity = Math.sin(surgeProgress * Math.PI) * 0.95;
+  } else {
+    waveguidePulseMat.opacity = 0.0;
+  }
+
+  // 6. Crown Optical Emitter Ignition (sf 3.05 -> 3.25)
+  const crownProgress = clamp(map(scrollFloat, 3.05, 3.25, 0, 1), 0, 1) * towerFadeOut;
+  crownEmitterMat.opacity = crownProgress;
+  crownEmitterMat.emissiveIntensity = crownProgress * (4.0 + 1.5 * Math.sin(time * 6.0));
+
+  // Update Tower Photographic Depth Shader
+  towerImageMat.uniforms.uTime.value = time;
+  towerImageMat.uniforms.uProgress.value = clamp(map(scrollFloat, 1.65, 2.15, 0, 1), 0, 1);
+  towerImageMat.uniforms.uOpacity.value = photoOpacity;
+
+  // 7. Telemetry HUD Overlay (#chapter2-text, sf 2.48 -> 2.98)
+  const ch2Text = document.getElementById('chapter2-text');
+  if (ch2Text) {
+    if (scrollFloat >= 2.48 && scrollFloat <= 2.98) {
+      const tFadeIn  = clamp(map(scrollFloat, 2.48, 2.60, 0, 1), 0, 1);
+      const tFadeOut = clamp(map(scrollFloat, 2.85, 2.98, 1, 0), 0, 1);
+      const op = tFadeIn * tFadeOut;
+      ch2Text.style.opacity = String(op);
+      ch2Text.style.display = op > 0.01 ? 'block' : 'none';
+      ch2Text.style.pointerEvents = op > 0.01 ? 'auto' : 'none';
+    } else {
+      ch2Text.style.opacity = '0';
+      ch2Text.style.display = 'none';
+      ch2Text.style.pointerEvents = 'none';
+    }
+  }
+
+  // 8. Atmospheric Depth Plane
+  atmosphereMat.uniforms.uOpacity.value = clamp(map(scrollFloat, 1.75, 2.35, 0, 0.88), 0, 0.88) * towerFadeOut;
+
+  // 9. Restrained Architectural Rotation (subtle orientation to reveal 3D depth)
+  if (scrollFloat >= 1.75) {
+    poleGroup.rotation.y = (scrollFloat - 1.75) * 0.20;
+  } else {
+    poleGroup.rotation.y = 0;
+  }
 }
+

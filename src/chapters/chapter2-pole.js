@@ -367,10 +367,10 @@ const mast = new THREE.Mesh(
 mast.position.y = towerHeight + 0.7;
 poleGroup.add(mast);
 
-// Ruby Red Aviation Obstruction Beacon (#C41E3A)
+// Electric Cyan Obstruction Beacon (#00CFFF)
 const beaconMat = new THREE.MeshStandardMaterial({
-  color: 0xC41E3A,
-  emissive: 0xC41E3A,
+  color: 0x00CFFF,
+  emissive: 0x00CFFF,
   emissiveIntensity: 3.5,
   transparent: true,
   opacity: 0.9

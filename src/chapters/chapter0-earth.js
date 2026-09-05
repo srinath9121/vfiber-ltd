@@ -560,7 +560,7 @@ const carrierShaderMat = new THREE.ShaderMaterial({
     uProgress:   { value: 0.0 },
     uOpacity:    { value: 0.0 },
     uTime:       { value: 0.0 },
-    uRubyColor:  { value: new THREE.Color(0xC41E3A) },
+    uRubyColor:  { value: new THREE.Color(0x00CFFF) },
     uCyanColor:  { value: new THREE.Color(0x00CFFF) }
   },
   vertexShader: `
@@ -602,9 +602,9 @@ const carrierShaderMat = new THREE.ShaderMaterial({
       // Head energy pulse (subtle burst right behind photon head)
       float headSurge = smoothstep(0.06, 0.0, distFromHead) * 0.45;
 
-      // Restrained ruby red core with subtle cyan rim
-      vec3 coreCol = uRubyColor;
-      vec3 rimCol  = uCyanColor;
+      // Pure Electric Cyan core & rim
+      vec3 coreCol = uCyanColor;
+      vec3 rimCol  = vec3(1.0);
       vec3 finalCol = mix(coreCol, rimCol, pow(fresnel, 2.2) * 0.5 + headSurge * 0.3);
 
       float alpha = (0.75 + 0.25 * (1.0 - fresnel) + headSurge) * uOpacity;
@@ -616,11 +616,11 @@ const carrierShaderMat = new THREE.ShaderMaterial({
 const carrierTubeMesh = new THREE.Mesh(carrierTubeGeo, carrierShaderMat);
 carrierSignalGroup.add(carrierTubeMesh);
 
-// 2. Leading Traveling Photon (Restrained Ruby Core #C41E3A + Subtle Cyan Aura)
+// 2. Leading Traveling Photon (Electric Cyan #00CFFF Core)
 const packetGeo = new THREE.SphereGeometry(0.038, 16, 16);
 const packetMat = new THREE.MeshStandardMaterial({
   color: 0xffffff,
-  emissive: 0xC41E3A,
+  emissive: 0x00CFFF,
   emissiveIntensity: 3.6,
   roughness: 0.2,
   metalness: 0.6,
@@ -821,11 +821,11 @@ export function updateChapter0(scrollFloat, time) {
       posArr[i * 3 + 1] = pt.y;
       posArr[i * 3 + 2] = pt.z;
 
-      // Restrained color: Ruby #C41E3A near head -> Cyan #00CFFF at tail
+      // Restrained hero color: Electric Cyan #00CFFF
       const fadeRatio = i / trailCount;
-      colArr[i * 3]     = lerp(0.769, 0.0,    fadeRatio);
-      colArr[i * 3 + 1] = lerp(0.118, 0.812,  fadeRatio);
-      colArr[i * 3 + 2] = lerp(0.227, 1.0,    fadeRatio);
+      colArr[i * 3]     = lerp(0.0, 0.0,    fadeRatio);
+      colArr[i * 3 + 1] = lerp(0.812, 0.5,  fadeRatio);
+      colArr[i * 3 + 2] = lerp(1.0, 0.8,    fadeRatio);
     }
     trailGeo.attributes.position.needsUpdate = true;
     trailGeo.attributes.color.needsUpdate    = true;

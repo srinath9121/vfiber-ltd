@@ -33,10 +33,10 @@ for (let i = 0; i < particleCount; i++) {
   }
   offsets[i] = Math.random() * 10;
 
-  // Start color: ruby red #C41E3A (0.769, 0.118, 0.227)
-  colors[i * 3]     = 0.769;
-  colors[i * 3 + 1] = 0.118;
-  colors[i * 3 + 2] = 0.227;
+  // Start color: electric cyan #00CFFF (0.0, 0.812, 1.0)
+  colors[i * 3]     = 0.0;
+  colors[i * 3 + 1] = 0.812;
+  colors[i * 3 + 2] = 1.0;
 }
 
 const geometry = new THREE.BufferGeometry();
@@ -129,11 +129,11 @@ export function updateChapter3(scrollFloat) {
         }
       }
 
-      // Physical color lerp red → cyan based on Z travel distance
+      // Physical color lerp Cyan -> Ruby Red (#C41E3A) at fiber core entry
       const t = clamp((pos[i * 3 + 2] - (-0.60)) / 8.6, 0, 1);
-      col[i * 3]     = 0.769 * (1 - t) + 0.0   * t; // R: ruby red → 0
-      col[i * 3 + 1] = 0.118 * (1 - t) + 0.812 * t; // G: → electric cyan
-      col[i * 3 + 2] = 0.227 * (1 - t) + 1.0   * t; // B: → bright blue
+      col[i * 3]     = 0.0   * (1 - t) + 0.769 * t; // R: cyan -> Ruby Red
+      col[i * 3 + 1] = 0.812 * (1 - t) + 0.118 * t; // G: -> Ruby Red
+      col[i * 3 + 2] = 1.0   * (1 - t) + 0.227 * t; // B: -> Ruby Red
     }
 
     geometry.attributes.position.needsUpdate = true;

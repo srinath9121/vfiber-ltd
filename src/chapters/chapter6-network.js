@@ -139,7 +139,7 @@ const signalCoreShaderMat = new THREE.ShaderMaterial({
     uTime:     { value: 0 },
     uProgress: { value: 0 },
     uOpacity:  { value: 0 },
-    uRuby:     { value: new THREE.Color(0xC41E3A) },
+    uRuby:     { value: new THREE.Color(0x00CFFF) },
     uCyan:     { value: new THREE.Color(0x00CFFF) }
   },
   vertexShader: `

@@ -622,22 +622,28 @@ export class HeroGateEngine {
       totalAngle += d;
     }
 
-    // 3. Loop Closure Check
+    // 3. Strand path length calculation
+    let strandLength = 0;
+    for (let i = 1; i < filtered.length; i++) {
+      strandLength += Math.hypot(filtered[i].x - filtered[i - 1].x, filtered[i].y - filtered[i - 1].y);
+    }
+
+    // 4. Loop Closure Check
     const start = filtered[0];
     const end = filtered[filtered.length - 1];
     const closed = Math.hypot(end.x - start.x, end.y - start.y) < 120;
 
-    // 4. Radius Coefficient of Variation Check
+    // 5. Radius Coefficient of Variation Check
     const radii = filtered.map(p => Math.hypot(p.x - cx, p.y - cy));
     const meanR = radii.reduce((a, b) => a + b, 0) / radii.length;
     const stdR = Math.sqrt(radii.map(r => Math.pow(r - meanR, 2)).reduce((a, b) => a + b, 0) / radii.length);
     const cv = stdR / Math.max(meanR, 1);
 
-    const isLoop = Math.abs(totalAngle) > Math.PI * 1.4;
-    const isRound = cv < 0.45;
+    const isLoop = Math.abs(totalAngle) > Math.PI * 1.4 && cv < 0.45 && closed;
+    const isStrand = strandLength > 120; // Fiber strand gesture
 
-    if (isLoop && isRound && closed) {
-      this.triggerZeroUnlock(cx, cy, meanR);
+    if (isLoop || isStrand) {
+      this.triggerZeroUnlock(cx, cy, Math.max(meanR, 120));
     } else {
       this.fadeZeroStroke();
     }

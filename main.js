@@ -11,7 +11,6 @@ import { tunnel, fiberMaterial, updateChapter4 } from './src/chapters/chapter4-f
 import { updateChapter5 } from './src/chapters/chapter5-final.js';
 import { networkChapterGroup, updateChapter6, handlePortRaycast, hidePortInspection } from './src/chapters/chapter6-network.js';
 import { clamp, map } from './src/utils/math.js';
-import { audioManager } from './src/utils/audio.js';
 import { assetRegistry } from './src/utils/assets.js';
 
 // ── Scene (Deep Space Cyan Navy Backdrop) ───────────────────────────────────
@@ -214,9 +213,6 @@ function animate() {
   updateChapter6(sf);
   updateChapter5(sf, camera, earthMesh, fiberMaterial, networkGroup, beamsGroup);
 
-  // Environmental audio orchestrator update
-  audioManager.update(sf);
-
   // Safety HUD lifecycle clamp: guarantees Chapter 4 & 6 HUDs never overlap the finale
   const ch4Hud = document.getElementById('chapter4-text');
   if (ch4Hud && (sf < 3.60 || sf >= 4.50)) {
@@ -260,21 +256,6 @@ function animate() {
         btn.classList.remove('active');
       }
     });
-
-    // Sync Spatial Depth Navigator Box
-    const navTrackBar = document.getElementById('nav-track-bar');
-    const navScaleReadout = document.getElementById('nav-scale-readout');
-    if (navTrackBar) navTrackBar.style.width = `${(sf / 6.0) * 100}%`;
-    if (navScaleReadout) {
-      let metric = '13,000 KM';
-      if (sf >= 0.95 && sf < 1.80) metric = '1,200 KM';
-      else if (sf >= 1.80 && sf < 2.80) metric = '45 METERS';
-      else if (sf >= 2.80 && sf < 3.60) metric = '10 METERS';
-      else if (sf >= 3.60 && sf < 4.60) metric = '12 MM';
-      else if (sf >= 4.60 && sf < 5.40) metric = '19 INCH';
-      else if (sf >= 5.40) metric = 'GLOBAL';
-      navScaleReadout.textContent = metric;
-    }
   }
 
   renderer.render(scene, camera);
@@ -296,7 +277,7 @@ window.addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 window.addEventListener('click', (e) => {
-  if (e.target.closest('#chapter-scrubber') || e.target.closest('#telemetry-hud') || e.target.closest('#odf-port-card') || e.target.closest('#spatial-nav-box')) {
+  if (e.target.closest('#chapter-scrubber') || e.target.closest('#telemetry-hud') || e.target.closest('#odf-port-card')) {
     return;
   }
   if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {
@@ -307,69 +288,14 @@ window.addEventListener('click', (e) => {
 
 // ── UI Controls & Chapter Quick-Jump Navigation ───────────────────────────────
 
-const CHAPTER_STOPS = [0.00, 0.95, 1.80, 2.80, 3.60, 5.20, 6.00];
-
 document.querySelectorAll('.scrub-node').forEach((btn) => {
   btn.addEventListener('click', () => {
     const targetSf = parseFloat(btn.getAttribute('data-sf'));
     if (!isNaN(targetSf)) {
       setTargetScroll(targetSf);
-      audioManager.playTransitionChime();
     }
   });
 });
-
-// Spatial Depth Navigator Box Controls (Scroll In / Out at every page)
-const btnIn = document.getElementById('nav-btn-in');
-if (btnIn) {
-  btnIn.addEventListener('click', () => {
-    const nextStop = CHAPTER_STOPS.find((s) => s > scrollFloat + 0.12);
-    const target = nextStop !== undefined ? nextStop : 6.00;
-    setTargetScroll(target);
-    audioManager.playPortClick(1100);
-  });
-}
-
-const btnOut = document.getElementById('nav-btn-out');
-if (btnOut) {
-  btnOut.addEventListener('click', () => {
-    const prevStops = CHAPTER_STOPS.filter((s) => s < scrollFloat - 0.12);
-    const target = prevStops.length > 0 ? prevStops[prevStops.length - 1] : 0.00;
-    setTargetScroll(target);
-    audioManager.playPortClick(850);
-  });
-}
-
-const navTrack = document.getElementById('nav-track');
-if (navTrack) {
-  navTrack.addEventListener('click', (e) => {
-    const rect = navTrack.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    setTargetScroll(ratio * 6.0);
-    audioManager.playTransitionChime();
-  });
-}
-
-const spatialBox = document.getElementById('spatial-nav-box');
-if (spatialBox) {
-  spatialBox.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const delta = e.deltaY * 0.0018;
-    setTargetScroll(Math.max(0, Math.min(6.0, scrollFloat + delta)));
-  }, { passive: false });
-}
-
-const audioBtn = document.getElementById('audio-toggle-btn');
-const audioLabel = document.getElementById('audio-label');
-const audioDot = document.getElementById('audio-status-dot');
-
-if (audioBtn) {
-  audioBtn.addEventListener('click', () => {
-    const isMuted = audioManager.toggleMute();
-    if (audioLabel) audioLabel.textContent = isMuted ? 'AUDIO: OFF' : 'AUDIO: ON';
-    if (audioDot) audioDot.style.background = isMuted ? '#666' : '#00CFFF';
-  });
-}
 
 const odfCloseBtn = document.getElementById('odf-card-close');
 if (odfCloseBtn) {

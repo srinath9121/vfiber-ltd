@@ -3,7 +3,6 @@
 
 import * as THREE from 'three';
 import { clamp, map } from '../utils/math.js';
-import { audioManager } from '../utils/audio.js';
 
 // ── Master Group for Chapter 6 ────────────────────────────────────────────────
 export const networkChapterGroup = new THREE.Group();
@@ -360,9 +359,6 @@ export function inspectPort(portMesh) {
   portHighlightRing.visible = true;
   highlightRingMat.opacity = 0.95;
   highlightRingMat.color.set(portMesh.userData.type === 'SC-UPC' ? 0x00cfff : 0x00ffaa);
-
-  // Web Audio click feedback
-  audioManager.playPortClick(portMesh.userData.type === 'SC-UPC' ? 1046.5 : 880);
 
   // Trace active photon pulse along cord if connected
   if (portMesh.userData.hasCord && patchCords[portMesh.userData.cordIndex]) {

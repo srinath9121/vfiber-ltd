@@ -477,30 +477,6 @@
         color: #00CFFF;
         text-shadow: 0 0 8px rgba(0, 207, 255, 0.4);
       }
-      .hud-controls {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      #audio-toggle-btn {
-        background: rgba(0, 207, 255, 0.08);
-        border: 1px solid rgba(0, 207, 255, 0.35);
-        color: #00CFFF;
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.72rem;
-        letter-spacing: 0.14em;
-        padding: 5px 12px;
-        border-radius: 3px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.25s ease;
-      }
-      #audio-toggle-btn:hover {
-        background: rgba(0, 207, 255, 0.22);
-        box-shadow: 0 0 12px rgba(0, 207, 255, 0.35);
-      }
       #telemetry-progress-line {
         position: absolute;
         bottom: 0;
@@ -593,131 +569,6 @@
         color: #ffffff;
       }
 
-      /* ── Creative Spatial Depth Navigator Box ── */
-      #spatial-nav-box {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 175px;
-        z-index: 550;
-        background: rgba(4, 10, 20, 0.82);
-        backdrop-filter: blur(18px) saturate(1.4);
-        -webkit-backdrop-filter: blur(18px) saturate(1.4);
-        border: 1px solid rgba(0, 207, 255, 0.28);
-        border-top: 2px solid #00CFFF;
-        border-radius: 6px;
-        padding: 12px 14px;
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        pointer-events: auto;
-        user-select: none;
-        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-      }
-      #spatial-nav-box:hover {
-        border-color: rgba(0, 207, 255, 0.55);
-        box-shadow: 0 16px 45px rgba(0, 207, 255, 0.15), 0 14px 40px rgba(0, 0, 0, 0.85);
-      }
-      .nav-box-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding-bottom: 6px;
-      }
-      .nav-box-title {
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: #00CFFF;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .nav-radar-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #00ffaa;
-        box-shadow: 0 0 8px #00ffaa;
-        animation: radarPulse 1.8s infinite;
-      }
-      @keyframes radarPulse {
-        0%, 100% { opacity: 0.4; transform: scale(0.9); }
-        50% { opacity: 1; transform: scale(1.2); }
-      }
-      .nav-depth-metric {
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.65rem;
-        color: #ffffff;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-      }
-      .nav-actions {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 8px;
-      }
-      .nav-btn {
-        flex: 1;
-        background: rgba(0, 207, 255, 0.08);
-        border: 1px solid rgba(0, 207, 255, 0.3);
-        color: #ffffff;
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        padding: 6px 4px;
-        border-radius: 3px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        transition: all 0.2s ease;
-      }
-      .nav-btn:hover {
-        background: rgba(0, 207, 255, 0.25);
-        border-color: #00CFFF;
-        box-shadow: 0 0 10px rgba(0, 207, 255, 0.4);
-        color: #00CFFF;
-      }
-      .nav-track-container {
-        position: relative;
-        height: 8px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        overflow: hidden;
-        cursor: pointer;
-      }
-      .nav-track-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #C41E3A, #00CFFF, #00ffaa);
-        box-shadow: 0 0 8px rgba(0, 207, 255, 0.8);
-        transition: width 0.1s linear;
-      }
-      .nav-scale-levels {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 6px;
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.55rem;
-        color: rgba(255, 255, 255, 0.45);
-        letter-spacing: 0.05em;
-      }
-      @media (max-width: 600px) {
-        #spatial-nav-box {
-          bottom: 74px;
-          right: 16px;
-          width: 150px;
-          padding: 10px 12px;
-        }
-      }
     </style>
   </head>
   <body>
@@ -730,12 +581,6 @@
         <span>VF TECHNOLOGIES // OPTICAL & STRUCTURAL TELEMETRY</span>
       </div>
       <div id="telemetry-readout">CH.00 // EARTH ORBIT [SF 0.00]</div>
-      <div class="hud-controls">
-        <button id="audio-toggle-btn" aria-label="Toggle Environmental Audio">
-          <span id="audio-status-dot" style="width:6px; height:6px; border-radius:50%; background:#00CFFF; display:inline-block;"></span>
-          <span id="audio-label">AUDIO: ON</span>
-        </button>
-      </div>
       <div id="telemetry-progress-line"></div>
     </header>
 
@@ -749,30 +594,6 @@
       <button class="scrub-node" data-sf="5.20">05: ODF BAY</button>
       <button class="scrub-node" data-sf="6.00">06: DELIVERABLES</button>
     </nav>
-
-    <!-- Creative Spatial Depth Navigator Box -->
-    <aside id="spatial-nav-box" aria-label="Interactive Depth Navigator">
-      <div class="nav-box-header">
-        <span class="nav-box-title"><span class="nav-radar-dot"></span>DEPTH NAV</span>
-        <span id="nav-scale-readout" class="nav-depth-metric">13,000 KM</span>
-      </div>
-      <div class="nav-actions">
-        <button id="nav-btn-out" class="nav-btn" aria-label="Scroll Out to Previous Chapter" title="Scroll Out / Previous Chapter">
-          <span>▲</span> OUT
-        </button>
-        <button id="nav-btn-in" class="nav-btn" aria-label="Scroll In to Next Chapter" title="Scroll In / Next Chapter">
-          <span>▼</span> IN
-        </button>
-      </div>
-      <div id="nav-track" class="nav-track-container" title="Click or drag to navigate depth">
-        <div id="nav-track-bar" class="nav-track-bar"></div>
-      </div>
-      <div class="nav-scale-levels">
-        <span>ORBIT</span>
-        <span>INFRA</span>
-        <span>CORE</span>
-      </div>
-    </aside>
 
     <!-- Holographic ODF Port Inspection Modal -->
     <aside id="odf-port-card">

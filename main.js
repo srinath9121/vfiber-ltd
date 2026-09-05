@@ -79,72 +79,22 @@ scene.add(networkChapterGroup);
 // camera position and lookAt target across all chapters.
 
 const CAM = [
-  // 0.00: Cinematic orbital perspective — curved Earth horizon framing lower frame, deep space starry expanse above
-  { at: 0.00, pos: new THREE.Vector3(0.0, 1.45, 8.2),   target: new THREE.Vector3(0.0, 1.85, 0.0) },
-  // 0.25: Orbital descent towards Atlantic corridor, transatlantic fiber awakening
-  { at: 0.25, pos: new THREE.Vector3(0.2, 1.65, 7.2),   target: new THREE.Vector3(0.1, 1.95, 0.0) },
-  // 0.50: ONE SIGNAL emerges in Eastern Atlantic, camera tracks across transatlantic corridor
-  { at: 0.50, pos: new THREE.Vector3(0.7, 1.65, 5.8),   target: new THREE.Vector3(0.3, 1.85, 0.8) },
-  // 0.75: Signal crosses into North America, camera tracking incoming photon
-  { at: 0.75, pos: new THREE.Vector3(0.35, 1.6, 5.4),   target: new THREE.Vector3(0.08, 1.6, 2.3) },
-  // 0.95: Touchdown at Texas destination hub (heroic close-up)
-  { at: 0.95, pos: new THREE.Vector3(0.18, 1.88, 4.65), target: new THREE.Vector3(0.0, 1.84, 3.06) },
-  // 1.35: Regional Western USA grid in focus (Texas, Dallas, Phoenix, Nevada, California)
-  { at: 1.35, pos: new THREE.Vector3(0.25, 1.88, 4.35), target: new THREE.Vector3(0.0, 1.84, 2.9) },
-  // 1.70: Signal leaves Texas, camera glides downward/forward into infrastructure scale
-  { at: 1.70, pos: new THREE.Vector3(0.38, 2.80, 5.2),  target: new THREE.Vector3(0.20, 1.60, 1.8) },
-  // 2.05: Camera tracks incoming signal toward ground infrastructure discovery horizon
-  { at: 2.05, pos: new THREE.Vector3(0.95, 2.20, 4.4),  target: new THREE.Vector3(0.35, 1.80, 0.4) },
-  // 2.35: Signal connects to optical junction box; camera frames tower in dramatic 3/4 low-angle
-  { at: 2.35, pos: new THREE.Vector3(1.6, 2.4, 4.8),    target: new THREE.Vector3(0.4, 4.5, -0.6) },
-  // 2.50: Signal connected; architectural inspection view of lattice, microwave drums, and cellular arrays
-  { at: 2.50, pos: new THREE.Vector3(2.4, 3.8, 5.2),    target: new THREE.Vector3(0.4, 5.5, -0.6) },
-  // 2.75: Structural ascent & orbit (microwave dishes, waveguide conduit surge)
-  { at: 2.75, pos: new THREE.Vector3(1.6, 5.8, 4.0),    target: new THREE.Vector3(0.4, 6.8, -0.6) },
-  // 3.00: Cellular sector array & crown framing
-  { at: 3.00, pos: new THREE.Vector3(0.9, 8.4, 3.0),    target: new THREE.Vector3(0.4, 9.2, -0.6) },
-  // 3.20: Crown optical emitter burst & top-down alignment
-  { at: 3.20, pos: new THREE.Vector3(0.4, 10.8, 2.6),   target: new THREE.Vector3(0.4, 10.42, -1.5) },
-  // 3.40: Alignment with particle stream / fiber entry axis
-  { at: 3.40, pos: new THREE.Vector3(0.4, 10.42, 4.0),  target: new THREE.Vector3(0.4, 10.42, -10.0) },
-  // 3.60: Milestone 1 — 3/4 Perspective Reveal of Loose-Tube Cable Cutaway (Jacket, Kevlar, FRP, 6 PBT Tubes)
-  { at: 3.60, pos: new THREE.Vector3(0.4 + 1.8, 10.42 + 1.1, 7.5),  target: new THREE.Vector3(0.4, 10.42 - 0.2, 1.0) },
-  // 3.90: Transition approach gliding towards the helical buffer tube bundle
-  { at: 3.90, pos: new THREE.Vector3(0.4 + 1.1, 10.42 + 0.65, 4.8), target: new THREE.Vector3(0.4, 10.42 - 0.15, 1.2) },
-  // 4.20: Milestone 2 — Macro Framing of Loose-Tube Assembly (6 colored PBT tubes, FRP rod, gel, fibers)
-  { at: 4.20, pos: new THREE.Vector3(0.4 + 0.72, 10.42 + 0.42, 2.6), target: new THREE.Vector3(0.4, 10.42 - 0.1, 1.0) },
-  // 4.40: Approaching the hero blue buffer tube stripped breakout
-  { at: 4.40, pos: new THREE.Vector3(0.4 + 0.35, 10.42 + 0.20, 4.2), target: new THREE.Vector3(0.4, 10.42, 3.2) },
-  // 4.60: Milestone 3 — Extreme Macro of Individual Glass Fiber (matching _9LM94eo...jpg: 250µm stripped coating & 125µm bare silica glass)
-  { at: 4.60, pos: new THREE.Vector3(0.4 + 0.36, 10.42 + 0.18, 5.4), target: new THREE.Vector3(0.4, 10.42, 4.3) },
-  // 4.80: Axial alignment with glass fiber core aperture
-  { at: 4.80, pos: new THREE.Vector3(0.4, 10.42, 4.2), target: new THREE.Vector3(0.4, 10.42, -10.0) },
-  // 5.00: Milestone 4 — Inside Optical Core Waveguide (Traveling Ruby Red #C41E3A / Electric Cyan pulse)
-  { at: 5.00, pos: new THREE.Vector3(0.4, 10.42, -5.0), target: new THREE.Vector3(0.4, 10.42, -30.0) },
-  // 5.15: Waveguide exit approaching demarcation
-  { at: 5.15, pos: new THREE.Vector3(0.40, 10.42, -22.0), target: new THREE.Vector3(0.40, 10.42, -45.0) },
-  // 5.25: 3/4 Macro framing of SFP28 die-cast transceiver cage & blue LC duplex port
-  { at: 5.25, pos: new THREE.Vector3(0.40 + 0.55, 10.42 + 0.35, -45.0), target: new THREE.Vector3(0.40, 10.42, -50.5) },
-  // 5.38: Tracing the yellow OS2 patch cord departing the transceiver boot
-  { at: 5.38, pos: new THREE.Vector3(0.40 + 0.95, 10.42 + 0.10, -55.0), target: new THREE.Vector3(0.40 - 0.15, 10.42 - 0.30, -64.0) },
-  // 5.50: Gliding past drooping catenary cable loops and black cable-management D-rings
-  { at: 5.50, pos: new THREE.Vector3(0.40 + 1.25, 10.42 - 0.35, -67.0), target: new THREE.Vector3(0.40 - 0.10, 10.42 - 0.70, -78.0) },
-  // 5.62: Inspection of white ABS splice organizer tray, racetrack loops, and fusion sleeves
-  { at: 5.62, pos: new THREE.Vector3(0.40 + 0.95, 10.42 - 0.70, -74.0), target: new THREE.Vector3(0.40, 10.42 - 1.50, -80.0) },
-  // 5.72: Ascending to frame 24x blue duplex LC bulkhead adapters and rack mounting ears
-  { at: 5.72, pos: new THREE.Vector3(0.40 + 0.65, 10.42 + 0.45, -72.0), target: new THREE.Vector3(0.40, 10.42 + 0.20, -80.5) },
-  // 5.80: Wide 3/4 architectural perspective of the complete 19-inch ODF equipment rack bay
-  { at: 5.80, pos: new THREE.Vector3(0.40 + 0.35, 10.42 + 1.80, -68.0), target: new THREE.Vector3(0.40, 10.42 - 0.20, -82.0) },
-  // 5.84: Phase 6D Stage 4 — Continuous Macro Pull revealing Regional Backbone Corridor
-  { at: 5.84, pos: new THREE.Vector3(0.15, 3.80, -20.0), target: new THREE.Vector3(0.00, 1.20, -5.0) },
-  // 5.88: Phase 7 Stage 1 — Natural Earth Curvature Re-entry & Orbital Node Ingress
-  { at: 5.88, pos: new THREE.Vector3(0.00, 1.80, 5.0), target: new THREE.Vector3(0.00, 0.00, 0.0) },
-  // 5.92: Phase 7 Stage 2 — Causal Radial Propagation across Global Network Mesh
-  { at: 5.92, pos: new THREE.Vector3(0.00, 1.35, 9.2), target: new THREE.Vector3(0.00, 0.00, 0.0) },
-  // 5.95: Phase 7 Stage 3 — Planetary Mesh Stabilization & Atmospheric Glow Peak
-  { at: 5.95, pos: new THREE.Vector3(0.00, 1.35, 10.4), target: new THREE.Vector3(0.00, -0.25, 0.0) },
-  // 6.00: Phase 7 Stage 4 — Final Planetary Culmination & Subordinate Engineering Metrics
-  { at: 6.00, pos: new THREE.Vector3(0.00, 1.50, 11.2), target: new THREE.Vector3(0.00, -0.30, 0.0) }
+  // Beat 0: Earth Deep Space Orbit & Transatlantic Signal Entrance
+  { at: 0.00, pos: new THREE.Vector3(0.0, 1.45, 8.2),    target: new THREE.Vector3(0.0, 1.85, 0.0) },
+  // Beat 1: Regional Western USA Hub & Network Nodes Touchdown
+  { at: 0.95, pos: new THREE.Vector3(0.18, 1.88, 4.65),  target: new THREE.Vector3(0.0, 1.84, 3.06) },
+  // Beat 2: Telecom Lattice Tower & Infrastructure Framing
+  { at: 1.80, pos: new THREE.Vector3(2.4, 3.8, 5.2),     target: new THREE.Vector3(0.4, 5.5, -0.6) },
+  // Beat 3: Crown Optical Emitter & Signal Coupling
+  { at: 2.80, pos: new THREE.Vector3(0.4, 10.8, 2.6),    target: new THREE.Vector3(0.4, 10.42, -1.5) },
+  // Beat 4: Loose-Tube Fiber Cable Cutaway & Macro Assembly
+  { at: 3.60, pos: new THREE.Vector3(2.2, 11.52, 7.5),   target: new THREE.Vector3(0.4, 10.22, 1.0) },
+  // Beat 5: Optical Glass Fiber Core Waveguide Tunnel
+  { at: 4.60, pos: new THREE.Vector3(0.4, 10.42, 4.2),   target: new THREE.Vector3(0.4, 10.42, -30.0) },
+  // Beat 6: ODF Equipment Rack Bay & Optical Termination
+  { at: 5.40, pos: new THREE.Vector3(0.75, 12.22, -68.0), target: new THREE.Vector3(0.40, 10.22, -82.0) },
+  // Beat 7: Planetary Return & Global Engineering Culmination
+  { at: 6.00, pos: new THREE.Vector3(0.0, 1.50, 11.2),   target: new THREE.Vector3(0.0, -0.30, 0.0) }
 ];
 
 const camTargetPos  = new THREE.Vector3();

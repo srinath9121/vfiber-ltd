@@ -104,24 +104,18 @@ for (let i = 0; i < starCount; i++) {
     brightness = 0.08 + Math.random() * 0.22; // 88% faint distant pinpricks
   }
 
-  // Realistic stellar spectrum: K/M warm amber (enriched in core), G solar yellow, A/B blue-white
+  // Cool blue-white stellar spectrum (Killed amber/yellow completely)
   const specRoll = Math.random();
   let baseR, baseG, baseB;
-  if (isGalacticCore && Math.random() < 0.35) {
-    // Warm amber/gold stellar core dust
-    baseR = 1.0; baseG = 0.78; baseB = 0.52;
-  } else if (specRoll > 0.82) {
-    // Hot blue-white stars
-    baseR = 0.85; baseG = 0.92; baseB = 1.0;
-  } else if (specRoll > 0.60) {
-    // Warm amber K/M giants
-    baseR = 1.0; baseG = 0.82; baseB = 0.60;
-  } else if (specRoll > 0.30) {
-    // Soft solar yellow
-    baseR = 1.0; baseG = 0.95; baseB = 0.85;
+  if (specRoll > 0.70) {
+    // Brilliant cyan / electric blue stars
+    baseR = 0.50; baseG = 0.85; baseB = 1.0;
+  } else if (specRoll > 0.40) {
+    // Cool blue-white stars
+    baseR = 0.75; baseG = 0.92; baseB = 1.0;
   } else {
-    // Neutral stellar white
-    baseR = 0.92; baseG = 0.94; baseB = 0.98;
+    // Crisp icy white stars
+    baseR = 0.90; baseG = 0.96; baseB = 1.0;
   }
 
   starColors[i * 3]     = baseR * brightness;
@@ -137,9 +131,11 @@ const starMat = new THREE.PointsMaterial({
   vertexColors: true,
   transparent: true,
   opacity: 0.90,
+  depthWrite: false,
   sizeAttenuation: true
 });
 export const starFieldMesh = new THREE.Points(starGeo, starMat);
+starFieldMesh.renderOrder = -99;
 
 // 3. Primary 3D Earth Globe with Photographic Day/Night Terminator
 // Sun direction angled from top-left to cast a dramatic day/night terminator across the globe

@@ -521,6 +521,74 @@ towerDepthPlane.position.set(0.4, 6.0, -2.8);
 towerDepthPlane.renderOrder = -1;
 poleGroup.add(towerDepthPlane);
 
+// ── O-Calc Pro & Katapult Pro Structural Analysis Vectors ────────────────────
+const analysisGroup = new THREE.Group();
+
+// Vector Arrow Material (Neon Cyan / Emerald)
+const tensionVectorMat = new THREE.MeshBasicMaterial({
+  color: 0x00ffaa,
+  transparent: true,
+  opacity: 0.85
+});
+
+const loadVectorMat = new THREE.MeshBasicMaterial({
+  color: 0x00cfff,
+  transparent: true,
+  opacity: 0.85
+});
+
+// 1. Guy Wire Tension Lines (High-strength steel guy lines anchored to ground)
+const guyLineMat = new THREE.LineDashedMaterial({
+  color: 0x00cfff,
+  dashSize: 0.15,
+  gapSize: 0.08,
+  transparent: true,
+  opacity: 0.7
+});
+
+const guyPoints = [
+  new THREE.Vector3(-1.8, 0.0, 1.8),
+  new THREE.Vector3(0.0, 6.2, 0.0),
+  new THREE.Vector3(1.8, 0.0, 1.8),
+  new THREE.Vector3(0.0, 6.2, 0.0),
+  new THREE.Vector3(0.0, 0.0, -2.2),
+  new THREE.Vector3(0.0, 6.2, 0.0)
+];
+const guyGeo = new THREE.BufferGeometry().setFromPoints(guyPoints);
+const guyLines = new THREE.LineSegments(guyGeo, guyLineMat);
+guyLines.computeLineDistances();
+analysisGroup.add(guyLines);
+
+// 2. NESC Ground Clearance Datum Ring & Indicator (18.5 ft / y = 1.85)
+const clearanceRingGeo = new THREE.RingGeometry(1.2, 1.25, 32);
+clearanceRingGeo.rotateX(Math.PI / 2);
+const clearanceRingMat = new THREE.MeshBasicMaterial({
+  color: 0x00ffaa,
+  side: THREE.DoubleSide,
+  transparent: true,
+  opacity: 0.6
+});
+const clearanceRing = new THREE.Mesh(clearanceRingGeo, clearanceRingMat);
+clearanceRing.position.set(0, 1.85, 0);
+analysisGroup.add(clearanceRing);
+
+// 3. Lateral Wind Load Force Vectors (Tapered arrows at key tiers)
+const arrowGeo = new THREE.ConeGeometry(0.08, 0.25, 8);
+arrowGeo.rotateZ(-Math.PI / 2);
+const arrowCylinderGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8);
+arrowCylinderGeo.rotateZ(-Math.PI / 2);
+
+[3.2, 5.8, 8.2].forEach((tierY, idx) => {
+  const arrowStem = new THREE.Mesh(arrowCylinderGeo, idx === 1 ? tensionVectorMat : loadVectorMat);
+  arrowStem.position.set(0.65, tierY, 0);
+  const arrowHead = new THREE.Mesh(arrowGeo, idx === 1 ? tensionVectorMat : loadVectorMat);
+  arrowHead.position.set(1.05, tierY, 0);
+  analysisGroup.add(arrowStem);
+  analysisGroup.add(arrowHead);
+});
+
+poleGroup.add(analysisGroup);
+
 // ── Update Lifecycle (Controlled by master scrollFloat) ────────────────────────
 
 export function updateChapter2(scrollFloat) {
@@ -596,13 +664,34 @@ export function updateChapter2(scrollFloat) {
   towerImageMat.uniforms.uProgress.value = clamp(map(scrollFloat, 1.65, 2.15, 0, 1), 0, 1);
   towerImageMat.uniforms.uOpacity.value = photoOpacity;
 
-  // 7. Telemetry HUD Overlay (#chapter2-text, sf 2.48 -> 2.98)
+  // 7. Analysis Group & Telemetry HUD Overlay (#chapter2-text, sf 2.20 -> 3.10)
+  analysisGroup.visible = (scrollFloat >= 1.85 && scrollFloat <= 3.20);
+  const analysisAlpha = towerOpacity * (0.6 + 0.4 * Math.sin(time * 3.0));
+  tensionVectorMat.opacity = towerOpacity * 0.85;
+  loadVectorMat.opacity = towerOpacity * 0.85;
+  guyLineMat.opacity = towerOpacity * 0.65;
+  clearanceRingMat.opacity = towerOpacity * 0.55;
+
   const ch2Text = document.getElementById('chapter2-text');
   if (ch2Text) {
-    if (scrollFloat >= 2.48 && scrollFloat <= 2.98) {
-      const tFadeIn  = clamp(map(scrollFloat, 2.48, 2.60, 0, 1), 0, 1);
-      const tFadeOut = clamp(map(scrollFloat, 2.85, 2.98, 1, 0), 0, 1);
+    if (scrollFloat >= 2.15 && scrollFloat <= 3.05) {
+      const tFadeIn  = clamp(map(scrollFloat, 2.15, 2.35, 0, 1), 0, 1);
+      const tFadeOut = clamp(map(scrollFloat, 2.85, 3.05, 1, 0), 0, 1);
       const op = tFadeIn * tFadeOut;
+      ch2Text.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="fiber-label" style="margin-bottom:0; color:#00ffaa;">O-CALC PRO // NESC C2-2023 AUDIT</div>
+          <span style="font-size:0.75rem; color:#00ffaa; border:1px solid rgba(0,255,170,0.4); padding:2px 8px; border-radius:2px; font-weight:600;">PASS 68.4%</span>
+        </div>
+        <div class="fiber-heading" style="font-size:1.3rem; margin-bottom:6px;">POLE LOADING & STRUCTURAL CAPACITY</div>
+        <div class="fiber-sub" style="font-size:0.85rem; line-height:1.5; color:rgba(255,255,255,0.85);">
+          <div>• Bending Moment: <strong style="color:#00cfff;">14,820 ft-lbs</strong> @ Groundline</div>
+          <div>• NESC Loading: <strong style="color:#ffffff;">Grade B Heavy</strong> (40 psf wind + 0.5" radial ice)</div>
+          <div>• Vertical Clearance: <strong style="color:#00ffaa;">18.5 ft AGL</strong> (Compliant)</div>
+          <div>• Guy Wire Tension: <strong style="color:#00cfff;">1,420 lbf</strong> [1/4" EHS Steel]</div>
+        </div>
+        <div class="fiber-tagline" style="margin-top:8px; font-size:0.78rem; color:rgba(0,207,255,0.8);">Katapult Pro field verification · Joint-use makeready engineering</div>
+      `;
       ch2Text.style.opacity = String(op);
       ch2Text.style.display = op > 0.01 ? 'block' : 'none';
       ch2Text.style.pointerEvents = op > 0.01 ? 'auto' : 'none';

@@ -1,24 +1,23 @@
 // main.js — Entry point & Master Story Orchestrator
-// Unified camera controller driven by single source of truth: scrollFloat / storyProgress
+// Enforces 8 camera beats, Electric Cyan color system (#00CFFF), and lock-to-camera starfield
 
 import * as THREE from 'three';
-import { initScroll, updateScroll, scrollFloat, storyProgress } from './src/scroll.js';
+import { initScroll, updateScroll, scrollFloat, storyProgress, setTargetScroll, setScrollLocked } from './src/scroll.js';
 import { earthMesh, spaceSkyMesh, starFieldMesh, networkGroup, beamsGroup, updateChapter0 } from './src/chapters/chapter0-earth.js';
 import { usaNodesGroup, updateChapter1 } from './src/chapters/chapter1-usa.js';
 import { poleGroup, atmospherePlane, updateChapter2 } from './src/chapters/chapter2-pole.js';
 import { signalParticles, updateChapter3 } from './src/chapters/chapter3-signal.js';
 import { tunnel, fiberMaterial, updateChapter4 } from './src/chapters/chapter4-fiber.js';
 import { updateChapter5 } from './src/chapters/chapter5-final.js';
-import { networkChapterGroup, updateChapter6 } from './src/chapters/chapter6-network.js';
+import { networkChapterGroup, updateChapter6, handlePortRaycast, hidePortInspection } from './src/chapters/chapter6-network.js';
 import { clamp, map } from './src/utils/math.js';
 import { audioManager } from './src/utils/audio.js';
 import { assetRegistry } from './src/utils/assets.js';
-import { heroGateEngine } from './src/utils/hero-gate.js';
 
-// ── Scene ─────────────────────────────────────────────────────────────────────
+// ── Scene (Deep Space Cyan Navy Backdrop) ───────────────────────────────────
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x010307); // Pitch black deep space
+scene.background = new THREE.Color(0x02060d); // Enforced deep cyan space tone
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 
@@ -44,16 +43,17 @@ renderer.domElement.addEventListener('webglcontextlost', (e) => {
   document.body.style.background = '#050a14 url("/references/earth 3.jpg") center/cover no-repeat';
 }, false);
 
-// ── Lights ────────────────────────────────────────────────────────────────────
+// ── Lights (Enforced Electric Cyan Ambient Fill) ─────────────────────────────
 
-scene.add(new THREE.AmbientLight(0x050a14, 0.25)); // Deep space ambient
+scene.add(new THREE.AmbientLight(0x021524, 0.35)); // Deep space cyan ambient
 const sun = new THREE.DirectionalLight(0xfffaed, 2.5); // Physical Sun light
 sun.position.set(12.0, 4.0, 10.0);
 scene.add(sun);
 
-// ── Scene Graph ───────────────────────────────────────────────────────────────
+// ── Scene Graph & Starfield Fix ──────────────────────────────────────────────
 
-// 3D Space Skysphere Environment & Starfield (inside Three.js scene graph)
+spaceSkyMesh.renderOrder = -100;
+starFieldMesh.renderOrder = -99;
 scene.add(spaceSkyMesh);
 scene.add(starFieldMesh);
 
@@ -68,32 +68,31 @@ scene.add(atmospherePlane);
 // Chapter 3 — signal particles
 scene.add(signalParticles);
 
-// Chapter 4 — fiber tunnel
+// Chapter 4 — loose-tube fiber cable assembly
 scene.add(tunnel);
 
 // Chapter 6 — optical termination & network infrastructure
 scene.add(networkChapterGroup);
 
-// ── Master Camera Choreography ────────────────────────────────────────────────
-// The camera is the storyteller. A single coherent controller interpolates both
-// camera position and lookAt target across all chapters.
+// ── Master Camera Choreography (8 Precise Beats) ──────────────────────────────
+// Single source of truth for narrative progression across scrollFloat [0.00 → 6.00]
 
 const CAM = [
-  // Beat 0: Earth Deep Space Orbit & Transatlantic Signal Entrance (Zoomed out full orbital framing)
+  // Beat 0: Earth Deep Space Orbit & Transatlantic Signal Entrance (sf = 0.00)
   { at: 0.00, pos: new THREE.Vector3(0.0, 1.20, 13.5),   target: new THREE.Vector3(0.0, 0.40, 0.0) },
-  // Beat 1: Regional Western USA Hub & Network Nodes Touchdown
+  // Beat 1: Regional Western USA Hub & Network Nodes Touchdown (sf = 0.95)
   { at: 0.95, pos: new THREE.Vector3(0.18, 1.88, 4.65),  target: new THREE.Vector3(0.0, 1.84, 3.06) },
-  // Beat 2: Telecom Lattice Tower & Infrastructure Framing
+  // Beat 2: Telecom Lattice Tower & Infrastructure Framing (sf = 1.80)
   { at: 1.80, pos: new THREE.Vector3(2.4, 3.8, 5.2),     target: new THREE.Vector3(0.4, 5.5, -0.6) },
-  // Beat 3: Crown Optical Emitter & Signal Coupling
+  // Beat 3: Crown Optical Emitter & Signal Coupling (sf = 2.80)
   { at: 2.80, pos: new THREE.Vector3(0.4, 10.8, 2.6),    target: new THREE.Vector3(0.4, 10.42, -1.5) },
-  // Beat 4: Loose-Tube Fiber Cable Cutaway & Macro Assembly
+  // Beat 4: Loose-Tube Fiber Cable Cutaway & Macro Assembly (sf = 3.60)
   { at: 3.60, pos: new THREE.Vector3(2.2, 11.52, 7.5),   target: new THREE.Vector3(0.4, 10.22, 1.0) },
-  // Beat 5: Optical Glass Fiber Core Waveguide Tunnel
+  // Beat 5: Optical Glass Fiber Core Waveguide Tunnel (sf = 4.60)
   { at: 4.60, pos: new THREE.Vector3(0.4, 10.42, 4.2),   target: new THREE.Vector3(0.4, 10.42, -30.0) },
-  // Beat 6: ODF Equipment Rack Bay & Optical Termination
-  { at: 5.40, pos: new THREE.Vector3(0.75, 12.22, -68.0), target: new THREE.Vector3(0.40, 10.22, -82.0) },
-  // Beat 7: Planetary Return & Global Engineering Culmination
+  // Beat 6: ODF Equipment Rack Bay & Optical Termination (sf = 5.40)
+  { at: 5.40, pos: new THREE.Vector3(1.8, 0.3, 2.5), target: new THREE.Vector3(0.0, 0.0, 0.0) },
+  // Beat 7: Planetary Return & Global Engineering Culmination (sf = 6.00)
   { at: 6.00, pos: new THREE.Vector3(0.0, 1.50, 11.2),   target: new THREE.Vector3(0.0, -0.30, 0.0) }
 ];
 
@@ -101,7 +100,7 @@ const camTargetPos  = new THREE.Vector3();
 const camTargetLook = new THREE.Vector3();
 const currentLookAt = new THREE.Vector3(0, 0, 0);
 
-// Subtle pointer parallax response for orbital depth
+// Pointer parallax response for depth perception
 let pointerX = 0, pointerY = 0;
 let targetPointerX = 0, targetPointerY = 0;
 
@@ -111,6 +110,8 @@ if (typeof window !== 'undefined') {
     targetPointerY = (e.clientY / window.innerHeight - 0.5) * 2;
   }, { passive: true });
 }
+
+let lastCameraSf = 0;
 
 function updateCamera(sf) {
   let fromKey = CAM[0], toKey = CAM[CAM.length - 1];
@@ -138,9 +139,8 @@ function updateCamera(sf) {
     camTargetPos.y += pointerY * 0.12;
   }
 
-  // Responsive camera framing adjustment for narrow portrait screens (mobile)
+  // Responsive camera framing adjustment for narrow mobile screens
   if (camera.aspect < 1.0) {
-    // Macro cable transition (sf 3.60 -> 4.80): adapt camera distance along view vector to preserve framing
     if (sf >= 3.50 && sf <= 4.85) {
       const portraitDistFactor = (1.0 / camera.aspect) * 0.35;
       const viewDir = camTargetPos.clone().sub(camTargetLook).normalize();
@@ -162,8 +162,6 @@ function updateCamera(sf) {
   camera.lookAt(currentLookAt);
 }
 
-let lastCameraSf = 0;
-
 // ── Animate Loop ──────────────────────────────────────────────────────────────
 
 function animate() {
@@ -173,8 +171,12 @@ function animate() {
   const sf = scrollFloat;
   const time = performance.now() * 0.001;
 
-  // Master camera update across all chapters — eliminates conflicts
+  // Master camera update across all 8 beats
   updateCamera(sf);
+
+  // STARFIELD & SKY ENVIRONMENT FIX: Lock to camera position so stars never clip
+  spaceSkyMesh.position.copy(camera.position);
+  starFieldMesh.position.copy(camera.position);
 
   // Earth visual dominance & opacity choreography
   let earthOpacity = 1.0;
@@ -197,7 +199,8 @@ function animate() {
   }
   earthMesh.renderOrder = 0;
 
-  // Network, beams, and USA nodes group visibility: active during initial Earth arrival (sf < 2.10) and Phase 7 planetary culmination (sf > 5.82)
+  // Earth, network, beams, and USA nodes group visibility: active during initial Earth arrival (sf < 2.10) and Phase 7 planetary culmination (sf > 5.82)
+  earthMesh.visible     = sf < 2.10 || sf > 5.82;
   usaNodesGroup.visible = sf < 2.10 || sf > 5.82;
   networkGroup.visible  = sf < 2.10 || sf > 5.82;
   beamsGroup.visible    = sf < 2.10 || sf > 5.82;
@@ -221,37 +224,106 @@ function animate() {
     ch4Hud.style.pointerEvents = 'none';
     ch4Hud.style.display = 'none';
   }
-  // Telemetry HUD top bar readout and progress bar update
+
+  // Telemetry HUD top bar readout, progress line, and scrubber update
   const hud = document.getElementById('telemetry-hud');
   const readout = document.getElementById('telemetry-readout');
   const line = document.getElementById('telemetry-progress-line');
+  const scrubber = document.getElementById('chapter-scrubber');
 
-  if (hud && !heroGateEngine.unlocked) {
-    hud.style.opacity = '0';
-  } else if (hud) {
+  if (hud) {
     hud.style.opacity = '1';
+    hud.style.pointerEvents = 'auto';
+    if (scrubber) {
+      scrubber.style.opacity = '1';
+      scrubber.style.pointerEvents = 'auto';
+    }
     if (line) line.style.width = `${(sf / 6.0) * 100}%`;
     if (readout) {
       let ch = 'CH.00 // EARTH ORBIT';
       if (sf >= 0.95 && sf < 1.80) ch = 'CH.01 // REGIONAL NETWORK';
-      else if (sf >= 1.80 && sf < 2.80) ch = 'CH.02 // TELECOM TOWER';
+      else if (sf >= 1.80 && sf < 2.80) ch = 'CH.02 // POLE STRUCTURAL';
       else if (sf >= 2.80 && sf < 3.60) ch = 'CH.03 // SIGNAL COUPLING';
-      else if (sf >= 3.60 && sf < 4.60) ch = 'CH.04 // FIBER CORE';
-      else if (sf >= 4.60 && sf < 5.40) ch = 'CH.05 // DEMARCATION BAY';
-      else if (sf >= 5.40) ch = 'CH.06 // PLANETARY RETURN';
+      else if (sf >= 3.60 && sf < 4.60) ch = 'CH.04 // LOOSE-TUBE FIBER CORE';
+      else if (sf >= 4.60 && sf < 5.40) ch = 'CH.05 // ODF EQUIPMENT BAY';
+      else if (sf >= 5.40) ch = 'CH.06 // PLANETARY CULMINATION';
       readout.textContent = `${ch} [SF ${sf.toFixed(2)}]`;
     }
+
+    // Sync scrubber active node
+    document.querySelectorAll('.scrub-node').forEach((btn) => {
+      const bSf = parseFloat(btn.getAttribute('data-sf'));
+      const dist = Math.abs(sf - bSf);
+      if (dist < 0.45) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
   }
 
   renderer.render(scene, camera);
-
-  // Update Draw-0 Frosted Glass Portal Overlay
-  heroGateEngine.update(time, renderer);
 }
+
+// ── Raycasting & Port Interactivity ───────────────────────────────────────────
+
+const raycaster = new THREE.Raycaster();
+const mouseNdc = new THREE.Vector2();
+
+window.addEventListener('pointermove', (e) => {
+  mouseNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {
+    raycaster.setFromCamera(mouseNdc, camera);
+    handlePortRaycast(raycaster, false);
+  }
+}, { passive: true });
+
+window.addEventListener('click', (e) => {
+  if (e.target.closest('#chapter-scrubber') || e.target.closest('#telemetry-hud') || e.target.closest('#odf-port-card')) {
+    return;
+  }
+  if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {
+    raycaster.setFromCamera(mouseNdc, camera);
+    handlePortRaycast(raycaster, true);
+  }
+});
+
+// ── UI Controls & Chapter Quick-Jump Navigation ───────────────────────────────
+
+document.querySelectorAll('.scrub-node').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const targetSf = parseFloat(btn.getAttribute('data-sf'));
+    if (!isNaN(targetSf)) {
+      setTargetScroll(targetSf);
+      audioManager.playTransitionChime();
+    }
+  });
+});
+
+const audioBtn = document.getElementById('audio-toggle-btn');
+const audioLabel = document.getElementById('audio-label');
+const audioDot = document.getElementById('audio-status-dot');
+
+if (audioBtn) {
+  audioBtn.addEventListener('click', () => {
+    const isMuted = audioManager.toggleMute();
+    if (audioLabel) audioLabel.textContent = isMuted ? 'AUDIO: OFF' : 'AUDIO: ON';
+    if (audioDot) audioDot.style.background = isMuted ? '#666' : '#00CFFF';
+  });
+}
+
+const odfCloseBtn = document.getElementById('odf-card-close');
+if (odfCloseBtn) {
+  odfCloseBtn.addEventListener('click', () => {
+    hidePortInspection();
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 initScroll();
-heroGateEngine.init(document.getElementById('hero-gate'));
 animate();
 
 // ── Resize ────────────────────────────────────────────────────────────────────

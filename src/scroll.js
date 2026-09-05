@@ -4,6 +4,7 @@
 export const MAX_SCROLL = 6.0;
 export let scrollFloat = 0;
 export let storyProgress = 0;
+export let isScrollLocked = false;
 
 let targetFloat = 0;
 let touchStartY = 0;
@@ -34,8 +35,6 @@ if (typeof window !== 'undefined') {
   window.addEventListener('hashchange', readHashScroll);
   readHashScroll();
 }
-
-export let isScrollLocked = true;
 
 export function setScrollLocked(locked) {
   isScrollLocked = locked;

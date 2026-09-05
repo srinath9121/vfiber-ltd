@@ -43,11 +43,22 @@
         pointer-events: auto;
       }
 
-      /* ── Chapter 0 — Hero title (top-left, fades out on scroll) ── */
+      /* ── Chapter 0 — Hero title & Logo (top-left, fades out on scroll) ── */
       #chapter0-text {
-        top: 3rem;
+        top: 4.5rem;
         left: 3.5rem;
         opacity: 1; /* starts visible */
+      }
+      .hero-brand-header {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+      }
+      .hero-logo {
+        width: clamp(56px, 5.5vw, 76px);
+        height: auto;
+        border-radius: 4px;
+        display: block;
       }
       #chapter0-text .company {
         font-size: clamp(1rem, 2.5vw, 1.4rem);
@@ -202,7 +213,7 @@
       }
       #chapter2-text .hud-footnote {
         font-size: 0.78rem;
-        color: #00CFFF;
+        color: #C41E3A;
         font-weight: 600;
         letter-spacing: 0.08em;
         margin: 0;
@@ -277,7 +288,7 @@
       }
       #chapter4-text .fiber-tagline, #chapter6-text .fiber-tagline {
         font-size: 0.82rem;
-        color: #00CFFF;
+        color: #C41E3A;
         margin: 0.5rem 0 0;
         letter-spacing: 0.08em;
         font-family: 'Space Grotesk', monospace;
@@ -329,7 +340,7 @@
         display: inline-block;
         margin-top: 1.25rem;
         padding: 0.8rem 2.5rem;
-        border: 1px solid #00CFFF;
+        border: 1px solid #C41E3A;
         background: transparent;
         color: #ffffff;
         font-family: 'Space Grotesk', sans-serif;
@@ -343,7 +354,7 @@
         pointer-events: auto;
       }
       .cta-button:hover {
-        background: rgba(0, 207, 255, 0.2);
+        background: #C41E3A;
         transform: translateY(-1px);
       }
 
@@ -415,72 +426,219 @@
         text-transform: uppercase;
         text-shadow: 0 0 12px rgba(0, 207, 255, 0.6);
       }
-      /* ── Telemetry HUD Top Bar ── */
+      .prompt-sub {
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+        color: rgba(0, 207, 255, 0.65);
+        text-transform: uppercase;
+      }
+
+      /* ── Top Telemetry HUD Bar ── */
       #telemetry-hud {
         position: fixed;
         top: 0;
         left: 0;
-        right: 0;
-        height: 36px;
-        z-index: 9999;
-        pointer-events: none;
+        width: 100%;
+        height: 48px;
+        z-index: 500;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 28px;
-        font-family: 'Space Grotesk', monospace;
-        font-size: 0.68rem;
-        letter-spacing: 0.22em;
-        color: rgba(255, 255, 255, 0.7);
-        text-transform: uppercase;
-        opacity: 0;
-        transition: opacity 0.6s ease;
+        padding: 0 2rem;
+        background: rgba(3, 8, 16, 0.72);
+        backdrop-filter: blur(14px) saturate(1.4);
+        -webkit-backdrop-filter: blur(14px) saturate(1.4);
+        border-bottom: 1px solid rgba(0, 207, 255, 0.18);
+        transition: opacity 0.5s ease;
+        pointer-events: auto;
       }
-      #telemetry-hud .hud-progress-line {
+      .hud-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        color: #ffffff;
+      }
+      .hud-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00CFFF;
+        box-shadow: 0 0 10px #00CFFF;
+      }
+      #telemetry-readout {
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        color: #00CFFF;
+        text-shadow: 0 0 8px rgba(0, 207, 255, 0.4);
+      }
+      .hud-controls {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      #audio-toggle-btn {
+        background: rgba(0, 207, 255, 0.08);
+        border: 1px solid rgba(0, 207, 255, 0.35);
+        color: #00CFFF;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        padding: 5px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.25s ease;
+      }
+      #audio-toggle-btn:hover {
+        background: rgba(0, 207, 255, 0.22);
+        box-shadow: 0 0 12px rgba(0, 207, 255, 0.35);
+      }
+      #telemetry-progress-line {
         position: absolute;
         bottom: 0;
         left: 0;
         height: 2px;
+        background: linear-gradient(90deg, #C41E3A, #00CFFF, #00ffaa);
         width: 0%;
-        background: #00CFFF;
-        box-shadow: 0 0 10px rgba(0, 207, 255, 0.85);
-        transition: width 0.1s ease-out;
+        box-shadow: 0 0 8px rgba(0, 207, 255, 0.8);
+        transition: width 0.08s linear;
       }
-      #telemetry-hud .hud-left-badge {
+
+      /* ── Bottom Chapter Scrubber Bar ── */
+      #chapter-scrubber {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 500;
+        display: flex;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(3, 8, 16, 0.75);
+        backdrop-filter: blur(16px) saturate(1.4);
+        -webkit-backdrop-filter: blur(16px) saturate(1.4);
+        border: 1px solid rgba(0, 207, 255, 0.22);
+        border-radius: 6px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        pointer-events: auto;
+        max-width: 95vw;
+        overflow-x: auto;
+      }
+      .scrub-node {
+        background: transparent;
+        border: 1px solid transparent;
+        color: rgba(255, 255, 255, 0.65);
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.25s ease;
+      }
+      .scrub-node:hover {
+        color: #ffffff;
+        background: rgba(0, 207, 255, 0.12);
+        border-color: rgba(0, 207, 255, 0.35);
+      }
+      .scrub-node.active {
         color: #00CFFF;
-        font-weight: 600;
+        background: rgba(0, 207, 255, 0.2);
+        border-color: #00CFFF;
+        box-shadow: 0 0 10px rgba(0, 207, 255, 0.3);
+        font-weight: 700;
       }
-      #telemetry-hud .hud-right-badge {
-        color: rgba(255, 255, 255, 0.85);
+
+      /* ── ODF Port Inspection Modal / Card ── */
+      #odf-port-card {
+        position: fixed;
+        top: 80px;
+        right: 40px;
+        width: 320px;
+        z-index: 600;
+        background: rgba(5, 12, 24, 0.85);
+        backdrop-filter: blur(20px) saturate(1.5);
+        -webkit-backdrop-filter: blur(20px) saturate(1.5);
+        border: 1px solid rgba(0, 207, 255, 0.35);
+        border-left: 3px solid #00CFFF;
+        border-radius: 4px;
+        padding: 16px 20px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        display: none;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: auto;
+      }
+      #odf-card-close {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        font-size: 14px;
+      }
+      #odf-card-close:hover {
+        color: #ffffff;
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
 
-    <!-- Telemetry Progress & Status HUD -->
-    <div id="telemetry-hud">
-      <span class="hud-left-badge">VF ENGINEERING TELEMETRY</span>
-      <span id="telemetry-readout" class="hud-right-badge">CH.00 // EARTH ORBIT</span>
-      <div id="telemetry-progress-line" class="hud-progress-line"></div>
-    </div>
-
-    <!-- Phase 20A Hero Draw Strand Interactive Gate Overlay -->
-    <div id="hero-gate" role="button" tabindex="0" aria-label="Draw a fiber strand to enter VF Technologies or press Enter">
-      <canvas id="bg-layer"></canvas>
-      <canvas id="frost-layer"></canvas>
-      <canvas id="gesture-canvas"></canvas>
-      <div id="hero-prompt">
-        <div class="prompt-ring"></div>
-        <div class="prompt-text">EVERY SIGNAL STARTS SOMEWHERE. DRAW TO BEGIN.</div>
-        <div class="prompt-sub">DRAW A STRAND OR PRESS [ENTER]</div>
+    <!-- Top Telemetry HUD Bar -->
+    <header id="telemetry-hud" style="opacity: 1;">
+      <div class="hud-brand">
+        <img src="/logo.jpg" alt="VF Technologies" style="width:26px; height:26px; object-fit:contain; border-radius:2px;" />
+        <span>VF TECHNOLOGIES // OPTICAL & STRUCTURAL TELEMETRY</span>
       </div>
-    </div>
+      <div id="telemetry-readout">CH.00 // EARTH ORBIT [SF 0.00]</div>
+      <div class="hud-controls">
+        <button id="audio-toggle-btn" aria-label="Toggle Environmental Audio">
+          <span id="audio-status-dot" style="width:6px; height:6px; border-radius:50%; background:#00CFFF; display:inline-block;"></span>
+          <span id="audio-label">AUDIO: ON</span>
+        </button>
+      </div>
+      <div id="telemetry-progress-line"></div>
+    </header>
 
-    <!-- Chapter 0 — Hero title -->
+    <!-- Bottom Chapter Scrubber Bar -->
+    <nav id="chapter-scrubber" aria-label="Story Chapters Navigation" style="opacity: 1;">
+      <button class="scrub-node active" data-sf="0.00">00: ORBIT</button>
+      <button class="scrub-node" data-sf="0.95">01: REGIONAL</button>
+      <button class="scrub-node" data-sf="1.80">02: POLE LOADING</button>
+      <button class="scrub-node" data-sf="2.80">03: COUPLING</button>
+      <button class="scrub-node" data-sf="3.60">04: FIBER CORE</button>
+      <button class="scrub-node" data-sf="5.20">05: ODF BAY</button>
+      <button class="scrub-node" data-sf="6.00">06: DELIVERABLES</button>
+    </nav>
+
+    <!-- Holographic ODF Port Inspection Modal -->
+    <aside id="odf-port-card">
+      <button id="odf-card-close" aria-label="Close Inspection">&times;</button>
+      <div id="odf-card-body"></div>
+    </aside>
+
+    <!-- Chapter 0 — Hero Title & Official VF Technologies Logo -->
     <div id="chapter0-text" class="overlay">
-      <div class="company">Venkateswara Fiber Technologies</div>
-      <div class="tagline">Powering a Better Tomorrow</div>
+      <div class="hero-brand-header">
+        <img src="/logo.jpg" alt="VF Technologies Logo" class="hero-logo" />
+        <div>
+          <div class="company">VF Technologies</div>
+          <div class="tagline">Powering a Better Tomorrow</div>
+        </div>
+      </div>
     </div>
 
     <!-- Chapter 1 — USA stats -->
@@ -529,13 +687,13 @@
     <div id="chapter5-text">
       <p style="font-size:0.75rem;color:#00CFFF;
         letter-spacing:0.3em;font-family:'Space Grotesk',monospace;margin:0 0 16px;">
-        VENKATESWARA FIBER TECHNOLOGIES
+        VF TECHNOLOGIES
       </p>
 
       <div class="final-stats-container">
         <div>
           <p id="stat1" style="font-size: clamp(2rem, 5vw, 3rem);font-weight:700;
-            color:#00CFFF;margin:0;font-family:'Space Grotesk',monospace;">0</p>
+            color:#C41E3A;margin:0;font-family:'Space Grotesk',monospace;">0</p>
           <p style="font-size: clamp(0.7rem, 1.2vw, 0.8rem);color:white;
             opacity:0.7;margin:4px 0 0;font-family:'Space Grotesk',monospace;">
             Structures Analyzed
@@ -543,7 +701,7 @@
         </div>
         <div>
           <p id="stat2" style="font-size: clamp(2rem, 5vw, 3rem);font-weight:700;
-            color:#00CFFF;margin:0;font-family:'Space Grotesk',monospace;">0</p>
+            color:#C41E3A;margin:0;font-family:'Space Grotesk',monospace;">0</p>
           <p style="font-size: clamp(0.7rem, 1.2vw, 0.8rem);color:white;
             opacity:0.7;margin:4px 0 0;font-family:'Space Grotesk',monospace;">
             Poles Managed
@@ -564,7 +722,7 @@
         id="cta-btn"
         style="
           display: inline-block;
-          border: 1px solid #00CFFF;
+          border: 1px solid #C41E3A;
           color: white;
           padding: 14px 40px;
           font-family: 'Space Grotesk', monospace;
@@ -574,7 +732,7 @@
           pointer-events: all;
           transition: background 0.3s ease;
         "
-        onmouseover="this.style.background='rgba(0, 207, 255, 0.25)'"
+        onmouseover="this.style.background='#C41E3A'"
         onmouseout="this.style.background='transparent'"
       >
         CONTACT US

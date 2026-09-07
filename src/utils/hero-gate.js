@@ -1,5 +1,5 @@
-// hero-gate.js — VF Hero Gate Engine
-// High-Resolution Da Vinci Anatomical Hands & Procedural Frost / Optical Portal Reveal
+// hero-gate.js — VF Zero Lock Precision Interaction Engine & Procedural Marble/Frost Reveal
+// Part of Phase 20: Immersive Interaction & Cinematic Art Direction for VF Technologies
 
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -37,20 +37,15 @@ export class HeroGateEngine {
     this.W = typeof window !== 'undefined' ? window.innerWidth : 1920;
     this.H = typeof window !== 'undefined' ? window.innerHeight : 1080;
 
-    // Approach animation: 0 = separated, 1 = touching
-    this.approach = 0.0;
-    this.lastIdleTime = typeof Date !== 'undefined' ? Date.now() : 0;
+    // Approach animation — 0=apart, 1=touching
+    this.approach = 0;
+    this.approachVelocity = 0;
+    this.sparkParticles = [];
+    this.lastIdleTime = Date.now();
 
-    // Reference image
-    this.handImg = null;
-    this.handImgLoaded = false;
-
-    // Pointer parallax tracking
-    this.pointer = {
-      targetX: this.W * 0.5,
-      targetY: this.H * 0.5,
-      active: false
-    };
+    // Legacy pointer/hand kept for triggerZeroUnlock signature compatibility
+    this.pointer = { x: this.W * 0.5, y: this.H * 0.5, targetX: this.W * 0.5, targetY: this.H * 0.5, active: false };
+    this.hand = { x: this.W * 0.5, y: this.H * 0.5, vx: 0, vy: 0 };
 
     // Portal Shader mesh & material
     this.portalScene = null;
@@ -77,12 +72,6 @@ export class HeroGateEngine {
       this.state = GATE_STATE.OPEN;
       this.unlocked = true;
       setScrollLocked(false);
-      this.overlay = containerEl || document.getElementById('hero-gate');
-      if (this.overlay) {
-        this.overlay.style.display = 'none';
-        this.overlay.style.pointerEvents = 'none';
-        this.overlay.style.opacity = '0';
-      }
       return;
     }
 
@@ -101,44 +90,31 @@ export class HeroGateEngine {
 
     this.promptEl = document.getElementById('hero-prompt') || document.getElementById('instruction');
 
-    // Load authentic Da Vinci hands reference artwork
-    this.handImg = new Image();
-    this.handImg.onload = () => {
-      this.handImgLoaded = true;
-      this._renderBackground(this.approach);
-    };
-    this.handImg.src = '/hero-hands.png';
-
     this.resizeGestureCanvas();
     window.addEventListener('resize', this.resizeGestureCanvas);
 
-    // Scroll & touch drive approach animation
+    // Scroll / touch drive approach animation
     this._onWheel = (e) => {
       if (this.unlocked) return;
       e.preventDefault();
       const delta = Math.sign(e.deltaY);
       if (delta > 0) {
-        this.approach = Math.min(1.0, this.approach + 0.05);
+        this.approach = Math.min(1, this.approach + 0.04);
         this.lastIdleTime = Date.now() + 9999; // suppress decay while scrolling
       } else {
-        this.approach = Math.max(0.0, this.approach - 0.04);
+        this.approach = Math.max(0, this.approach - 0.03);
         this.lastIdleTime = Date.now();
       }
     };
-
     this._touchStartY = 0;
-    this._onTouchStart = (e) => {
-      if (e.touches && e.touches[0]) {
-        this._touchStartY = e.touches[0].clientY;
-      }
-    };
+    this._onTouchStart = (e) => { this._touchStartY = e.touches[0].clientY; };
     this._onTouchMove = (e) => {
       if (this.unlocked) return;
-      if (!e.touches || !e.touches[0]) return;
+      e.preventDefault();
       const dy = this._touchStartY - e.touches[0].clientY;
       this._touchStartY = e.touches[0].clientY;
       if (dy > 0) {
-        this.approach = Math.min(1.0, this.approach + 0.06);
+        this.approach = Math.min(1, this.approach + 0.05);
         this.lastIdleTime = Date.now() + 9999;
       }
     };
@@ -147,18 +123,7 @@ export class HeroGateEngine {
     window.addEventListener('touchstart', this._onTouchStart, { passive: true });
     window.addEventListener('touchmove', this._onTouchMove, { passive: false });
 
-    // Gesture canvas drawing events for zero recognition
-    this.canvas.addEventListener('mousedown', this.beginZero);
-    this.canvas.addEventListener('mousemove', this.moveZero);
-    this.canvas.addEventListener('mouseup', this.finishZero);
-    this.canvas.addEventListener('mouseleave', this.cancelZero);
-
-    this.canvas.addEventListener('touchstart', this.beginZero, { passive: false });
-    this.canvas.addEventListener('touchmove', this.moveZero, { passive: false });
-    this.canvas.addEventListener('touchend', this.finishZero);
-    this.canvas.addEventListener('touchcancel', this.cancelZero);
-
-    // Keyboard Enter / Space bypass
+    // Keep pointer capture on canvas for Enter/Space bypass only
     window.addEventListener('keydown', this.onKeyDown);
 
     // Initialize 2D Orthographic Portal Shader overlay inside WebGL context
@@ -171,181 +136,281 @@ export class HeroGateEngine {
     setScrollLocked(true);
   }
 
-  // ─── BACKGROUND RENDERER: Authentic Masterpiece with Approach Physics ────────
-  _renderBackground(approach) {
+  // ─── 1. BACKGROUND: Procedural Marble & Hand Texture ────────────────────────
+  generateMarble() {
     if (!this.bgCtx) return;
-    const ctx = this.bgCtx;
     const W = this.W;
     const H = this.H;
+    const imgData = this.bgCtx.createImageData(W, H);
+    const d = imgData.data;
 
-    // Fill background with warm parchment base tone
-    ctx.fillStyle = '#dfd2b5';
-    ctx.fillRect(0, 0, W, H);
+    // Parchment / aged vellum palette — Da Vinci sketch aesthetic
+    const palette = [
+      [185, 165, 130],  // aged parchment
+      [160, 140, 108],  // warm sepia shadow
+      [205, 188, 155],  // light vellum
+      [140, 118, 88],   // dark umber
+      [175, 155, 120],  // mid parchment
+    ];
 
-    if (!this.handImgLoaded || !this.handImg) {
-      return;
+    for (let y = 0; y < H; y += 2) {
+      for (let x = 0; x < W; x += 2) {
+        // Layered sine marble
+        const n1 = Math.sin((x * 0.004 + y * 0.006) * 2.1 + Math.sin(x * 0.01) * 1.5) * 0.5 + 0.5;
+        const n2 = Math.sin((x * 0.007 - y * 0.003) * 3.3 + Math.cos(y * 0.008) * 2.0) * 0.5 + 0.5;
+        const n3 = Math.sin(Math.sqrt(x * x * 0.00002 + y * y * 0.00002) * 8.0) * 0.5 + 0.5;
+        const t = (n1 * 0.45 + n2 * 0.35 + n3 * 0.2);
+        const ci = Math.floor(t * (palette.length - 1));
+        const frac = t * (palette.length - 1) - ci;
+        const c1 = palette[Math.min(ci, palette.length - 1)];
+        const c2 = palette[Math.min(ci + 1, palette.length - 1)];
+
+        const r = c1[0] * (1 - frac) + c2[0] * frac;
+        const g = c1[1] * (1 - frac) + c2[1] * frac;
+        const b = c1[2] * (1 - frac) + c2[2] * frac;
+
+        for (let dy = 0; dy < 2 && (y + dy) < H; dy++) {
+          for (let dx = 0; dx < 2 && (x + dx) < W; dx++) {
+            const i = ((y + dy) * W + (x + dx)) * 4;
+            d[i] = r;
+            d[i + 1] = g;
+            d[i + 2] = b;
+            d[i + 3] = 255;
+          }
+        }
+      }
     }
+    this.bgCtx.putImageData(imgData, 0, 0);
 
-    const imgW = 1500;
-    const imgH = 1049;
-    const scale = Math.max(W / imgW, H / imgH);
-    const drawW = imgW * scale;
-    const drawH = imgH * scale;
-    const originX = (W - drawW) * 0.5;
-    const originY = (H - drawH) * 0.5;
-
-    // Separation offset between hands: max at approach=0, 0 at approach=1
-    const maxOffset = Math.min(W * 0.05, 80);
-    const offset = (1.0 - approach) * maxOffset;
-
-    // Continuous center parchment filler between the halves
-    if (offset > 0.5) {
-      const gapLeft = originX - offset + drawW * 0.5;
-      const gapWidth = offset * 2 + 2;
-      // Sample central vertical slice of parchment (width 12px at x=744)
-      ctx.drawImage(
-        this.handImg,
-        744, 0, 12, imgH,
-        gapLeft, originY, gapWidth, drawH
-      );
-    }
-
-    // Left hand half (source 0 to 750)
-    ctx.drawImage(
-      this.handImg,
-      0, 0, 750, imgH,
-      originX - offset, originY, drawW * 0.5, drawH
-    );
-
-    // Right hand half (source 750 to 1500)
-    ctx.drawImage(
-      this.handImg,
-      750, 0, 750, imgH,
-      originX + drawW * 0.5 + offset, originY, drawW * 0.5, drawH
-    );
-
-    // Subtle edge vignette
-    const vg = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.3, W * 0.5, H * 0.5, Math.max(W, H) * 0.7);
+    // Warm vignette — umber not cold black
+    const vg = this.bgCtx.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, H * 0.85);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(40,24,10,0.4)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(0, 0, W, H);
+    vg.addColorStop(1, 'rgba(30,20,10,0.65)');
+    this.bgCtx.fillStyle = vg;
+    this.bgCtx.fillRect(0, 0, W, H);
+
+    // Da Vinci construction lines — golden ratio circles + crosshairs
+    this._drawConstructionLines(W, H);
+
+    // Cache marble + construction lines pixel data (no hands yet)
+    // So updateHand() can restore this cheaply each frame
+    this._marbleCache = this.bgCtx.getImageData(0, 0, W, H);
+
+    // Draw both hands at initial approach=0 positions
+    this._drawBothHands(0);
   }
 
-  // ─── SPARKS & OPTICAL LIGHTNING ARCS ─────────────────────────────────────────
-  _drawSparks() {
-    if (!this.ctx) return;
-    if (this.state === GATE_STATE.DRAWING) return;
-    const W = this.W;
-    const H = this.H;
-    const ctx = this.ctx;
-
-    if (this.approach < 0.5) {
-      if (this.state === GATE_STATE.LOCKED) {
-        ctx.clearRect(0, 0, W, H);
-      }
-      return;
-    }
-
-    ctx.clearRect(0, 0, W, H);
-
-    const imgW = 1500;
-    const imgH = 1049;
-    const scale = Math.max(W / imgW, H / imgH);
-    const drawW = imgW * scale;
-    const drawH = imgH * scale;
-    const originX = (W - drawW) * 0.5;
-    const originY = (H - drawH) * 0.5;
-
-    const maxOffset = Math.min(W * 0.05, 80);
-    const offset = (1.0 - this.approach) * maxOffset;
-
-    // Fingertips position in scaled canvas coordinates
-    const leftTipX = originX - offset + 735 * scale;
-    const rightTipX = originX + offset + 765 * scale;
-    const tipY = originY + 462 * scale;
-
-    const t = Date.now() * 0.001;
-    const intensity = (this.approach - 0.5) / 0.5; // 0 to 1
-    const count = Math.floor(intensity * 20);
+  _drawConstructionLines(W, H) {
+    const ctx = this.bgCtx;
+    const lx = W * 0.28; // left hand center
+    const rx = W * 0.72; // right hand center
+    const cy = H * 0.5;
 
     ctx.save();
+    ctx.strokeStyle = 'rgba(160,130,70,0.07)';
+    ctx.lineWidth = 0.6;
 
-    // 1. Electric spark particles dancing across the gap
-    for (let i = 0; i < count; i++) {
-      const alpha = Math.random();
-      const px = leftTipX + (rightTipX - leftTipX) * alpha + (Math.sin(t * 7 + i * 2) * 16 * intensity);
-      const py = tipY + (Math.cos(t * 5 + i * 3) * 16 * intensity);
-      const r = 1.5 + Math.random() * 2.5 * intensity;
+    // Concentric circles around each hand
+    [80, 140, 210, 300].forEach(r => {
+      ctx.beginPath(); ctx.arc(lx, cy, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(rx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    });
 
-      ctx.beginPath();
-      ctx.arc(px, py, r, 0, Math.PI * 2);
-      ctx.fillStyle = (i % 2 === 0)
-        ? `rgba(0, 207, 255, ${0.5 + intensity * 0.45})`
-        : `rgba(255, 255, 255, ${0.75 + intensity * 0.25})`;
-      ctx.shadowColor = '#00CFFF';
-      ctx.shadowBlur = 10 + intensity * 14;
-      ctx.fill();
-    }
-
-    // 2. High-energy optical lightning arc between fingertips
-    if (intensity > 0.2) {
-      ctx.beginPath();
-      ctx.moveTo(leftTipX, tipY);
-      const segments = 7;
-      for (let s = 1; s < segments; s++) {
-        const segX = leftTipX + (rightTipX - leftTipX) * (s / segments);
-        const jitter = Math.sin(t * 22 + s * 1.8) * 10 * intensity;
-        ctx.lineTo(segX, tipY + jitter);
-      }
-      ctx.lineTo(rightTipX, tipY);
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 + intensity * 0.4})`;
-      ctx.lineWidth = 1.5 + intensity * 2.0;
-      ctx.shadowColor = '#00CFFF';
-      ctx.shadowBlur = 14 + intensity * 10;
-      ctx.stroke();
-
-      // Cyan outer aura
-      ctx.strokeStyle = `rgba(0, 207, 255, ${0.35 + intensity * 0.45})`;
-      ctx.lineWidth = 4 + intensity * 4.0;
-      ctx.stroke();
-    }
+    // Crosshairs
+    ctx.strokeStyle = 'rgba(160,130,70,0.05)';
+    // Horizontal
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+    // Verticals at hand centers
+    ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx, 0); ctx.lineTo(rx, H); ctx.stroke();
+    // Diagonal construction lines
+    ctx.strokeStyle = 'rgba(160,130,70,0.03)';
+    ctx.beginPath(); ctx.moveTo(lx - 300, cy - 300); ctx.lineTo(lx + 300, cy + 300); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx - 300, cy + 300); ctx.lineTo(rx + 300, cy - 300); ctx.stroke();
 
     ctx.restore();
   }
 
-  updateHand() {
-    if (this.state === GATE_STATE.OPEN || this.unlocked) return;
+  _drawBothHands(approach) {
+    if (!this.bgCtx) return;
+    const W = this.W, H = this.H;
+    const ctx = this.bgCtx;
 
-    // Decay approach back to 0 if idle > 1.8s
-    const now = Date.now();
-    if (now - this.lastIdleTime > 1800 && !this.pointer.active) {
-      this.approach = Math.max(0.0, this.approach - 0.006);
-    }
+    // Hand positions: move toward center as approach → 1
+    // At approach=0: fingertips are W*0.42 and W*0.58 apart (gap = 16% of screen)
+    // At approach=1: fingertips meet at W*0.5
+    const fingerLength = Math.min(W * 0.22, 200);
+    const handW = fingerLength * 0.55;
 
-    this.approach = Math.min(1.0, Math.max(0.0, this.approach));
+    const lTipX = W * 0.42 + approach * (W * 0.08);  // left index fingertip X
+    const rTipX = W * 0.58 - approach * (W * 0.08);  // right index fingertip X
+    const midY = H * 0.5;
 
-    // Re-render authentic background with current approach
-    this._renderBackground(this.approach);
+    // Draw left hand (pointing right) — wrist at left, tip at lTipX
+    this._drawHandSide(ctx, lTipX - fingerLength * 1.6, midY, fingerLength, handW, false, approach);
 
-    // Sparks at fingertips
-    this._drawSparks();
-
-    // Trigger unlock when fingertips meet
-    if (this.approach >= 0.96 && !this.unlocked) {
-      const imgW = 1500;
-      const imgH = 1049;
-      const scale = Math.max(this.W / imgW, this.H / imgH);
-      const originY = (this.H - imgH * scale) * 0.5;
-      const tipY = originY + 462 * scale;
-      this.triggerZeroUnlock(this.W * 0.5, tipY, 130);
-      return;
-    }
-
-    this.animFrameId = requestAnimationFrame(this.updateHand);
+    // Draw right hand (pointing left, mirrored) — wrist at right, tip at rTipX
+    this._drawHandSide(ctx, rTipX + fingerLength * 1.6, midY, fingerLength, handW, true, approach);
   }
 
-  // ─── FROST & REVEAL SYSTEM ──────────────────────────────────────────────────
+  // side: false=left hand (points right), true=right hand (points left, mirrored)
+  _drawHandSide(ctx, wristX, wristY, fingerLen, handW, mirror, approach) {
+    ctx.save();
+    ctx.translate(wristX, wristY);
+    if (mirror) ctx.scale(-1, 1);
+
+    const dir = 1; // always draw pointing right, mirror handles flip
+    const palmW = handW * 0.9;
+    const palmH = handW * 0.7;
+
+    // Radial glow behind hand — large, soft
+    const glow = ctx.createRadialGradient(fingerLen * 0.5, 0, 10, fingerLen * 0.5, 0, fingerLen * 1.1);
+    glow.addColorStop(0, `rgba(0,207,255,${0.12 + approach * 0.18})`);
+    glow.addColorStop(0.5, `rgba(196,30,58,${0.05 + approach * 0.08})`);
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(-palmW * 0.5, -fingerLen * 0.8, fingerLen * 2, fingerLen * 1.6);
+
+    // Palm body
+    ctx.beginPath();
+    ctx.moveTo(0, -palmH * 0.5);
+    ctx.bezierCurveTo(palmW * 0.1, -palmH * 0.6, palmW * 0.4, -palmH * 0.55, palmW * 0.5, -palmH * 0.3);
+    ctx.bezierCurveTo(palmW * 0.55, 0, palmW * 0.5, palmH * 0.3, palmW * 0.35, palmH * 0.5);
+    ctx.bezierCurveTo(palmW * 0.1, palmH * 0.65, -palmW * 0.1, palmH * 0.6, -palmW * 0.2, palmH * 0.4);
+    ctx.bezierCurveTo(-palmW * 0.3, palmH * 0.1, -palmW * 0.25, -palmH * 0.3, 0, -palmH * 0.5);
+    ctx.closePath();
+
+    const palmGrad = ctx.createLinearGradient(-palmW * 0.3, -palmH * 0.5, palmW * 0.5, palmH * 0.5);
+    palmGrad.addColorStop(0, 'rgba(75,52,28,0.95)');
+    palmGrad.addColorStop(0.5, 'rgba(55,36,18,0.97)');
+    palmGrad.addColorStop(1, 'rgba(35,22,10,0.95)');
+    ctx.fillStyle = palmGrad;
+    ctx.shadowColor = `rgba(0,207,255,${0.3 + approach * 0.4})`;
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = `rgba(180,140,80,${0.4 + approach * 0.3})`;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Four fingers — index is lead (pointing most right), others fanned
+    const fingers = [
+      { dy: -palmH * 0.35, spread: -0.06, len: fingerLen,        w: palmW * 0.28, lead: true  }, // index
+      { dy: -palmH * 0.12, spread:  0.04, len: fingerLen * 0.95, w: palmW * 0.30, lead: false }, // middle
+      { dy:  palmH * 0.12, spread:  0.14, len: fingerLen * 0.85, w: palmW * 0.27, lead: false }, // ring
+      { dy:  palmH * 0.32, spread:  0.28, len: fingerLen * 0.68, w: palmW * 0.22, lead: false }, // pinky
+    ];
+
+    fingers.forEach(f => {
+      this._drawFinger(ctx, palmW * 0.45, f.dy, f.len, f.w, f.spread, f.lead, approach);
+    });
+
+    // Thumb — angled downward from palm
+    this._drawThumb(ctx, palmW * 0.1, palmH * 0.45, palmW * 0.22, palmH * 0.55, approach);
+
+    // Wrist tendons
+    ctx.save();
+    [
+      { y: -palmH * 0.35, color: `rgba(0,207,255,${0.7 + approach * 0.25})` },
+      { y: -palmH * 0.10, color: `rgba(180,140,80,${0.4 + approach * 0.2})` },
+      { y:  palmH * 0.12, color: `rgba(180,140,80,0.35)` },
+      { y:  palmH * 0.32, color: `rgba(180,140,80,0.28)` },
+    ].forEach(t => {
+      ctx.beginPath();
+      ctx.moveTo(-palmW * 0.15, t.y);
+      ctx.quadraticCurveTo(palmW * 0.2, t.y * 0.4, palmW * 0.45, t.y);
+      ctx.strokeStyle = t.color;
+      ctx.lineWidth = 1.0;
+      ctx.shadowColor = t.color; ctx.shadowBlur = 4;
+      ctx.stroke(); ctx.shadowBlur = 0;
+    });
+    ctx.restore();
+
+    ctx.restore();
+  }
+
+  _drawFinger(ctx, ox, oy, len, w, angle, isLead, approach) {
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.rotate(angle);
+
+    const p1 = len * 0.38, p2 = len * 0.70, p3 = len;
+    const hw = w * 0.5;
+
+    ctx.beginPath();
+    ctx.moveTo(-hw, 0);
+    ctx.bezierCurveTo(-hw * 1.05, -p1 * 0.5, -hw * 0.9, -p1, -hw * 0.82, -p1);
+    ctx.bezierCurveTo(-hw * 0.78, -p2 * 0.55, -hw * 0.72, -p2, -hw * 0.65, -p2);
+    ctx.bezierCurveTo(-hw * 0.55, -p2 - (p3-p2)*0.4, -hw * 0.2, -p3 + hw*0.6, 0, -p3);
+    ctx.bezierCurveTo( hw * 0.2, -p3 + hw*0.6,  hw * 0.55, -p2 - (p3-p2)*0.4,  hw * 0.65, -p2);
+    ctx.bezierCurveTo( hw * 0.72, -p2,           hw * 0.78, -p2 * 0.55,          hw * 0.82, -p1);
+    ctx.bezierCurveTo( hw * 0.9, -p1,            hw * 1.05, -p1 * 0.5,           hw, 0);
+    ctx.closePath();
+
+    const fg = ctx.createLinearGradient(-hw, -len, hw, 0);
+    if (isLead) {
+      fg.addColorStop(0, `rgba(0,207,255,${0.85 + approach * 0.12})`);
+      fg.addColorStop(0.3, 'rgba(20,60,85,0.97)');
+      fg.addColorStop(1, 'rgba(45,30,15,0.95)');
+    } else {
+      fg.addColorStop(0, 'rgba(90,65,35,0.94)');
+      fg.addColorStop(0.5, 'rgba(60,42,20,0.96)');
+      fg.addColorStop(1, 'rgba(38,25,12,0.94)');
+    }
+    ctx.fillStyle = fg;
+    ctx.shadowColor = isLead ? `rgba(0,207,255,${0.5 + approach*0.4})` : 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = isLead ? 16 : 6;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = isLead ? `rgba(0,207,255,${0.7 + approach*0.25})` : 'rgba(180,140,80,0.35)';
+    ctx.lineWidth = isLead ? 1.4 : 0.9;
+    ctx.stroke();
+
+    // Knuckle lines
+    [p1, p2].forEach(kp => {
+      ctx.beginPath();
+      ctx.ellipse(0, -kp, hw * 0.75, 2, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = isLead ? 'rgba(0,207,255,0.55)' : 'rgba(180,140,80,0.22)';
+      ctx.lineWidth = 0.8; ctx.stroke();
+    });
+
+    // Tendon line
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -p3 + 5);
+    ctx.strokeStyle = isLead ? `rgba(255,255,255,${0.7 + approach*0.28})` : 'rgba(180,140,80,0.38)';
+    ctx.lineWidth = isLead ? 1.5 : 0.9;
+    ctx.shadowColor = isLead ? 'rgba(0,207,255,0.9)' : 'transparent';
+    ctx.shadowBlur = isLead ? 8 : 0;
+    ctx.stroke(); ctx.shadowBlur = 0;
+
+    // Fingertip emitter
+    const tipR = isLead ? 4 + approach * 3 : 2.5;
+    ctx.beginPath(); ctx.arc(0, -p3 + 4, tipR, 0, Math.PI * 2);
+    ctx.fillStyle = isLead ? '#ffffff' : 'rgba(180,140,80,0.7)';
+    ctx.shadowColor = isLead ? `rgba(0,207,255,${0.9 + approach*0.1})` : 'rgba(180,140,80,0.4)';
+    ctx.shadowBlur = isLead ? 20 + approach * 15 : 4;
+    ctx.fill(); ctx.shadowBlur = 0;
+
+    ctx.restore();
+  }
+
+  _drawThumb(ctx, ox, oy, w, len, approach) {
+    ctx.save();
+    ctx.translate(ox, oy); ctx.rotate(-0.5);
+    ctx.beginPath();
+    ctx.moveTo(-w*0.5, 0);
+    ctx.bezierCurveTo(-w*0.55, -len*0.4, -w*0.4, -len, 0, -len);
+    ctx.bezierCurveTo( w*0.4, -len,  w*0.55, -len*0.4, w*0.5, 0);
+    ctx.closePath();
+    const tg = ctx.createLinearGradient(-w*0.5, -len, w*0.5, 0);
+    tg.addColorStop(0, 'rgba(80,56,28,0.93)');
+    tg.addColorStop(1, 'rgba(40,26,12,0.92)');
+    ctx.fillStyle = tg; ctx.fill();
+    ctx.strokeStyle = 'rgba(180,140,80,0.3)'; ctx.lineWidth = 0.9; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, -len+5);
+    ctx.strokeStyle = 'rgba(180,140,80,0.35)'; ctx.lineWidth = 0.9; ctx.stroke();
+    ctx.restore();
+  }
+
   drawFrost(revealX, revealY, revealR) {
     if (!this.frostCtx || !this.bgCanvas) return;
     const W = this.W;
@@ -353,35 +418,46 @@ export class HeroGateEngine {
 
     this.frostCtx.clearRect(0, 0, W, H);
 
-    // Draw base background into frost layer
+    // Draw base marble background into frost layer
     this.frostCtx.drawImage(this.bgCanvas, 0, 0);
+
+    // Warm cream frost overlay — parchment tone not cold teal
+    const frostGrad = this.frostCtx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+    frostGrad.addColorStop(0, 'rgba(220,210,190,0.50)');
+    frostGrad.addColorStop(0.5, 'rgba(225,215,195,0.55)');
+    frostGrad.addColorStop(1, 'rgba(215,205,185,0.48)');
+    this.frostCtx.fillStyle = frostGrad;
+    this.frostCtx.fillRect(0, 0, W, H);
+
+    // Frost crystal texture (random short lines)
+    this.frostCtx.save();
+    const seed = 42;
+    for (let i = 0; i < 400; i++) {
+      const fx = ((Math.sin(i * seed * 0.1) * 0.5 + 0.5)) * W;
+      const fy = ((Math.cos(i * seed * 0.07) * 0.5 + 0.5)) * H;
+      const len = 5 + ((Math.sin(i * 3.1)) * 0.5 + 0.5) * 20;
+      const angle = (Math.sin(i * 1.7)) * Math.PI;
+      this.frostCtx.beginPath();
+      this.frostCtx.moveTo(fx, fy);
+      this.frostCtx.lineTo(fx + Math.cos(angle) * len, fy + Math.sin(angle) * len);
+      this.frostCtx.strokeStyle = `rgba(255,255,255,${0.05 + ((Math.sin(i * 2.3)) * 0.5 + 0.5) * 0.12})`;
+      this.frostCtx.lineWidth = 0.8;
+      this.frostCtx.stroke();
+    }
+    this.frostCtx.restore();
 
     // Cut out reveal circle using destination-out mode
     if (revealR > 0) {
       this.frostCtx.save();
       this.frostCtx.globalCompositeOperation = 'destination-out';
-      const revGrad = this.frostCtx.createRadialGradient(
-        revealX, revealY, Math.max(0, revealR * 0.75),
-        revealX, revealY, revealR
-      );
+      const revGrad = this.frostCtx.createRadialGradient(revealX, revealY, revealR * 0.6, revealX, revealY, revealR);
       revGrad.addColorStop(0, 'rgba(0,0,0,1)');
-      revGrad.addColorStop(0.85, 'rgba(0,0,0,0.95)');
+      revGrad.addColorStop(0.7, 'rgba(0,0,0,0.9)');
       revGrad.addColorStop(1, 'rgba(0,0,0,0)');
       this.frostCtx.fillStyle = revGrad;
       this.frostCtx.beginPath();
       this.frostCtx.arc(revealX, revealY, revealR, 0, Math.PI * 2);
       this.frostCtx.fill();
-      this.frostCtx.restore();
-
-      // Glowing optical cyan edge on reveal boundary
-      this.frostCtx.save();
-      this.frostCtx.beginPath();
-      this.frostCtx.arc(revealX, revealY, revealR, 0, Math.PI * 2);
-      this.frostCtx.strokeStyle = 'rgba(0, 207, 255, 0.85)';
-      this.frostCtx.lineWidth = 3.5;
-      this.frostCtx.shadowColor = '#00CFFF';
-      this.frostCtx.shadowBlur = 24;
-      this.frostCtx.stroke();
       this.frostCtx.restore();
     }
   }
@@ -415,7 +491,7 @@ export class HeroGateEngine {
     if (this.bgCanvas) {
       this.bgCanvas.width = this.W;
       this.bgCanvas.height = this.H;
-      this._renderBackground(this.approach);
+      this.generateMarble();
     }
 
     if (this.frostCanvas) {
@@ -437,62 +513,155 @@ export class HeroGateEngine {
     }
   }
 
-  // ─── GESTURE DRAWING SYSTEM ─────────────────────────────────────────────────
+  getPointerPosition(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  }
+
+  updateHand() {
+    if (this.state === GATE_STATE.OPEN) return;
+
+    // Decay approach back to 0 if idle > 1.8s
+    const now = Date.now();
+    if (now - this.lastIdleTime > 1800 && !this.pointer.active) {
+      this.approach = Math.max(0, this.approach - 0.006);
+    }
+
+    // Clamp
+    this.approach = Math.min(1, Math.max(0, this.approach));
+
+    // Redraw bg with current approach (both hands repositioned)
+    if (this.bgCtx) {
+      // Clear and redraw marble + construction lines + hands every frame
+      // Only redraw hands area to avoid full marble regen cost
+      const W = this.W, H = this.H;
+      // Restore marble from frost canvas as base (frost is drawn on top anyway)
+      // Just redraw hands on top of static marble — use separate sparks canvas
+      this._redrawHandsOnly();
+    }
+
+    // Gap spark particles when approach > 0.55
+    this._drawSparks();
+
+    // Trigger unlock when fingertips meet
+    if (this.approach >= 0.96 && !this.unlocked) {
+      this.triggerZeroUnlock(this.W * 0.5, this.H * 0.5, 120);
+      return;
+    }
+
+    this.animFrameId = requestAnimationFrame(this.updateHand);
+  }
+
+  _redrawHandsOnly() {
+    if (!this.bgCtx || !this._marbleCache) return;
+    const W = this.W, H = this.H;
+    const ctx = this.bgCtx;
+    // Restore cached marble+construction lines
+    ctx.putImageData(this._marbleCache, 0, 0);
+    // Draw both hands at current approach
+    this._drawBothHands(this.approach);
+  }
+
+  _drawSparks() {
+    if (!this.ctx) return;
+    const W = this.W, H = this.H;
+    const ctx = this.ctx;
+    if (this.approach < 0.55) { ctx.clearRect(0, 0, W, H); return; }
+
+    ctx.clearRect(0, 0, W, H);
+    const t = Date.now() * 0.001;
+    const gapX = W * 0.5;
+    const gapY = H * 0.5;
+    const intensity = (this.approach - 0.55) / 0.45; // 0→1 as approach goes 0.55→1.0
+    const count = Math.floor(intensity * 18);
+
+    for (let i = 0; i < count; i++) {
+      const px = gapX + (Math.sin(t * 3.1 + i * 1.7) * 0.5) * 40 * intensity;
+      const py = gapY + (Math.cos(t * 2.3 + i * 2.4) * 0.5) * 30 * intensity;
+      const r = 1.5 + Math.sin(t * 5 + i) * 1.2;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,207,255,${0.4 + intensity * 0.55})`;
+      ctx.shadowColor = 'rgba(0,207,255,0.9)';
+      ctx.shadowBlur = 8 + intensity * 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Connection arc between fingertips when almost touching
+    if (intensity > 0.7) {
+      const arcIntensity = (intensity - 0.7) / 0.3;
+      const fingerLen = Math.min(W * 0.22, 200);
+      const lTipX = W * 0.42 + this.approach * W * 0.08;
+      const rTipX = W * 0.58 - this.approach * W * 0.08;
+
+      ctx.beginPath();
+      ctx.moveTo(lTipX, gapY);
+      const wobble = Math.sin(t * 12) * 8 * (1 - arcIntensity);
+      ctx.quadraticCurveTo(gapX, gapY + wobble, rTipX, gapY);
+      ctx.strokeStyle = `rgba(0,207,255,${arcIntensity * 0.8})`;
+      ctx.lineWidth = 1.5 + arcIntensity * 2;
+      ctx.shadowColor = 'rgba(0,207,255,1)';
+      ctx.shadowBlur = 15 + arcIntensity * 20;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+  }
+
   beginZero(e) {
     if (this.unlocked) return;
+    e.preventDefault();
+
+    const p = this.getPointerPosition(e);
+
     this.state = GATE_STATE.DRAWING;
-    this.points = [];
-
-    const rect = this.canvas.getBoundingClientRect();
-    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    this.points.push({ x, y });
     this.pointer.active = true;
-    this.pointer.targetX = x;
-    this.pointer.targetY = y;
 
-    if (this.ctx) {
-      this.ctx.clearRect(0, 0, this.W, this.H);
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, y);
-    }
+    this.pointer.targetX = p.x;
+    this.pointer.targetY = p.y;
+
+    this.points = [p];
+
+    this.ctx.clearRect(0, 0, this.W, this.H);
+    this.ctx.beginPath();
+    this.ctx.moveTo(p.x, p.y);
+
+    try {
+      this.canvas.setPointerCapture?.(e.pointerId);
+    } catch (err) {}
   }
 
   moveZero(e) {
     if (this.state !== GATE_STATE.DRAWING || this.unlocked) return;
     e.preventDefault();
 
-    const rect = this.canvas.getBoundingClientRect();
-    const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+    const p = this.getPointerPosition(e);
 
-    const p = { x, y };
+    this.pointer.targetX = p.x;
+    this.pointer.targetY = p.y;
+
     this.points.push(p);
-
-    this.pointer.targetX = x;
-    this.pointer.targetY = y;
 
     this.drawZeroStroke(p);
   }
 
   finishZero(e) {
     if (this.state !== GATE_STATE.DRAWING || this.unlocked) return;
-    if (e && e.cancelable) e.preventDefault();
+    e.preventDefault();
 
     this.state = GATE_STATE.VALIDATING;
     this.pointer.active = false;
 
+    this.ctx.beginPath();
     this.validateZero();
   }
 
   cancelZero(e) {
     if (this.state !== GATE_STATE.DRAWING || this.unlocked) return;
-    if (e && e.cancelable) e.preventDefault();
+    e.preventDefault();
 
     this.state = GATE_STATE.LOCKED;
     this.pointer.active = false;
@@ -516,20 +685,20 @@ export class HeroGateEngine {
     this.ctx.lineCap = 'round';
     this.ctx.lineJoin = 'round';
 
-    // Glowing white & cyan stroke
-    this.ctx.shadowColor = 'rgba(0, 207, 255, 0.9)';
+    // 1. Glowing white & cyan stroke
+    this.ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
     this.ctx.shadowBlur = 18;
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-    this.ctx.lineWidth = 3.5;
+    this.ctx.lineWidth = 3;
 
     this.ctx.lineTo(p.x, p.y);
     this.ctx.stroke();
 
-    // Bright leading contact dot
+    // 2. Bright leading contact dot
     this.ctx.beginPath();
     this.ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.shadowBlur = 24;
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+    this.ctx.shadowBlur = 30;
     this.ctx.fill();
 
     this.ctx.restore();
@@ -538,6 +707,7 @@ export class HeroGateEngine {
     this.ctx.moveTo(p.x, p.y);
   }
 
+  // ── Zero Loop Recognition Algorithm ────────────────────────────────────────
   validateZero() {
     if (this.points.length < 15) {
       this.fadeZeroStroke();
@@ -578,7 +748,7 @@ export class HeroGateEngine {
     // 3. Loop Closure Check
     const start = filtered[0];
     const end = filtered[filtered.length - 1];
-    const closed = Math.hypot(end.x - start.x, end.y - start.y) < 130;
+    const closed = Math.hypot(end.x - start.x, end.y - start.y) < 120;
 
     // 4. Radius Coefficient of Variation Check
     const radii = filtered.map(p => Math.hypot(p.x - cx, p.y - cy));
@@ -586,8 +756,8 @@ export class HeroGateEngine {
     const stdR = Math.sqrt(radii.map(r => Math.pow(r - meanR, 2)).reduce((a, b) => a + b, 0) / radii.length);
     const cv = stdR / Math.max(meanR, 1);
 
-    const isLoop = Math.abs(totalAngle) > Math.PI * 1.3;
-    const isRound = cv < 0.48;
+    const isLoop = Math.abs(totalAngle) > Math.PI * 1.4;
+    const isRound = cv < 0.45;
 
     if (isLoop && isRound && closed) {
       this.triggerZeroUnlock(cx, cy, meanR);
@@ -609,7 +779,7 @@ export class HeroGateEngine {
     });
   }
 
-  // ─── CENTROID-DRIVEN REVEAL ANIMATION ────────────────────────────────────────
+  // ── Centroid-Driven Reveal Animation ────────────────────────────────────────
   triggerZeroUnlock(cx, cy, radius) {
     if (this.unlocked) return;
     this.unlocked = true;
@@ -638,15 +808,11 @@ export class HeroGateEngine {
       y: cy
     };
 
-    const maxRadius = Math.max(this.W, this.H) * 1.35;
+    const maxRadius = Math.max(this.W, this.H) * 1.25;
+
     this.state = GATE_STATE.REVEALING;
 
-    // Hide bgCanvas so the punch hole in frostCanvas reveals the Three.js scene beneath!
-    if (this.bgCanvas) {
-      this.bgCanvas.style.opacity = '0';
-    }
-
-    // Set portal shader center
+    // Set portal shader center to normalized zero centroid coordinates
     if (this.portalMaterial) {
       this.portalMaterial.uniforms.uCenter.value.set(
         cx / this.W,
@@ -678,24 +844,11 @@ export class HeroGateEngine {
             }
           });
         }
-
-        // Clean up listeners
+        // Remove gate listeners
         window.removeEventListener('wheel', this._onWheel);
         window.removeEventListener('touchstart', this._onTouchStart);
         window.removeEventListener('touchmove', this._onTouchMove);
         window.removeEventListener('keydown', this.onKeyDown);
-
-        if (this.canvas) {
-          this.canvas.removeEventListener('mousedown', this.beginZero);
-          this.canvas.removeEventListener('mousemove', this.moveZero);
-          this.canvas.removeEventListener('mouseup', this.finishZero);
-          this.canvas.removeEventListener('mouseleave', this.cancelZero);
-          this.canvas.removeEventListener('touchstart', this.beginZero);
-          this.canvas.removeEventListener('touchmove', this.moveZero);
-          this.canvas.removeEventListener('touchend', this.finishZero);
-          this.canvas.removeEventListener('touchcancel', this.cancelZero);
-        }
-
         // Unlock virtual scroll engine
         setScrollLocked(false);
       }

@@ -64,10 +64,11 @@
       }
 
       /* ── Shared overlay base ── */
-      .overlay {
+      .overlay, #narrative-overlay {
+        display: none !important;
         position: fixed;
         pointer-events: none;
-        opacity: 0;
+        opacity: 0 !important;
         transition: opacity 0.6s ease;
         z-index: 100;
         text-shadow: 0 2px 16px rgba(0,0,0,0.9);
@@ -644,10 +645,110 @@
         }
       }
 
+      /* ── Ephemeral Scroll Navigation Guide ── */
+      #scroll-nav-guide {
+        position: fixed;
+        bottom: 84px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 150;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: rgba(3, 8, 18, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 207, 255, 0.35);
+        border-radius: 30px;
+        padding: 10px 24px 10px 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 207, 255, 0.18);
+        font-family: 'Space Grotesk', monospace;
+        color: #ffffff;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: navGuideFloat 3s ease-in-out infinite alternate;
+      }
+      #scroll-nav-guide.dismissed {
+        opacity: 0;
+        transform: translate(-50%, 14px);
+        pointer-events: none;
+      }
+      @keyframes navGuideFloat {
+        0% { transform: translate(-50%, 0); }
+        100% { transform: translate(-50%, -4px); }
+      }
+      .nav-guide-icon svg {
+        display: block;
+      }
+      .wheel-anim {
+        animation: scrollWheelPulse 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      }
+      @keyframes scrollWheelPulse {
+        0% { transform: translateY(0); opacity: 1; }
+        60% { transform: translateY(7px); opacity: 0; }
+        61% { transform: translateY(-2px); opacity: 0; }
+        100% { transform: translateY(0); opacity: 1; }
+      }
+      .nav-guide-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        text-align: left;
+      }
+      .nav-guide-label {
+        font-size: 0.64rem;
+        color: #00CFFF;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+      .nav-guide-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #ffffff;
+        white-space: nowrap;
+      }
+      .nav-guide-sub {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.65);
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+      @media (max-width: 600px) {
+        #scroll-nav-guide {
+          bottom: 74px;
+          padding: 8px 18px 8px 14px;
+          gap: 12px;
+        }
+        .nav-guide-title {
+          font-size: 0.80rem;
+        }
+        .nav-guide-sub {
+          font-size: 0.66rem;
+        }
+      }
+
     </style>
   </head>
   <body>
     <div id="app"></div>
+
+    <!-- Ephemeral Scroll Navigation Guide (Auto-dismisses in 5-7s) -->
+    <div id="scroll-nav-guide">
+      <div class="nav-guide-icon">
+        <svg width="20" height="28" viewBox="0 0 20 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="18" height="26" rx="9" stroke="#00CFFF" stroke-width="1.5" stroke-opacity="0.8"/>
+          <line class="wheel-anim" x1="10" y1="6" x2="10" y2="11" stroke="#00CFFF" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="nav-guide-content">
+        <div class="nav-guide-label">NAVIGATION GUIDE</div>
+        <div class="nav-guide-title">SCROLL IN &amp; SCROLL OUT</div>
+        <div class="nav-guide-sub">Scroll down to explore &bull; Scroll up to return</div>
+      </div>
+    </div>
 
     <!-- Bottom Chapter Scrubber Bar -->
     <nav id="chapter-scrubber" aria-label="Story Chapters Navigation" style="opacity: 1;">
@@ -678,47 +779,7 @@
     <!-- Chapter 0 text container kept for lifecycle consistency -->
     <div id="chapter0-text" class="overlay" style="display:none;"></div>
 
-    <!-- Chapter 1 — USA stats -->
-    <div id="chapter1-text" class="overlay">
-      <p class="stat">50,000+ POLES MANAGED</p>
-      <p class="sub">Across Western USA</p>
-      <p class="cities">Texas &bull; Dallas &bull; California &bull; And More</p>
-    </div>
 
-    <!-- Chapter 2 — Engineering Telemetry HUD (Liquid Glass panel, right side) -->
-    <div id="chapter2-text" class="overlay">
-      <div class="hud-badge">TELECOM INFRASTRUCTURE // LEVEL 02</div>
-      <h2 class="hud-title">MAKE-READY<br/>ENGINEERING</h2>
-      <div class="hud-specs">
-        <div class="hud-row"><span class="hud-k">STRUCTURE</span><span class="hud-v">4-Leg Tapered Lattice</span></div>
-        <div class="hud-row"><span class="hud-k">SECTORS</span><span class="hud-v">3-Way Multi-Band Cellular</span></div>
-        <div class="hud-row"><span class="hud-k">BACKHAUL</span><span class="hud-v">Dual Microwave Drums (11 GHz)</span></div>
-        <div class="hud-row"><span class="hud-k">ANALYSIS</span><span class="hud-v">O-Calc Pro &bull; Katapult Pro</span></div>
-      </div>
-      <p class="hud-footnote">20,000+ Structures Analyzed</p>
-    </div>
-
-    <!-- Chapter 3 — Signal transition (centered cinematic) -->
-    <div id="chapter3-text" class="overlay">
-      <p class="signal-label">Signal Detected</p>
-      <p class="signal-heading">EVERY CONNECTION<br/>STARTS HERE</p>
-    </div>
-
-    <!-- Chapter 4 — Fiber tunnel overlay (bottom-left glass panel) -->
-    <div id="chapter4-text" class="overlay">
-      <p class="fiber-label">OPTICAL INFRASTRUCTURE // LEVEL 03</p>
-      <p class="fiber-heading">LIGHT-BASED<br/>TRANSMISSION</p>
-      <p class="fiber-sub">Single-Mode Optical Fiber &bull; High-Speed Core</p>
-      <p class="fiber-tagline">Designed. Delivered. Managed.</p>
-    </div>
-
-    <!-- Chapter 6 — Demarcation & Transceiver HUD (bottom-left glass panel) -->
-    <div id="chapter6-text" class="overlay">
-      <p class="fiber-label">SIGNAL DEMARCATION // LEVEL 04</p>
-      <p class="fiber-heading">OPTICAL TO<br/>ELECTRICAL</p>
-      <p class="fiber-sub">PIN Photodiode &bull; High-Speed Voltage Transients</p>
-      <p class="fiber-tagline">Physical to Digital Network Intelligence</p>
-    </div>
 
     <!-- Chapter 5 — Final scene + CTA -->
     <div id="chapter5-text">

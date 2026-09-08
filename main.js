@@ -395,7 +395,7 @@ function animate() {
   // After setting chapter HUD opacity/visibility, always ensure panels don't
   // intercept touch scroll on mobile (touch events bubble differently than mouse)
   if (window.innerWidth < 768) {
-    const huds = ['chapter2-text','chapter4-text','chapter6-text','chapter3-text'];
+    const huds = ['chapter2-text','chapter4-text','chapter6-text'];
     huds.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.pointerEvents = 'none'; // HUDs are read-only on mobile
@@ -412,6 +412,13 @@ function animate() {
       btn.classList.remove('active');
     }
   });
+
+  // Early dismiss scroll navigation guide if user begins scrolling
+  const navGuide = document.getElementById('scroll-nav-guide');
+  if (navGuide && !navGuide.classList.contains('dismissed') && sf > 0.08) {
+    navGuide.classList.add('dismissed');
+    setTimeout(() => { navGuide.style.display = 'none'; }, 900);
+  }
 
   composer.render();
 
@@ -474,6 +481,15 @@ if (odfCloseBtn) {
 initScroll();
 heroGateEngine.init(document.getElementById('hero-gate'));
 animate();
+
+// Auto-dismiss the scroll navigation guide after 6 seconds (5-7 seconds)
+const navGuide = document.getElementById('scroll-nav-guide');
+if (navGuide) {
+  setTimeout(() => {
+    navGuide.classList.add('dismissed');
+    setTimeout(() => { navGuide.style.display = 'none'; }, 900);
+  }, 6000);
+}
 
 // ── Resize ────────────────────────────────────────────────────────────────────
 

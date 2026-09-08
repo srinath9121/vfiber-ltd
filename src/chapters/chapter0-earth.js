@@ -48,43 +48,57 @@ earthNightTexture.colorSpace = THREE.SRGBColorSpace;
 const spaceSkyTexture = textureLoader.load('/references/main phtots of background.png');
 spaceSkyTexture.colorSpace = THREE.SRGBColorSpace;
 
-// 1. 3D Deep Space Skysphere Environment (Grounded in deep black space — subtle astronomical background)
+// Helper: Procedural high-resolution radial star glow texture
+function createStarTexture() {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+  grad.addColorStop(0.18, 'rgba(235, 245, 255, 0.95)');
+  grad.addColorStop(0.42, 'rgba(120, 205, 255, 0.45)');
+  grad.addColorStop(0.72, 'rgba(40, 120, 220, 0.12)');
+  grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 64, 64);
+  const tex = new THREE.CanvasTexture(canvas);
+  return tex;
+}
+
+// 1. 3D Deep Space Skysphere Environment with authentic cosmic starry background
 const spaceSkyGeo = new THREE.SphereGeometry(450, 32, 32);
-// Low-contrast deep space astronomical tint (no competing foreground horizons)
 const spaceSkyMat = new THREE.MeshBasicMaterial({
-  color: 0x010204,
+  map: spaceSkyTexture,
   side: THREE.BackSide,
   transparent: true,
-  opacity: 1.0
+  opacity: 0.85
 });
 export const spaceSkyMesh = new THREE.Mesh(spaceSkyGeo, spaceSkyMat);
 spaceSkyMesh.renderOrder = -100;
 
-// 2. Dense 3D Parallax Pin-point Starfield (Grounded in ISS astro-photography: milky way night 1-4)
-// Real space photography reveals thousands of distant faint stars obeying power-law magnitude
-// distribution: ~80% faint distant pinpricks, ~16% medium brightness, and ~4% bright beacon stars.
-const starCount = isMobile ? 1800 : 5200;
+// 2. Dense 3D Parallax Pin-point Starfield
+const starCount = isMobile ? 3200 : 7200;
 const starGeo = new THREE.BufferGeometry();
 const starPositions = new Float32Array(starCount * 3);
 const starColors = new Float32Array(starCount * 3);
 
 for (let i = 0; i < starCount; i++) {
-  // Natural galactic plane clustering + deep space voids (matching milky way night 1-4.jpg)
+  // Natural galactic plane clustering + deep space distribution
   let theta, phi;
-  const isGalacticCore = Math.random() < 0.58; // 58% concentrated along galactic plane band
+  const isGalacticCore = Math.random() < 0.60;
   if (isGalacticCore) {
     theta = Math.random() * Math.PI * 2;
-    // Gaussian-like concentration around the galactic equator (phi ~ PI/2)
-    const galacticDev = (Math.random() + Math.random() + Math.random() - 1.5) * 0.28;
+    const galacticDev = (Math.random() + Math.random() + Math.random() - 1.5) * 0.32;
     phi = (Math.PI * 0.5) + galacticDev;
   } else {
-    // Sparse field with dark cosmic voids
     theta = Math.random() * Math.PI * 2;
     phi = Math.acos(2.0 * Math.random() - 1.0);
   }
 
-  // Tilt the galactic plane ~42 degrees relative to celestial coordinates
-  const tilt = 0.73; // ~42 degrees
+  // Tilt the galactic plane relative to celestial coordinates
+  const tilt = 0.68;
   const x0 = Math.sin(phi) * Math.cos(theta);
   const y0 = Math.sin(phi) * Math.sin(theta);
   const z0 = Math.cos(phi);
@@ -92,34 +106,32 @@ for (let i = 0; i < starCount; i++) {
   const y = y0 * Math.cos(tilt) - z0 * Math.sin(tilt);
   const z = y0 * Math.sin(tilt) + z0 * Math.cos(tilt);
 
-  const r = 260 + Math.random() * 160;
+  // Position stars around Earth at visible parallax distances
+  const r = 70 + Math.random() * 240;
   starPositions[i * 3]     = r * x;
   starPositions[i * 3 + 1] = r * y;
   starPositions[i * 3 + 2] = r * z;
 
-  // Physical astronomical magnitude distribution (88% faint pinpricks, 9% medium, 3% beacon)
+  // Luminous magnitude distribution
   const magRoll = Math.random();
   let brightness;
-  if (magRoll > 0.97) {
-    brightness = 0.90 + Math.random() * 0.10; // 3% bright beacon stars
-  } else if (magRoll > 0.88) {
-    brightness = 0.45 + Math.random() * 0.25; // 9% medium stars
+  if (magRoll > 0.95) {
+    brightness = 1.0;                             // 5% beacon stars
+  } else if (magRoll > 0.82) {
+    brightness = 0.82 + Math.random() * 0.18;     // 13% medium bright stars
   } else {
-    brightness = 0.08 + Math.random() * 0.22; // 88% faint distant pinpricks
+    brightness = 0.52 + Math.random() * 0.30;     // 82% visible ambient stars
   }
 
-  // Cool blue-white stellar spectrum (Killed amber/yellow completely)
+  // Cool stellar spectrum (Electric cyan, cool blue-white, diamond white)
   const specRoll = Math.random();
   let baseR, baseG, baseB;
-  if (specRoll > 0.70) {
-    // Brilliant cyan / electric blue stars
-    baseR = 0.50; baseG = 0.85; baseB = 1.0;
-  } else if (specRoll > 0.40) {
-    // Cool blue-white stars
-    baseR = 0.75; baseG = 0.92; baseB = 1.0;
+  if (specRoll > 0.65) {
+    baseR = 0.55; baseG = 0.88; baseB = 1.0;
+  } else if (specRoll > 0.30) {
+    baseR = 0.82; baseG = 0.94; baseB = 1.0;
   } else {
-    // Crisp icy white stars
-    baseR = 0.90; baseG = 0.96; baseB = 1.0;
+    baseR = 1.0;  baseG = 1.0;  baseB = 1.0;
   }
 
   starColors[i * 3]     = baseR * brightness;
@@ -131,10 +143,12 @@ starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
 
 const starMat = new THREE.PointsMaterial({
-  size: 1.05,
+  size: 2.6,
+  map: createStarTexture(),
   vertexColors: true,
   transparent: true,
-  opacity: 0.90,
+  opacity: 1.0,
+  blending: THREE.AdditiveBlending,
   depthWrite: false,
   sizeAttenuation: true
 });
@@ -143,7 +157,8 @@ starFieldMesh.renderOrder = -99;
 
 // 3. Primary 3D Earth Globe with Photographic Day/Night Terminator & LOD
 // Sun direction angled from top-left to cast a dramatic day/night terminator across the globe
-const sunDirection = new THREE.Vector3(-8.5, 3.8, 3.2).normalize();
+// Sun direction angled from top-left-front to brightly illuminate the visible hemisphere with crisp terminator
+const sunDirection = new THREE.Vector3(-3.2, 2.8, 7.8).normalize();
 
 export const earthMaterial = new THREE.ShaderMaterial({
   transparent: true,
@@ -179,34 +194,38 @@ export const earthMaterial = new THREE.ShaderMaterial({
     void main() {
       // 1. Day / Night Terminator Line (Smooth physical astronomical shadow transition)
       float sunDot = dot(vNormal, uSunDirection);
-      float dayFactor = smoothstep(-0.08, 0.16, sunDot);
+      float dayFactor = smoothstep(-0.16, 0.22, sunDot);
 
       // 2. Texture Sampling (Day Blue Marble + Night Nocturnal Lights)
-      vec3 dayCol = texture2D(uDayMap, vUv).rgb;
+      vec3 rawDay = texture2D(uDayMap, vUv).rgb;
       vec3 nightCol = texture2D(uNightMap, vUv).rgb;
+
+      // Brightness & Saturation Boost for Earth Day Texture:
+      // Vibrantly lifts continents, cloud layers, and azure oceans
+      vec3 dayCol = pow(rawDay, vec3(0.88)) * 1.55;
 
       // 3. Ocean Depth & Specular Glint (Ref: earth 2.jpg / earth 4.jpg)
       // Deepen ocean navy tones while keeping continents vibrant
-      float oceanMask = smoothstep(0.12, 0.35, dayCol.b - max(dayCol.r, dayCol.g) * 0.78);
+      float oceanMask = smoothstep(0.08, 0.32, dayCol.b - max(dayCol.r, dayCol.g) * 0.75);
       vec3 viewDir = normalize(vViewPosition);
       vec3 halfDir = normalize(uSunDirection + viewDir);
-      float specComp = pow(max(0.0, dot(vNormal, halfDir)), 32.0) * oceanMask;
-      vec3 specularCol = vec3(0.95, 0.98, 1.0) * specComp * 1.4;
+      float specComp = pow(max(0.0, dot(vNormal, halfDir)), 28.0) * oceanMask;
+      vec3 specularCol = vec3(0.95, 0.98, 1.0) * specComp * 2.2;
 
       // 4. Daytime Surface Rayleigh Scattering (Thin blue atmospheric haze across lit continent/ocean edges)
       float fresnel = 1.0 - max(0.0, dot(viewDir, vNormal));
-      float dayScattering = pow(fresnel, 3.8) * max(0.0, sunDot) * 0.45;
-      vec3 rayleighHaze = vec3(0.16, 0.48, 0.92) * dayScattering;
+      float dayScattering = pow(fresnel, 3.2) * max(0.0, sunDot) * 0.75;
+      vec3 rayleighHaze = vec3(0.18, 0.55, 1.0) * dayScattering;
 
       // 5. Nocturnal City Lights (Grounded in earth 3.jpg & milky way night.jpg)
       // Physically motivated solar attenuation: Rapidly extinguishes on sunlit day side
-      float nightAttenuation = smoothstep(0.12, -0.15, sunDot);
-      float nightLightIntensity = pow(nightCol.r, 1.35) * 2.2;
-      vec3 warmAmber = vec3(1.0, 0.74, 0.38);
+      float nightAttenuation = smoothstep(0.18, -0.12, sunDot);
+      float nightLightIntensity = pow(nightCol.r, 1.2) * 3.5;
+      vec3 warmAmber = vec3(1.0, 0.80, 0.42);
       vec3 cityLights = warmAmber * nightLightIntensity * nightAttenuation;
 
-      // Night landmass ambient visibility (faint photographic earthshine — deep indigo/charcoal)
-      vec3 nightAmbient = dayCol * vec3(0.015, 0.022, 0.035);
+      // Night landmass ambient visibility (luminous atmospheric earthshine)
+      vec3 nightAmbient = dayCol * vec3(0.10, 0.16, 0.26);
 
       vec3 finalCol = mix(nightAmbient + cityLights, dayCol + rayleighHaze, dayFactor) + specularCol * dayFactor;
 
@@ -237,12 +256,12 @@ Object.defineProperty(earthLOD, 'material', {
 export const earthMesh = earthLOD;
 earthMesh.rotation.y = -1.1; // Rotated to face Atlantic Ocean & transatlantic signal origin
 
-// 4. Subtle Separate Cloud Shell (Very faint, rotates slowly for real spherical parallax)
+// 4. Subtle Separate Cloud Shell (Rotates slowly for real spherical parallax)
 const cloudGeo = new THREE.SphereGeometry(3.512, sphereSegments, sphereSegments);
 const cloudMat = new THREE.MeshStandardMaterial({
   map: earthDayTexture,
   transparent: true,
-  opacity: 0.10,
+  opacity: 0.22,
   blending: THREE.AdditiveBlending
 });
 export const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
@@ -250,7 +269,6 @@ earthMesh.add(cloudMesh);
 
 // 5. Thin Atmospheric Limb (GLSL Rayleigh Shader — Reference earth 4.jpg & milky way night 1-4.jpg)
 // Razor-thin physical limb sits tightly on planetary boundary (radius = 3.530 vs Earth 3.500).
-// Shines brilliant Rayleigh blue on sunlit limb, smoothly extinguishes on night side — NO uniform cyan halo.
 const atmosphereGeo = new THREE.SphereGeometry(3.530, sphereSegments, sphereSegments);
 const atmosphereMat = new THREE.ShaderMaterial({
   transparent: true,
@@ -259,7 +277,7 @@ const atmosphereMat = new THREE.ShaderMaterial({
   side: THREE.FrontSide,
   uniforms: {
     uSunDirection: { value: sunDirection },
-    uOpacity:      { value: 0.90 }
+    uOpacity:      { value: 1.0 }
   },
   vertexShader: `
     varying vec3 vNormal;
@@ -281,20 +299,20 @@ const atmosphereMat = new THREE.ShaderMaterial({
       vec3 viewDir = normalize(vViewPosition);
       float fresnel = 1.0 - max(0.0, dot(viewDir, vNormal));
       // Ultra-thin razor atmospheric limb (ref: earth 4.jpg)
-      float rim = pow(fresnel, 8.5);
+      float rim = pow(fresnel, 6.0);
 
-      // Physical sun alignment: brilliant on sunlit limb, zero on night side
+      // Physical sun alignment: brilliant on sunlit limb, smoothly diminishing into twilight
       float sunDot = dot(vNormal, uSunDirection);
-      float sunFactor = smoothstep(-0.06, 0.28, sunDot);
+      float sunFactor = smoothstep(-0.15, 0.35, sunDot);
 
-      // Atmospheric Rayleigh scattering: deep indigo-blue base transitioning to razor cyan-white edge
-      vec3 rayleighBlue = mix(vec3(0.04, 0.32, 0.88), vec3(0.35, 0.80, 1.0), pow(fresnel, 2.8));
+      // Atmospheric Rayleigh scattering: deep indigo-blue base transitioning to electric cyan-white edge
+      vec3 rayleighBlue = mix(vec3(0.08, 0.45, 1.0), vec3(0.45, 0.88, 1.0), pow(fresnel, 2.2));
 
-      // Faint twilight airglow tint (warm green/gold) right at the terminator (ref: milky way night.jpg)
-      float terminatorGlow = smoothstep(-0.10, 0.05, sunDot) * (1.0 - smoothstep(0.05, 0.25, sunDot));
-      vec3 airglowCol = vec3(0.40, 0.85, 0.45) * terminatorGlow * 0.4;
+      // Twilight airglow tint right at the terminator
+      float terminatorGlow = smoothstep(-0.15, 0.08, sunDot) * (1.0 - smoothstep(0.08, 0.30, sunDot));
+      vec3 airglowCol = vec3(0.35, 0.85, 0.55) * terminatorGlow * 0.5;
 
-      gl_FragColor = vec4(rayleighBlue + airglowCol, rim * uOpacity * sunFactor);
+      gl_FragColor = vec4(rayleighBlue + airglowCol, rim * uOpacity * (0.35 + 0.65 * sunFactor));
     }
   `
 });

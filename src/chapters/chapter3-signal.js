@@ -147,14 +147,4 @@ export function updateChapter3(scrollFloat, camera) {
     geometry.attributes.color.needsUpdate    = true;
   }
 
-  // Overlay: centered "EVERY CONNECTION STARTS HERE" (sf 3.12 → 3.48)
-  const t3 = document.getElementById('chapter3-text');
-  if (t3) {
-    const fIn  = clamp(map(scrollFloat, 3.12, 3.24, 0, 1), 0, 1);
-    const fOut = clamp(map(scrollFloat, 3.38, 3.48, 1, 0), 0, 1);
-    const op   = fIn * fOut;
-    t3.style.opacity = String(op);
-    t3.style.display = op > 0.01 ? 'block' : 'none';
-    t3.style.pointerEvents = op > 0.01 ? 'auto' : 'none';
-  }
 }

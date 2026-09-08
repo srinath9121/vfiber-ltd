@@ -155,116 +155,7 @@ const AMB = [
 // Text that appears OVER specific camera beats to tell the story
 // These are injected into a single #narrative-overlay div
 
-const NARRATIVE = [
-  // ch0: Earth orbit — transatlantic signal appears
-  {
-    sfIn: 0.30, sfPeak: 0.50, sfOut: 0.75,
-    position: 'top-center',
-    lines: [
-      { text: 'A signal leaves London.', size: 'lg', color: '#ffffff' },
-      { text: '8,000 kilometres of ocean floor.', size: 'sm', color: 'rgba(255,255,255,0.6)' },
-    ]
-  },
-  {
-    sfIn: 0.75, sfPeak: 0.88, sfOut: 1.00,
-    position: 'mid-left',
-    lines: [
-      { text: 'It arrives in Texas.', size: 'lg', color: '#ffffff' },
-      { text: 'Someone in Hyderabad decided exactly how.', size: 'sm', color: '#00CFFF' },
-    ]
-  },
-  // ch1: USA grid lights up
-  {
-    sfIn: 1.05, sfPeak: 1.20, sfOut: 1.50,
-    position: 'bottom-center',
-    lines: [
-      { text: 'The permits that build America\'s networks.', size: 'lg', color: '#ffffff' },
-    ]
-  },
-  {
-    sfIn: 1.38, sfPeak: 1.50, sfOut: 1.78,
-    position: 'bottom-center',
-    lines: [
-      { text: '50,000+ poles.', size: 'xl', color: '#00CFFF' },
-      { text: 'Structurally certified from Hyderabad.', size: 'sm', color: 'rgba(255,255,255,0.65)' },
-    ]
-  },
-  // ch2: tower approach — ground level
-  {
-    sfIn: 1.85, sfPeak: 2.10, sfOut: 2.35,
-    position: 'mid-left',
-    lines: [
-      { text: 'Before a crew touches anything —', size: 'lg', color: '#ffffff' },
-      { text: 'the math is already done.', size: 'lg', color: '#ffffff' },
-    ]
-  },
-  // ch2: mid tower — what PLA actually is
-  {
-    sfIn: 2.38, sfPeak: 2.55, sfOut: 2.78,
-    position: 'mid-left',
-    lines: [
-      { text: 'Wind load. Weight distribution.', size: 'md', color: 'rgba(255,255,255,0.85)' },
-      { text: 'Structural stress thresholds.', size: 'md', color: 'rgba(255,255,255,0.85)' },
-      { text: 'O-Calc Pro · Katapult Pro', size: 'sm', color: '#00CFFF' },
-    ]
-  },
-  // ch2: tower crown — camera looking up at crown & beacon: text sits at top-center
-  {
-    sfIn: 2.82, sfPeak: 2.95, sfOut: 3.18,
-    position: 'top-center',
-    lines: [
-      { text: '20,000+ structures certified.', size: 'lg', color: '#ffffff' },
-      { text: 'Zero field crews called back.', size: 'md', color: '#C41E3A' },
-    ]
-  },
-  // ch3: signal transition — cinematic center moment
-  {
-    sfIn: 3.12, sfPeak: 3.22, sfOut: 3.44,
-    position: 'bottom-center',
-    lines: [
-      { text: 'THIS IS THE MOMENT.', size: 'xl', color: '#ffffff' },
-      { text: 'Ruby to cyan. Electrical to optical.', size: 'sm', color: 'rgba(255,255,255,0.7)' },
-      { text: 'The signal enters the glass.', size: 'sm', color: '#00CFFF' },
-    ]
-  },
-  // ch4: inside the glass
-  {
-    sfIn: 4.22, sfPeak: 4.38, sfOut: 4.58,
-    position: 'bottom-center',
-    lines: [
-      { text: 'Single-mode. Loose-tube. Gel-filled.', size: 'md', color: 'rgba(255,255,255,0.85)' },
-      { text: 'We design the route.', size: 'md', color: '#ffffff' },
-      { text: 'We draft the permit.', size: 'md', color: '#ffffff' },
-      { text: 'Crews build from our package.', size: 'sm', color: '#00CFFF' },
-    ]
-  },
-  // ch4→ch6: waveguide travel
-  {
-    sfIn: 4.82, sfPeak: 5.00, sfOut: 5.12,
-    position: 'bottom-center',
-    lines: [
-      { text: 'Light. Traveling at 200,000 km/s.', size: 'lg', color: '#ffffff' },
-      { text: 'Through glass we designed.', size: 'sm', color: '#00CFFF' },
-    ]
-  },
-  // ch6: ODF rack
-  {
-    sfIn: 5.20, sfPeak: 5.35, sfOut: 5.55,
-    position: 'bottom-center',
-    lines: [
-      { text: 'From design file to live network.', size: 'lg', color: '#ffffff' },
-    ]
-  },
-  {
-    sfIn: 5.44, sfPeak: 5.58, sfOut: 5.75,
-    position: 'bottom-center',
-    lines: [
-      { text: 'Permitting blueprints.', size: 'md', color: 'rgba(255,255,255,0.8)' },
-      { text: 'Splice plans. Splicing documentation.', size: 'md', color: 'rgba(255,255,255,0.8)' },
-      { text: 'Accurate enough that crews don\'t call back.', size: 'sm', color: '#C41E3A' },
-    ]
-  },
-];
+const NARRATIVE = [];
 
 // Size map
 const sizeMap = { xl: '3.2rem', lg: '2.0rem', md: '1.3rem', sm: '0.9rem' };
@@ -324,6 +215,7 @@ function updateNarrative(sf) {
 
   if (!found) {
     el.style.opacity = '0';
+    el.style.display = 'none';
     _lastNarrativeIdx = -1;
     return;
   }

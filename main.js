@@ -402,11 +402,18 @@ function animate() {
     });
   }
 
-  // Sync scrubber active node
+  // Sync scrubber active node (About us, Services, Contact us)
   document.querySelectorAll('.scrub-node').forEach((btn) => {
-    const bSf = parseFloat(btn.getAttribute('data-sf'));
-    const dist = Math.abs(sf - bSf);
-    if (dist < 0.45) {
+    const section = btn.getAttribute('data-section');
+    let isActive = false;
+    if (section === 'about') {
+      isActive = (sf < 1.65);
+    } else if (section === 'services') {
+      isActive = (sf >= 1.65 && sf < 5.80);
+    } else if (section === 'contact') {
+      isActive = (sf >= 5.80);
+    }
+    if (isActive) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');

@@ -143,23 +143,34 @@ for (let row = 0; row < 6; row++) {
     rackGroup.add(ear);
   });
 
-  // LC adapter ports
-  const adapterGeo = new THREE.BoxGeometry(0.14, 0.20, 0.18);
-  const portHoleGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.20, 10);
-  portHoleGeo.rotateX(Math.PI / 2);
+  // LC adapter ports and ceramic sleeves (InstancedMesh: 144 draw calls collapsed to 2)
+}
 
+const TOTAL_PORTS = 6 * PORTS_PER_ROW;
+const adapterGeo = new THREE.BoxGeometry(0.14, 0.20, 0.18);
+const portHoleGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.20, 10);
+portHoleGeo.rotateX(Math.PI / 2);
+
+const adapterInstanced = new THREE.InstancedMesh(adapterGeo, lcBlueMat, TOTAL_PORTS);
+const sleeveInstanced  = new THREE.InstancedMesh(portHoleGeo, ceramicMat, TOTAL_PORTS);
+
+export const portMetadata = [];
+const portDummy = new THREE.Object3D();
+let portIdx = 0;
+
+for (let row = 0; row < 6; row++) {
+  const py = panelStartY - row * panelSpacing;
   for (let p = 0; p < PORTS_PER_ROW; p++) {
     const px = -panelW * 0.5 + 0.15 + p * portSpacing;
 
-    const adapter = new THREE.Mesh(adapterGeo, lcBlueMat);
-    adapter.position.set(px, py, 0.06);
-    adapter.userData = { panelIndex: row + 1, portIndex: p + 1 };
-    rackGroup.add(adapter);
-    interactivePorts.push(adapter);
+    portDummy.position.set(px, py, 0.06);
+    portDummy.updateMatrix();
 
-    const sleeve = new THREE.Mesh(portHoleGeo, ceramicMat);
-    sleeve.position.set(px, py, 0.06);
-    rackGroup.add(sleeve);
+    adapterInstanced.setMatrixAt(portIdx, portDummy.matrix);
+    sleeveInstanced.setMatrixAt(portIdx, portDummy.matrix);
+
+    portMetadata[portIdx] = { panelIndex: row + 1, portIndex: p + 1 };
+    portIdx++;
 
     // Status LED per port
     const ledGeo = new THREE.SphereGeometry(0.012, 8, 8);
@@ -170,6 +181,17 @@ for (let row = 0; row < 6; row++) {
     ledMeshes.push({ mesh: led, isActive, phase: (row * PORTS_PER_ROW + p) * 0.37 });
   }
 }
+
+adapterInstanced.instanceMatrix.needsUpdate = true;
+sleeveInstanced.instanceMatrix.needsUpdate = true;
+if (adapterInstanced.computeBoundingBox) adapterInstanced.computeBoundingBox();
+if (adapterInstanced.computeBoundingSphere) adapterInstanced.computeBoundingSphere();
+if (sleeveInstanced.computeBoundingBox) sleeveInstanced.computeBoundingBox();
+if (sleeveInstanced.computeBoundingSphere) sleeveInstanced.computeBoundingSphere();
+
+rackGroup.add(adapterInstanced);
+rackGroup.add(sleeveInstanced);
+interactivePorts.push(adapterInstanced);
 
 // ── Cable Management Tray ─────────────────────────────────────────────────────
 const trayGeo = new THREE.BoxGeometry(rackW - 0.1, 0.12, 0.55);
@@ -315,16 +337,20 @@ export function handlePortRaycast(raycaster, isClick = false) {
   if (hits.length > 0) {
     document.body.style.cursor = 'pointer';
     if (isClick) {
-      const portMesh = hits[0].object;
+      const hit = hits[0];
+      const instId = (hit.instanceId !== undefined) ? hit.instanceId : 0;
+      const meta = portMetadata[instId] || (hit.object.userData.portIndex ? hit.object.userData : { panelIndex: 1, portIndex: 1 });
+      const panelIndex = meta.panelIndex || 1;
+      const portIndex = meta.portIndex || 1;
       const card = document.getElementById('odf-port-card');
       if (card) {
         card.innerHTML = `
           <button id="odf-card-close" aria-label="Close Inspection" style="position:absolute;top:10px;right:12px;background:transparent;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px;">&times;</button>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-size:0.75rem; color:#00CFFF; font-weight:700; letter-spacing:0.12em;">CIRCUIT TX-${portMesh.userData.panelIndex || 1}${portMesh.userData.portIndex || 1}</span>
+            <span style="font-size:0.75rem; color:#00CFFF; font-weight:700; letter-spacing:0.12em;">CIRCUIT TX-${panelIndex}${portIndex}</span>
             <span style="font-size:0.7rem; background:rgba(0,102,255,0.3); color:#ffffff; border:1px solid #0066ff; padding:2px 6px; border-radius:2px;">LC-UPC</span>
           </div>
-          <div style="font-size:1.05rem; font-weight:700; color:#ffffff; margin-bottom:6px;">PORT ${portMesh.userData.portIndex || 1} // 1U PANEL ${portMesh.userData.panelIndex || 1}</div>
+          <div style="font-size:1.05rem; font-weight:700; color:#ffffff; margin-bottom:6px;">PORT ${portIndex} // 1U PANEL ${panelIndex}</div>
           <div style="font-size:0.82rem; color:rgba(255,255,255,0.85); line-height:1.6;">
             <div>• Insertion Loss: <strong style="color:#00ffaa;">0.14 dB</strong> (GR-326 Pass)</div>
             <div>• Optical Return Loss: <strong style="color:#00cfff;">> 55 dB</strong></div>

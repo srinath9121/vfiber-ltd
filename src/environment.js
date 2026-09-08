@@ -227,15 +227,6 @@ const NARRATIVE = [
       { text: 'The signal enters the glass.', size: 'sm', color: '#00CFFF' },
     ]
   },
-  // ch4: fiber tunnel entry
-  {
-    sfIn: 3.62, sfPeak: 3.80, sfOut: 4.10,
-    position: 'bottom-center',
-    lines: [
-      { text: '288 fibres per cable.', size: 'lg', color: '#ffffff' },
-      { text: 'Enough for an entire neighbourhood.', size: 'sm', color: 'rgba(255,255,255,0.65)' },
-    ]
-  },
   // ch4: inside the glass
   {
     sfIn: 4.22, sfPeak: 4.38, sfOut: 4.58,

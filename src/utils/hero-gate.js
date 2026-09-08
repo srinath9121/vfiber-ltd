@@ -53,6 +53,21 @@ export class HeroGateEngine {
     this.portalMesh = null;
     this.portalMaterial = null;
 
+    // Gate 3D Ribbon Scene (Prompt 2)
+    this._gateScene = null;
+    this._gateCamera = null;
+    this._ribbonMesh = null;
+    this._lastRibbonPointCount = 0;
+
+    // Spring Cursor (Part A)
+    this._springX = 0;
+    this._springY = 0;
+    this._vx = 0;
+    this._vy = 0;
+
+    // Particle Embers (Part C)
+    this._embers = [];
+
     this.animFrameId = null;
 
     this.resizeGestureCanvas = this.resizeGestureCanvas.bind(this);
@@ -62,6 +77,8 @@ export class HeroGateEngine {
     this.cancelZero = this.cancelZero.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.updateHand = this.updateHand.bind(this);
+    this._clearRibbon = this._clearRibbon.bind(this);
+    this._rebuildRibbonMesh = this._rebuildRibbonMesh.bind(this);
   }
 
   init(containerEl) {
@@ -126,8 +143,18 @@ export class HeroGateEngine {
     // Keep pointer capture on canvas for Enter/Space bypass only
     window.addEventListener('keydown', this.onKeyDown);
 
+    // Pointer event listeners for Zero drawing gesture
+    this.canvas.addEventListener('pointerdown', this.beginZero);
+    this.canvas.addEventListener('pointermove', this.moveZero);
+    this.canvas.addEventListener('pointerup', this.finishZero);
+    this.canvas.addEventListener('pointercancel', this.cancelZero);
+    this.canvas.addEventListener('pointerleave', this.cancelZero);
+
     // Initialize 2D Orthographic Portal Shader overlay inside WebGL context
     this.initPortalShader();
+
+    // Initialize Gate 3D scene for 3D ribbon stroke
+    this.initGateScene();
 
     // Start Hand Inertia Physics loop
     this.updateHand();
@@ -511,6 +538,11 @@ export class HeroGateEngine {
       this.portalMaterial.uniforms.uAspect.value = this.W / this.H;
       this.portalMaterial.uniforms.uResolution.value.set(this.W, this.H);
     }
+
+    if (this._gateCamera) {
+      this._gateCamera.aspect = this.W / this.H;
+      this._gateCamera.updateProjectionMatrix();
+    }
   }
 
   getPointerPosition(e) {
@@ -543,8 +575,29 @@ export class HeroGateEngine {
       this._redrawHandsOnly();
     }
 
-    // Gap spark particles when approach > 0.55
-    this._drawSparks();
+    // Gap spark particles when approach > 0.55 OR drawing trail fade & particle embers
+    if (this.ctx) {
+      if (this.state === GATE_STATE.DRAWING || this._embers.length > 0) {
+        // Part D — Trail fade (decaying tail): paint semi-transparent rect each frame
+        this.ctx.fillStyle = 'rgba(3, 7, 18, 0.08)'; // matches #030712 background
+        this.ctx.fillRect(0, 0, this.W, this.H);
+
+        // Part C — Embers simulation & rendering
+        this._embers = this._embers.filter(e => e.life > 0);
+        this._embers.forEach(e => {
+          e.x += e.vx; e.y += e.vy; e.vy += 0.04; e.life -= 0.025;
+          this.ctx.beginPath();
+          this.ctx.arc(e.x, e.y, Math.max(0.1, e.r * e.life), 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(0,207,255,${e.life * 0.8})`;
+          this.ctx.shadowColor = 'rgba(0,207,255,0.9)';
+          this.ctx.shadowBlur = 6;
+          this.ctx.fill();
+          this.ctx.shadowBlur = 0;
+        });
+      } else {
+        this._drawSparks();
+      }
+    }
 
     // Trigger unlock when fingertips meet
     if (this.approach >= 0.96 && !this.unlocked) {
@@ -611,6 +664,75 @@ export class HeroGateEngine {
     }
   }
 
+  initGateScene() {
+    if (this._gateScene) return;
+    this._gateScene = new THREE.Scene();
+    this._gateCamera = new THREE.PerspectiveCamera(50, this.W / this.H, 0.1, 100);
+    this._gateCamera.position.set(0, 0, 10);
+    this._gateCamera.lookAt(0, 0, 0);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    dirLight.position.set(2, 5, 10);
+    this._gateScene.add(dirLight);
+
+    const ambLight = new THREE.AmbientLight(0x00cfff, 0.8);
+    this._gateScene.add(ambLight);
+  }
+
+  _clearRibbon() {
+    if (this._ribbonMesh && this._gateScene) {
+      this._gateScene.remove(this._ribbonMesh);
+      if (this._ribbonMesh.geometry) this._ribbonMesh.geometry.dispose();
+      if (this._ribbonMesh.material) this._ribbonMesh.material.dispose();
+      this._ribbonMesh = null;
+    }
+    this._embers = [];
+    this._lastRibbonPointCount = 0;
+  }
+
+  // Part B — 3D ribbon geometry in the gate scene
+  _rebuildRibbonMesh() {
+    if (this.points.length < 4) return;
+    if (this._ribbonMesh && (this.points.length - this._lastRibbonPointCount < 3)) return;
+    this._lastRibbonPointCount = this.points.length;
+
+    if (this._ribbonMesh && this._gateScene) {
+      this._gateScene.remove(this._ribbonMesh);
+      if (this._ribbonMesh.geometry) this._ribbonMesh.geometry.dispose();
+      if (this._ribbonMesh.material) this._ribbonMesh.material.dispose();
+      this._ribbonMesh = null;
+    }
+
+    if (!this._gateScene || !this._gateCamera) return;
+
+    // Project 2D screen points into gate scene's world space
+    // Use unproject from gate camera
+    const curve3D = new THREE.CatmullRomCurve3(
+      this.points.map(p => {
+        const ndc = new THREE.Vector3(
+          (p.x / this.W) * 2 - 1,
+          -((p.y / this.H) * 2 - 1),
+          0.5
+        );
+        ndc.unproject(this._gateCamera);
+        // Project onto a plane at z=3 (in front of terrain)
+        const dir = ndc.sub(this._gateCamera.position).normalize();
+        const t = (3 - this._gateCamera.position.z) / dir.z;
+        return this._gateCamera.position.clone().addScaledVector(dir, t);
+      })
+    );
+    const geo = new THREE.TubeGeometry(curve3D, Math.min(this.points.length * 2, 200), 0.04, 8, false);
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0x00cfff,
+      emissive: 0x00cfff,
+      emissiveIntensity: 2.5,
+      roughness: 0.2,
+      metalness: 0.6
+    });
+    this._ribbonMesh = new THREE.Mesh(geo, mat);
+    this._gateScene.add(this._ribbonMesh);
+  }
+
   beginZero(e) {
     if (this.unlocked) return;
     e.preventDefault();
@@ -622,6 +744,14 @@ export class HeroGateEngine {
 
     this.pointer.targetX = p.x;
     this.pointer.targetY = p.y;
+
+    // Part A — Initialize spring cursor to pointer position
+    this._springX = p.x;
+    this._springY = p.y;
+    this._vx = 0;
+    this._vy = 0;
+    this._lastRibbonPointCount = 0;
+    this._clearRibbon();
 
     this.points = [p];
 
@@ -643,9 +773,17 @@ export class HeroGateEngine {
     this.pointer.targetX = p.x;
     this.pointer.targetY = p.y;
 
-    this.points.push(p);
-
-    this.drawZeroStroke(p);
+    // Part A — Spring-dampened cursor physics
+    const stiffness = 0.22, damping = 0.72;
+    this._vx += (p.x - this._springX) * stiffness;
+    this._vy += (p.y - this._springY) * stiffness;
+    this._vx *= damping;
+    this._vy *= damping;
+    this._springX += this._vx;
+    this._springY += this._vy;
+    const sp = { x: this._springX, y: this._springY };
+    this.points.push(sp);
+    this.drawZeroStroke(sp);
   }
 
   finishZero(e) {
@@ -666,6 +804,7 @@ export class HeroGateEngine {
     this.state = GATE_STATE.LOCKED;
     this.pointer.active = false;
     this.points = [];
+    this._clearRibbon();
 
     this.fadeZeroStroke();
   }
@@ -678,33 +817,48 @@ export class HeroGateEngine {
     }
   }
 
-  drawZeroStroke(p) {
+  drawZeroStroke(sp) {
     if (!this.ctx) return;
 
     this.ctx.save();
     this.ctx.lineCap = 'round';
     this.ctx.lineJoin = 'round';
 
-    // 1. Glowing white & cyan stroke
-    this.ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-    this.ctx.shadowBlur = 18;
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
-    this.ctx.lineWidth = 3;
+    // 1. Subtle secondary glow (0.15 opacity) — 3D tube is primary stroke
+    this.ctx.shadowColor = 'rgba(0, 207, 255, 0.2)';
+    this.ctx.shadowBlur = 10;
+    this.ctx.strokeStyle = 'rgba(0, 207, 255, 0.15)';
+    this.ctx.lineWidth = 2;
 
-    this.ctx.lineTo(p.x, p.y);
+    this.ctx.lineTo(sp.x, sp.y);
     this.ctx.stroke();
 
-    // 2. Bright leading contact dot
+    // 2. Subtle leading contact dot
     this.ctx.beginPath();
-    this.ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-    this.ctx.shadowBlur = 30;
+    this.ctx.arc(sp.x, sp.y, 3.5, 0, Math.PI * 2);
+    this.ctx.fillStyle = 'rgba(0, 207, 255, 0.35)';
+    this.ctx.shadowBlur = 12;
     this.ctx.fill();
 
     this.ctx.restore();
 
     this.ctx.beginPath();
-    this.ctx.moveTo(p.x, p.y);
+    this.ctx.moveTo(sp.x, sp.y);
+
+    // Part C — Push 2–3 new ember particles each call
+    for (let i = 0; i < 3; i++) {
+      this._embers.push({
+        x: sp.x + (Math.random() - 0.5) * 12,
+        y: sp.y + (Math.random() - 0.5) * 12,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: -Math.random() * 2.0 - 0.5,
+        life: 1.0,
+        r: 1.5 + Math.random() * 2.5
+      });
+    }
+
+    // Part B — Rebuild 3D ribbon mesh
+    this._rebuildRibbonMesh();
   }
 
   // ── Zero Loop Recognition Algorithm ────────────────────────────────────────
@@ -767,6 +921,7 @@ export class HeroGateEngine {
   }
 
   fadeZeroStroke() {
+    this._clearRibbon();
     gsap.to(this.canvas, {
       opacity: 0,
       duration: 0.5,
@@ -865,6 +1020,11 @@ export class HeroGateEngine {
         renderer.clearDepth();
         renderer.render(this.portalScene, this.portalCamera);
       }
+    }
+
+    if (renderer && this._gateScene && this._gateCamera && this._ribbonMesh) {
+      renderer.clearDepth();
+      renderer.render(this._gateScene, this._gateCamera);
     }
   }
 }

@@ -2,10 +2,15 @@
 // Unified camera controller driven by single source of truth: scrollFloat / storyProgress
 
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { initScroll, updateScroll, scrollFloat, storyProgress, setTargetScroll, setScrollLocked } from './src/scroll.js';
 import { earthMesh, spaceSkyMesh, starFieldMesh, networkGroup, beamsGroup, updateChapter0 } from './src/chapters/chapter0-earth.js';
 import { usaNodesGroup, updateChapter1 } from './src/chapters/chapter1-usa.js';
-import { poleGroup, atmospherePlane, updateChapter2 } from './src/chapters/chapter2-pole.js';
+import { poleGroup, atmospherePlane, updateChapter2, disposeChapter2 } from './src/chapters/chapter2-pole.js';
 import { signalParticles, updateChapter3 } from './src/chapters/chapter3-signal.js';
 import { tunnel, fiberMaterial, updateChapter4 } from './src/chapters/chapter4-fiber.js';
 import { updateChapter5 } from './src/chapters/chapter5-final.js';
@@ -37,17 +42,40 @@ scene.add(envHemi);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 
-const initialFov = window.innerWidth < window.innerHeight ? 72 : 52;
+const initialFov = window.innerWidth < window.innerHeight ? 68 : 48;
 const camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.04, 1000);
-camera.position.set(0.0, 1.45, 8.2);
-camera.lookAt(0.0, 1.85, 0.0);
+camera.position.set(0.0, 0.80, 13.5);
+camera.lookAt(0.0, 0.0, 0.0);
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 (document.getElementById('app') || document.body).appendChild(renderer.domElement);
+
+// ── Post-Processing Pipeline (UnrealBloom + FXAA) ─────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+composer.addPass(new RenderPass(scene, camera));
+
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.45,   // strength — subtle, not Instagram
+  0.6,    // radius
+  0.88    // threshold — only emissive surfaces and the fiber core light up
+);
+composer.addPass(bloom);
+
+const fxaa = new ShaderPass(FXAAShader);
+const pr = Math.min(window.devicePixelRatio, 2);
+fxaa.material.uniforms.resolution.value.set(
+  1 / (window.innerWidth * pr), 1 / (window.innerHeight * pr)
+);
+composer.addPass(fxaa);
 
 // Initialize Centralized Asset Registry with WebGLRenderer for KTX2 support detection
 assetRegistry.initRenderer(renderer);
@@ -96,10 +124,10 @@ scene.add(networkChapterGroup);
 // camera position and lookAt target across all chapters.
 
 const CAM = [
-  // 0.00: Cinematic orbital perspective — curved Earth horizon framing lower frame, deep space starry expanse above
-  { at: 0.00, pos: new THREE.Vector3(0.0, 1.45, 8.2),   target: new THREE.Vector3(0.0, 1.85, 0.0) },
-  // 0.25: Orbital descent towards Atlantic corridor, transatlantic fiber awakening
-  { at: 0.25, pos: new THREE.Vector3(0.2, 1.65, 7.2),   target: new THREE.Vector3(0.1, 1.95, 0.0) },
+  // 0.00: Cinematic orbital perspective — complete Earth sphere framed with surrounding deep space
+  { at: 0.00, pos: new THREE.Vector3(0.0, 0.80, 13.5), target: new THREE.Vector3(0.0, 0.0, 0.0) },
+  // 0.25: Intermediate orbital descent towards Atlantic corridor, transatlantic fiber awakening
+  { at: 0.25, pos: new THREE.Vector3(0.1, 1.20, 10.4), target: new THREE.Vector3(0.05, 0.9, 0.0) },
   // 0.50: ONE SIGNAL emerges in Eastern Atlantic, camera tracks across transatlantic corridor
   { at: 0.50, pos: new THREE.Vector3(0.7, 1.65, 5.8),   target: new THREE.Vector3(0.3, 1.85, 0.8) },
   // 0.75: Signal crosses into North America, camera tracking incoming photon
@@ -232,9 +260,12 @@ function updateCamera(sf) {
   // Organic micro-breathe — removes robotic interpolation feel
   // Two overlapping sine waves at non-harmonic frequencies ensure the camera
   // never repeats the exact same position — it feels hand-held, not CG.
+  const isMobileDevice = window.innerWidth < 768;
+  const breatheScale = isMobileDevice ? 0.3 : 1.0;
+
   const breatheT = performance.now() * 0.001;
-  const breatheX = Math.sin(breatheT * 0.31) * 0.008 + Math.sin(breatheT * 0.47) * 0.004;
-  const breatheY = Math.cos(breatheT * 0.29) * 0.006 + Math.cos(breatheT * 0.53) * 0.003;
+  const breatheX = (Math.sin(breatheT * 0.31) * 0.008 + Math.sin(breatheT * 0.47) * 0.004) * breatheScale;
+  const breatheY = (Math.cos(breatheT * 0.29) * 0.006 + Math.cos(breatheT * 0.53) * 0.003) * breatheScale;
   // Skip during macro fiber/cable shots where sub-pixel framing matters
   if (sf < 3.50 || sf > 4.90) {
     camera.position.x += breatheX;
@@ -245,6 +276,8 @@ function updateCamera(sf) {
 }
 
 // ── Animate Loop ──────────────────────────────────────────────────────────────
+
+let _ch2Disposed = false;
 
 function animate() {
   requestAnimationFrame(animate);
@@ -321,16 +354,22 @@ function animate() {
   }
 
   // Chapter lifecycle updates
-  updateChapter0(sf, time);
+  updateChapter0(sf, time, camera);
   updateChapter1(sf, time);
   updateChapter2(sf);
-  updateChapter3(sf);
-  updateChapter4(sf, camera, signalParticles);
+  updateChapter3(sf, camera);
+  updateChapter4(sf, camera, signalParticles, renderer, scene);
   updateChapter6(sf);
   updateChapter5(sf, camera, earthMesh, fiberMaterial, networkGroup, beamsGroup);
 
   // Environmental audio orchestrator update
   audioManager.update(sf);
+
+  // Dispose chapter 2 assets when well past them (Weakness 3)
+  if (sf > 3.70 && !_ch2Disposed) {
+    disposeChapter2();
+    _ch2Disposed = true;
+  }
 
   // Safety HUD lifecycle clamp: guarantees Chapter 4 & 6 HUDs never overlap the finale
   const ch4Hud = document.getElementById('chapter4-text');
@@ -353,6 +392,16 @@ function animate() {
     scrubber.style.pointerEvents = 'auto';
   }
 
+  // After setting chapter HUD opacity/visibility, always ensure panels don't
+  // intercept touch scroll on mobile (touch events bubble differently than mouse)
+  if (window.innerWidth < 768) {
+    const huds = ['chapter2-text','chapter4-text','chapter6-text','chapter3-text'];
+    huds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.pointerEvents = 'none'; // HUDs are read-only on mobile
+    });
+  }
+
   // Sync scrubber active node
   document.querySelectorAll('.scrub-node').forEach((btn) => {
     const bSf = parseFloat(btn.getAttribute('data-sf'));
@@ -364,7 +413,7 @@ function animate() {
     }
   });
 
-  renderer.render(scene, camera);
+  composer.render();
 
   // Update Draw-0 Frosted Glass Portal Overlay
   heroGateEngine.update(time, renderer);
@@ -406,6 +455,13 @@ document.querySelectorAll('.scrub-node').forEach((btn) => {
   });
 });
 
+const globalHeader = document.getElementById('global-header');
+if (globalHeader) {
+  globalHeader.addEventListener('click', () => {
+    setTargetScroll(0);
+  });
+}
+
 const odfCloseBtn = document.getElementById('odf-card-close');
 if (odfCloseBtn) {
   odfCloseBtn.addEventListener('click', () => {
@@ -423,8 +479,15 @@ animate();
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.fov = window.innerWidth < window.innerHeight ? 78 : 70;
+  camera.fov = window.innerWidth < window.innerHeight ? 74 : 65;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  composer.setSize(window.innerWidth, window.innerHeight);
+  composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const newPr = Math.min(window.devicePixelRatio, 2);
+  fxaa.material.uniforms.resolution.value.set(
+    1 / (window.innerWidth * newPr),
+    1 / (window.innerHeight * newPr)
+  );
 });

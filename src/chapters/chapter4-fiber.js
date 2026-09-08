@@ -108,6 +108,13 @@ const glassCladdingMat = new THREE.MeshPhysicalMaterial({
   reflectivity: 0.5
 });
 
+// Transmission Render Target for Physical Glass Dielectric Refraction (Weakness 4)
+export const transmissionRenderTarget = new THREE.WebGLRenderTarget(512, 512, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+});
+glassCladdingMat.transmissionSamplerMap = transmissionRenderTarget.texture;
+
 // Precision Ceramic Zirconia Ferrule (Ivory-white lapped endface)
 const ferruleMat = new THREE.MeshStandardMaterial({
   color: 0xebedf0,
@@ -447,134 +454,9 @@ fiberDepthPlane.rotation.x = Math.PI / 2;
 fiberDepthPlane.position.set(frpCenterX, frpCenterY, 3.8);
 cableAssembly.add(fiberDepthPlane);
 
-// ── 3B. TIA-598-C Engineering Cutaway Callouts ──────────────────────────────
+// ── 3B. TIA-598-C Engineering Cutaway Callouts (Removed per user request) ──
 const fiberCalloutsGroup = new THREE.Group();
 const calloutMaterials = [];
-
-function createCalloutBadge(numStr, titleStr, subStr, targetPos, labelPos) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 128;
-  const ctx = canvas.getContext('2d');
-
-  // Background panel: Liquid glass dark cyan tint
-  ctx.fillStyle = 'rgba(5, 14, 28, 0.82)';
-  ctx.fillRect(8, 8, 496, 112);
-  ctx.strokeStyle = 'rgba(0, 207, 255, 0.5)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(8, 8, 496, 112);
-
-  // Left accent bar
-  ctx.fillStyle = '#00CFFF';
-  ctx.fillRect(8, 8, 6, 112);
-
-  // Index number
-  ctx.fillStyle = '#00CFFF';
-  ctx.font = 'bold 22px "Space Grotesk", monospace';
-  ctx.fillText(numStr, 28, 42);
-
-  // Title
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 26px "Space Grotesk", sans-serif';
-  ctx.fillText(titleStr, 96, 42);
-
-  // Subtitle
-  ctx.fillStyle = 'rgba(210, 230, 255, 0.75)';
-  ctx.font = '18px "Space Grotesk", sans-serif';
-  ctx.fillText(subStr, 28, 86);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.minFilter = THREE.LinearFilter;
-  const spriteMat = new THREE.SpriteMaterial({
-    map: texture,
-    transparent: true,
-    opacity: 0.0,
-    depthWrite: false
-  });
-  calloutMaterials.push(spriteMat);
-
-  const sprite = new THREE.Sprite(spriteMat);
-  sprite.position.copy(labelPos);
-  sprite.scale.set(1.4, 0.35, 1.0);
-  fiberCalloutsGroup.add(sprite);
-
-  // Leader line connecting target to label
-  const lineMat = new THREE.LineBasicMaterial({
-    color: 0x00cfff,
-    transparent: true,
-    opacity: 0.0,
-    depthWrite: false
-  });
-  calloutMaterials.push(lineMat);
-
-  const lineGeo = new THREE.BufferGeometry().setFromPoints([
-    targetPos,
-    new THREE.Vector3(targetPos.x, labelPos.y, (targetPos.z + labelPos.z) * 0.5),
-    labelPos
-  ]);
-  const line = new THREE.Line(lineGeo, lineMat);
-  fiberCalloutsGroup.add(line);
-
-  // Anchor dot at target position
-  const dotGeo = new THREE.RingGeometry(0.02, 0.04, 16);
-  const dotMat = new THREE.MeshBasicMaterial({
-    color: 0x00ffaa,
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.0,
-    depthWrite: false
-  });
-  calloutMaterials.push(dotMat);
-  const dot = new THREE.Mesh(dotGeo, dotMat);
-  dot.position.copy(targetPos);
-  fiberCalloutsGroup.add(dot);
-}
-
-// 1. Outer HDPE Jacket
-createCalloutBadge(
-  '01',
-  'HDPE OUTER JACKET',
-  'High-Density Polyethylene · Moisture & UV Sheath',
-  new THREE.Vector3(1.35, 0.4, 3.2),
-  new THREE.Vector3(2.4, 1.1, 3.2)
-);
-
-// 2. Aramid / Kevlar Yarn
-createCalloutBadge(
-  '02',
-  'ARAMID / KEVLAR YARN',
-  '1200 N Tensile Reinforcement · Dielectric',
-  new THREE.Vector3(1.15, -0.4, 2.3),
-  new THREE.Vector3(2.2, -1.0, 2.3)
-);
-
-// 3. Central FRP Rod
-createCalloutBadge(
-  '03',
-  'CENTRAL FRP MEMBER',
-  'Pultruded Glass-Resin Anti-Buckling Core',
-  new THREE.Vector3(0.0, 0.0, 1.2),
-  new THREE.Vector3(-1.8, -0.7, 1.2)
-);
-
-// 4. TIA-598-C Buffer Tubes
-createCalloutBadge(
-  '04',
-  'TIA-598-C BUFFER TUBES',
-  'PBT Polymer · 12-Color Helical Strands',
-  new THREE.Vector3(-0.65, 0.75, 1.6),
-  new THREE.Vector3(-2.2, 1.3, 1.6)
-);
-
-// 5. 9µm Optical Core
-createCalloutBadge(
-  '05',
-  'OPTICAL CORE / GEL',
-  '9µm Fused Silica Waveguide · Thixotropic Gel',
-  new THREE.Vector3(0.2, 0.1, -0.2),
-  new THREE.Vector3(1.6, 0.8, -0.2)
-);
-
 cableAssembly.add(fiberCalloutsGroup);
 
 // Position entire fiber infrastructure group along optical launch axis
@@ -583,13 +465,22 @@ tunnel.visible = false;
 
 // ── 4. Lifecycle & Scroll Update (SF 3.50 → 5.30) ─────────────────────────────
 
-export function updateChapter4(scrollFloat, camera, signalParticles) {
+export function updateChapter4(scrollFloat, camera, signalParticles, renderer, scene) {
   const time = performance.now() * 0.001;
   claddingWallShaderMat.uniforms.uTime.value = time;
   coreWaveShaderMat.uniforms.uTime.value = time;
 
   if (scrollFloat >= 3.48 && scrollFloat <= 5.30) {
     tunnel.visible = true;
+
+    // Render background into transmissionRenderTarget for physical glass refraction (Weakness 4)
+    if (renderer && scene && glassCladdingMat.visible && scrollFloat >= 4.45 && scrollFloat <= 4.86) {
+      glassCladdingMat.visible = false;
+      renderer.setRenderTarget(transmissionRenderTarget);
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      glassCladdingMat.visible = true;
+    }
 
     // Update Macro Fiber Image Shader
     fiberImageMat.uniforms.uTime.value = time;
@@ -662,4 +553,22 @@ export function updateChapter4(scrollFloat, camera, signalParticles) {
       t4.style.pointerEvents = 'none';
     }
   }
+}
+
+// Memory lifecycle disposal (Weakness 3)
+export function disposeChapter4() {
+  if (transmissionRenderTarget) {
+    transmissionRenderTarget.dispose();
+  }
+  tunnel.traverse((child) => {
+    if (child.isMesh) {
+      child.geometry?.dispose();
+      if (Array.isArray(child.material)) {
+        child.material.forEach(m => m?.dispose());
+      } else {
+        child.material?.dispose();
+      }
+    }
+  });
+  fiberTexture?.dispose();
 }

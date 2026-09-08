@@ -37,12 +37,16 @@ const sphereSegments = isMobile ? 32 : 64;
 
 const textureLoader = new THREE.TextureLoader();
 
-// High-fidelity NASA Blue Marble 2:1 equirectangular day texture & photographic night city lights
 const earthDayTexture = textureLoader.load(
   'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
 );
+earthDayTexture.colorSpace = THREE.SRGBColorSpace;
+
 const earthNightTexture = textureLoader.load('/references/earth 3.jpg');
+earthNightTexture.colorSpace = THREE.SRGBColorSpace;
+
 const spaceSkyTexture = textureLoader.load('/references/main phtots of background.png');
+spaceSkyTexture.colorSpace = THREE.SRGBColorSpace;
 
 // 1. 3D Deep Space Skysphere Environment (Grounded in deep black space — subtle astronomical background)
 const spaceSkyGeo = new THREE.SphereGeometry(450, 32, 32);
@@ -137,7 +141,7 @@ const starMat = new THREE.PointsMaterial({
 export const starFieldMesh = new THREE.Points(starGeo, starMat);
 starFieldMesh.renderOrder = -99;
 
-// 3. Primary 3D Earth Globe with Photographic Day/Night Terminator
+// 3. Primary 3D Earth Globe with Photographic Day/Night Terminator & LOD
 // Sun direction angled from top-left to cast a dramatic day/night terminator across the globe
 const sunDirection = new THREE.Vector3(-8.5, 3.8, 3.2).normalize();
 
@@ -211,9 +215,27 @@ export const earthMaterial = new THREE.ShaderMaterial({
   `
 });
 
-const earthGeometry = new THREE.SphereGeometry(3.5, sphereSegments, sphereSegments);
-export const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
-earthMesh.rotation.y = -0.75; // Initial deep space alignment
+// Level of Detail (LOD) for Earth Mesh:
+// High: 64x64 desktop / 32x32 mobile (distance < 14)
+// Med:  32x32 (distance 14 - 24)
+// Low:  16x16 (distance > 24) — cuts triangle count by >75% when camera is distant
+export const earthLOD = new THREE.LOD();
+const highEarthMesh = new THREE.Mesh(new THREE.SphereGeometry(3.5, sphereSegments, sphereSegments), earthMaterial);
+const medEarthMesh  = new THREE.Mesh(new THREE.SphereGeometry(3.5, 32, 32), earthMaterial);
+const lowEarthMesh  = new THREE.Mesh(new THREE.SphereGeometry(3.5, 16, 16), earthMaterial);
+
+earthLOD.addLevel(highEarthMesh, 0);
+earthLOD.addLevel(medEarthMesh, 14);
+earthLOD.addLevel(lowEarthMesh, 24);
+
+// Forward material property for backwards compatibility
+Object.defineProperty(earthLOD, 'material', {
+  get() { return earthMaterial; },
+  configurable: true
+});
+
+export const earthMesh = earthLOD;
+earthMesh.rotation.y = -1.1; // Rotated to face Atlantic Ocean & transatlantic signal origin
 
 // 4. Subtle Separate Cloud Shell (Very faint, rotates slowly for real spherical parallax)
 const cloudGeo = new THREE.SphereGeometry(3.512, sphereSegments, sphereSegments);
@@ -312,18 +334,22 @@ const hubCoordinates = [
 
 const hubPositions = hubCoordinates.map(h => latLonToVec3(h.lat, h.lon, 3.518));
 
-// Ground station nodes: Precision engineering landing points
+// Ground station nodes: Instanced rendering (collapsing 16 separate meshes into 1 InstancedMesh draw call)
 export const nodeMat = new THREE.MeshBasicMaterial({
   color: 0x00CFFF,
   transparent: true,
   opacity: 0.22
 });
 const nodeGeom = new THREE.SphereGeometry(0.016, 10, 10);
-hubPositions.forEach((pos) => {
-  const node = new THREE.Mesh(nodeGeom, nodeMat);
-  node.position.copy(pos);
-  networkGroup.add(node);
+const nodeInstanced = new THREE.InstancedMesh(nodeGeom, nodeMat, hubPositions.length);
+const nodeDummy = new THREE.Object3D();
+hubPositions.forEach((pos, i) => {
+  nodeDummy.position.copy(pos);
+  nodeDummy.updateMatrix();
+  nodeInstanced.setMatrixAt(i, nodeDummy.matrix);
 });
+nodeInstanced.instanceMatrix.needsUpdate = true;
+networkGroup.add(nodeInstanced);
 
 // Authentic Global Fiber Route Paths
 const fiberRoutes = [
@@ -485,9 +511,9 @@ repeaterIndices.forEach((idx) => {
 const landingPt = latLonToVec3(36.85, -75.97, 3.515);
 const nextLandPt = latLonToVec3(36.5, -77.5, 3.516);
 
-// Texture Loader for PBR Articulated Cast-Iron Landing Conduit (Ref: 5. Cable landing station / 6vvddEUa...)
 const landingTextureLoader = new THREE.TextureLoader();
 const castIronTexture = landingTextureLoader.load('/textures/cast_iron_landing_map.jpg');
+castIronTexture.colorSpace = THREE.SRGBColorSpace;
 castIronTexture.wrapS = THREE.RepeatWrapping;
 castIronTexture.wrapT = THREE.RepeatWrapping;
 castIronTexture.repeat.set(2, 2);
@@ -732,7 +758,10 @@ earthMesh.add(carrierSignalGroup);
 
 // ── Update Function (Called every frame) ──────────────────────────────────────
 
-export function updateChapter0(scrollFloat, time) {
+export function updateChapter0(scrollFloat, time, camera) {
+  if (camera) {
+    earthLOD.update(camera);
+  }
   // 1. Deterministic Earth Rotation Choreography:
   // At scrollFloat = 0: Deep space perspective showing Atlantic, Europe, and Western Hemisphere.
   // As scrollFloat increases (0.0 → 0.95): Earth rotates into Texas center-facing camera (+0.18).

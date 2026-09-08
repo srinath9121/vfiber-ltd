@@ -235,7 +235,8 @@ export const ZeroPortalShader = {
     uResolution: { value: new THREE.Vector2(1920, 1080) },
     uCenter:     { value: new THREE.Vector2(0.5, 0.5) },
     uRadius:     { value: 0.22 },
-    uAspect:     { value: 1.77 }
+    uAspect:     { value: 1.77 },
+    uNoiseScale: { value: 4.0 }
   },
   vertexShader: `
     varying vec2 vUv;
@@ -251,12 +252,8 @@ export const ZeroPortalShader = {
     uniform vec2 uCenter;
     uniform float uRadius;
     uniform float uAspect;
+    uniform float uNoiseScale;
     varying vec2 vUv;
-
-    // Pseudo-random noise for frosted glass texture
-    float hash(vec2 p) {
-      return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-    }
 
     void main() {
       vec2 st = vUv - uCenter;
@@ -265,26 +262,24 @@ export const ZeroPortalShader = {
 
       // Expanding portal radius driven by centroid-based uRadius and uProgress
       float targetRadius = max(uAspect, 1.6) * 1.8;
-      float portalRadius = mix(uRadius, targetRadius, pow(uProgress, 1.6));
-      float edgeWidth = 0.14 * (1.0 - uProgress * 0.7);
-      
-      // Aperture mask: 0 inside portal, 1 outside dark void
-      float mask = smoothstep(portalRadius - edgeWidth, portalRadius + edgeWidth, d);
-      
-      // Frosted liquid glass edge refraction & subtle noise
-      float noise = (hash(vUv * 140.0 + uTime * 0.20) - 0.5) * 0.06 * (1.0 - uProgress);
-      float ringEdge = exp(-pow((d - portalRadius) * 14.0, 2.0));
-      
-      // Dual Cyan & Ruby optical rim glow along portal boundary
+      float currentRadius = mix(uRadius, targetRadius, pow(uProgress, 1.6));
+
+      // Organic crystalline frost noise on the dissolve boundary (Weakness 5)
+      float noise = fract(sin(dot(st * uNoiseScale, vec2(12.9898, 78.233))) * 43758.5453);
+      float dissolve = currentRadius + noise * 0.12 - 0.06; // ±6% noise on the edge
+      float mask = smoothstep(dissolve - 0.05, dissolve + 0.05, d);
+
+      // Liquid glass rim glow along portal boundary
+      float ringEdge = exp(-pow((d - dissolve) * 16.0, 2.0));
       vec3 cyanRim = vec3(0.0, 0.81, 1.0) * ringEdge * 2.2 * (1.0 - uProgress * 0.85);
       vec3 rubyCore = vec3(0.77, 0.12, 0.23) * ringEdge * 1.4 * (1.0 - uProgress * 0.85);
-      
-      // Deep space void color (#030712) with radial vignette
-      vec3 voidCol = vec3(0.015, 0.035, 0.075) + cyanRim + rubyCore + vec3(noise);
-      
-      // Alpha opacity of dark overlay plane (fades to 0 when portal opens)
+
+      // Deep space void color (#030712) with atmospheric tint
+      vec3 voidCol = vec3(0.015, 0.035, 0.075) + cyanRim + rubyCore;
+
+      // Alpha opacity with organic dissolve mask (fades out as portal opens)
       float opacity = mask * (1.0 - uProgress);
-      
+
       gl_FragColor = vec4(voidCol, opacity);
     }
   `

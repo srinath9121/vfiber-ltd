@@ -713,3 +713,20 @@ export function updateChapter2(scrollFloat) {
   }
 }
 
+// Memory lifecycle disposal (Weakness 3)
+export function disposeChapter2() {
+  poleGroup.traverse((child) => {
+    if (child.isMesh) {
+      child.geometry?.dispose();
+      if (Array.isArray(child.material)) {
+        child.material.forEach(m => m?.dispose());
+      } else {
+        child.material?.dispose();
+      }
+    }
+  });
+  atmospherePlane.geometry?.dispose();
+  atmospherePlane.material?.dispose();
+  towerTexture?.dispose();
+}
+

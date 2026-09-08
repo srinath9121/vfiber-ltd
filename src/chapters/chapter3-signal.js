@@ -50,9 +50,13 @@ const signalMaterial = new THREE.ShaderMaterial({
   depthWrite: false,
   blending: THREE.AdditiveBlending,
   uniforms: {
-    uOpacity: { value: 0.0 }
+    uOpacity:        { value: 0.0 },
+    uSize:           { value: 0.26 },
+    uCameraDistance: { value: 10.0 }
   },
   vertexShader: `
+    uniform float uSize;
+    uniform float uCameraDistance;
     attribute vec3 color;
     attribute float isHero;
     varying vec3 vColor;
@@ -61,11 +65,10 @@ const signalMaterial = new THREE.ShaderMaterial({
       vColor = color;
       vIsHero = isHero;
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      float dist = -mvPosition.z;
-      // Controlled size scaling: Hero photon leader is 2x larger (max 24px) for clear protagonist dominance
-      float baseSize = mix(32.0, 72.0, isHero);
-      float maxSize  = mix(11.0, 24.0, isHero);
-      gl_PointSize = clamp(baseSize / max(dist, 0.5), 2.0, maxSize);
+      float dist = max(-mvPosition.z, 0.4);
+      // Perspective-correct point size tied to camera distance (Weakness 7)
+      float sizeMult = mix(1.0, 1.8, isHero);
+      gl_PointSize = clamp(uSize * (300.0 / dist) * sizeMult, 2.0, mix(28.0, 56.0, isHero));
       gl_Position = projectionMatrix * mvPosition;
     }
   `,
@@ -99,7 +102,11 @@ export const signalParticles = new THREE.Points(geometry, signalMaterial);
 
 // ── Update (called every frame) ───────────────────────────────────────────────
 
-export function updateChapter3(scrollFloat) {
+export function updateChapter3(scrollFloat, camera) {
+  if (camera) {
+    const dist = camera.position.distanceTo(signalParticles.position);
+    signalMaterial.uniforms.uCameraDistance.value = dist;
+  }
   // Fade particles in at crown ignition (sf 3.05 -> 3.25), fade out as fiber tunnel engages (sf 3.55 -> 3.80)
   const pFadeIn  = clamp(map(scrollFloat, 3.05, 3.25, 0, 1), 0, 1);
   const pFadeOut = clamp(map(scrollFloat, 3.55, 3.80, 1, 0), 0, 1);

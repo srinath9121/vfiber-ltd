@@ -86,10 +86,14 @@ export function initScroll() {
   window.addEventListener('touchmove', (e) => {
     if (isScrollLocked) return;
     if (e.touches.length > 1 || isPinching) { isPinching = true; return; }
-    const delta = touchStartY - e.touches[0].clientY;
-    targetFloat += delta * 0.003;
-    targetFloat = Math.max(0, Math.min(MAX_SCROLL, targetFloat));
+    const dy = touchStartY - e.touches[0].clientY;
     touchStartY = e.touches[0].clientY;
+
+    // Desktop wheel: 0.001 per pixel. Touch on mobile needs ~0.003 (3× more sensitive)
+    // because finger swipe distance per "chapter" is shorter than a full scroll wheel
+    const touchSensitivity = window.innerWidth < 768 ? 0.003 : 0.001;
+    targetFloat += dy * touchSensitivity;
+    targetFloat = Math.max(0, Math.min(MAX_SCROLL, targetFloat));
   }, { passive: true });
 
   window.addEventListener('touchend', (e) => {

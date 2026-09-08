@@ -75,19 +75,35 @@ export function initScroll() {
     }
   });
 
-  // Touch — single finger drag
+  // Touch — single finger drag with momentum
+  let lastTouchY = 0;
+  let lastTouchTime = 0;
+  let touchVelocity = 0;
+
   window.addEventListener('touchstart', (e) => {
     if (isScrollLocked) return;
     if (e.touches.length > 1) { isPinching = true; return; }
     isPinching = false;
     touchStartY = e.touches[0].clientY;
+    lastTouchY = touchStartY;
+    lastTouchTime = performance.now();
+    touchVelocity = 0;
   }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
     if (isScrollLocked) return;
     if (e.touches.length > 1 || isPinching) { isPinching = true; return; }
-    const dy = touchStartY - e.touches[0].clientY;
-    touchStartY = e.touches[0].clientY;
+    const currentY = e.touches[0].clientY;
+    const dy = touchStartY - currentY;
+    touchStartY = currentY;
+
+    const now = performance.now();
+    const dt = now - lastTouchTime;
+    if (dt > 8) {
+      touchVelocity = (lastTouchY - currentY) / dt;
+      lastTouchY = currentY;
+      lastTouchTime = now;
+    }
 
     // Desktop wheel: 0.001 per pixel. Touch on mobile needs ~0.003 (3× more sensitive)
     // because finger swipe distance per "chapter" is shorter than a full scroll wheel
@@ -99,6 +115,16 @@ export function initScroll() {
   window.addEventListener('touchend', (e) => {
     if (isScrollLocked) return;
     if (e.touches.length < 2) isPinching = false;
+
+    // Natural momentum glide on flick
+    const elapsed = performance.now() - lastTouchTime;
+    if (elapsed < 90 && Math.abs(touchVelocity) > 0.25) {
+      const touchSensitivity = window.innerWidth < 768 ? 0.003 : 0.001;
+      const momentum = touchVelocity * 100 * touchSensitivity;
+      targetFloat += momentum;
+      targetFloat = Math.max(0, Math.min(MAX_SCROLL, targetFloat));
+    }
+    touchVelocity = 0;
   }, { passive: true });
 }
 

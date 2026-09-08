@@ -38,8 +38,14 @@ scene.add(envHemi);
 
 // ── Camera ────────────────────────────────────────────────────────────────────
 
-const initialFov = window.innerWidth < window.innerHeight ? 68 : 48;
-const camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.04, 1000);
+export function getResponsiveFov() {
+  const aspect = window.innerWidth / window.innerHeight;
+  if (aspect < 0.6) return 66; // narrow mobile portrait (e.g. 320x568, 375x812, 390x844)
+  if (aspect < 1.0) return 58; // tablet portrait
+  return 48;                   // desktop / landscape
+}
+
+const camera = new THREE.PerspectiveCamera(getResponsiveFov(), window.innerWidth / window.innerHeight, 0.04, 1000);
 camera.position.set(0.0, 0.80, 13.5);
 camera.lookAt(0.0, 0.0, 0.0);
 
@@ -384,7 +390,7 @@ if (navGuide) {
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
-  camera.fov = window.innerWidth < window.innerHeight ? 74 : 65;
+  camera.fov = getResponsiveFov();
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

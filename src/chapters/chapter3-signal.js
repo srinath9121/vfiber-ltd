@@ -61,14 +61,16 @@ const signalMaterial = new THREE.ShaderMaterial({
     attribute float isHero;
     varying vec3 vColor;
     varying float vIsHero;
+    varying float vDist;
     void main() {
       vColor = color;
       vIsHero = isHero;
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
       float dist = max(-mvPosition.z, 0.4);
+      vDist = -mvPosition.z;
       // Perspective-correct point size tied to camera distance (Weakness 7)
       float sizeMult = mix(1.0, 1.8, isHero);
-      gl_PointSize = clamp(uSize * (300.0 / dist) * sizeMult, 2.0, mix(28.0, 56.0, isHero));
+      gl_PointSize = clamp(uSize * (300.0 / dist) * sizeMult, 2.0, mix(24.0, 42.0, isHero));
       gl_Position = projectionMatrix * mvPosition;
     }
   `,
@@ -76,6 +78,7 @@ const signalMaterial = new THREE.ShaderMaterial({
     uniform float uOpacity;
     varying vec3 vColor;
     varying float vIsHero;
+    varying float vDist;
     void main() {
       // Directional velocity energy streaking along travel axis
       vec2 coord = gl_PointCoord - vec2(0.5);
@@ -88,12 +91,15 @@ const signalMaterial = new THREE.ShaderMaterial({
       float d = length(coord);
       if (d > 0.5) discard;
 
+      // Soft near-plane attenuation so particles don't explode into giant blobs right on the camera lens
+      float nearFade = smoothstep(0.5, 1.6, vDist);
+
       // Photonic energy core with high velocity head and soft tail
-      float intensity = streak * smoothstep(0.5, 0.0, d);
+      float intensity = streak * smoothstep(0.5, 0.0, d) * nearFade;
       intensity = pow(intensity, mix(1.3, 0.7, vIsHero));
 
       vec3 finalCol = mix(vColor, vec3(1.0, 1.0, 1.0), vIsHero * (1.0 - d * 2.0) * 0.75);
-      gl_FragColor = vec4(finalCol * (1.2 + 0.8 * vIsHero), intensity * uOpacity * mix(0.75, 1.0, vIsHero));
+      gl_FragColor = vec4(finalCol * (1.1 + 0.5 * vIsHero), intensity * uOpacity * mix(0.75, 1.0, vIsHero));
     }
   `
 });
@@ -103,48 +109,7 @@ export const signalParticles = new THREE.Points(geometry, signalMaterial);
 // ── Update (called every frame) ───────────────────────────────────────────────
 
 export function updateChapter3(scrollFloat, camera) {
-  if (camera) {
-    const dist = camera.position.distanceTo(signalParticles.position);
-    signalMaterial.uniforms.uCameraDistance.value = dist;
-  }
-  // Fade particles in at crown ignition (sf 3.05 -> 3.25), fade out as fiber tunnel engages (sf 3.55 -> 3.80)
-  const pFadeIn  = clamp(map(scrollFloat, 3.05, 3.25, 0, 1), 0, 1);
-  const pFadeOut = clamp(map(scrollFloat, 3.55, 3.80, 1, 0), 0, 1);
-  signalMaterial.uniforms.uOpacity.value = pFadeIn * pFadeOut;
-
-  if (scrollFloat > 3.05) {
-    // Speed ramps from 1× to 4× as camera aligns with stream axis
-    const chapterSpeed = map(scrollFloat, 3.05, 3.50, 1.0, 4.0);
-
-    const pos = geometry.attributes.position.array;
-    const col = geometry.attributes.color.array;
-
-    for (let i = 0; i < particleCount; i++) {
-      // Move forward toward camera (+Z)
-      pos[i * 3 + 2] += speeds[i] * chapterSpeed;
-
-      // Reset when too far
-      if (pos[i * 3 + 2] > 8.0) {
-        if (i === 0) {
-          pos[0] = 0.40;
-          pos[1] = 10.42;
-          pos[2] = -0.60;
-        } else {
-          pos[i * 3]     = 0.40 + (Math.random() - 0.5) * 0.28;
-          pos[i * 3 + 1] = 10.42 + (Math.random() - 0.5) * 0.28;
-          pos[i * 3 + 2] = -0.60;
-        }
-      }
-
-      // Physical color lerp Cyan -> Ruby Red (#C41E3A) at fiber core entry
-      const t = clamp((pos[i * 3 + 2] - (-0.60)) / 8.6, 0, 1);
-      col[i * 3]     = 0.0   * (1 - t) + 0.769 * t; // R: cyan -> Ruby Red
-      col[i * 3 + 1] = 0.812 * (1 - t) + 0.118 * t; // G: -> Ruby Red
-      col[i * 3 + 2] = 1.0   * (1 - t) + 0.227 * t; // B: -> Ruby Red
-    }
-
-    geometry.attributes.position.needsUpdate = true;
-    geometry.attributes.color.needsUpdate    = true;
-  }
-
+  // Totally removed per user request — no particle effect, no flash
+  signalMaterial.uniforms.uOpacity.value = 0.0;
+  signalParticles.visible = false;
 }

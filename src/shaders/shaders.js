@@ -280,7 +280,7 @@ export const ZeroPortalShader = {
       // Alpha opacity with organic dissolve mask (fades out as portal opens)
       float opacity = mask * (1.0 - uProgress);
 
-      gl_FragColor = vec4(voidCol, opacity);
+      gl_FragColor = vec4(0.0);
     }
   `
 };

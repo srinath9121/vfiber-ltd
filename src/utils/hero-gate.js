@@ -1011,7 +1011,7 @@ export class HeroGateEngine {
   }
 
   update(time, renderer) {
-    if (this.state === GATE_STATE.OPEN) return;
+    return;
 
     if (this.portalMaterial) {
       this.portalMaterial.uniforms.uTime.value = time;

@@ -62,16 +62,12 @@ const SKY = [
   { sf: 2.35, top: new THREE.Color(0x050c18), bot: new THREE.Color(0x1a100a) },
   // ch2 tower crown: blue-hour — rich prussian blue sky
   { sf: 2.80, top: new THREE.Color(0x040d1f), bot: new THREE.Color(0x0a0d18) },
-  // ch3 signal coupling: deep electric — near black, cyan tint
-  { sf: 3.20, top: new THREE.Color(0x000608), bot: new THREE.Color(0x000a0d) },
-  // ch4 fiber tunnel: total darkness — the inside of a cable
-  { sf: 3.60, top: new THREE.Color(0x000000), bot: new THREE.Color(0x000000) },
-  { sf: 4.80, top: new THREE.Color(0x000000), bot: new THREE.Color(0x000000) },
-  // ch6 ODF rack bay: data center warmth — very dark warm grey
-  { sf: 5.14, top: new THREE.Color(0x060508), bot: new THREE.Color(0x080608) },
-  { sf: 5.60, top: new THREE.Color(0x050508), bot: new THREE.Color(0x080508) },
-  // ch5 planetary return: back to space
-  { sf: 5.85, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
+  // Tower exit & atmospheric ascent: transitioning back to dark cosmos
+  { sf: 3.30, top: new THREE.Color(0x020714), bot: new THREE.Color(0x050912) },
+  // Upper atmosphere / low orbit
+  { sf: 4.20, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
+  // Planetary orbit return: back to space
+  { sf: 5.50, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
   { sf: 6.00, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
 ];
 
@@ -139,15 +135,10 @@ const AMB = [
   { sf: 1.80, skyCol: new THREE.Color(0x0a1020), gndCol: new THREE.Color(0x100a04), int: 0.55 },
   // ch2 tower crown — blue hour
   { sf: 2.80, skyCol: new THREE.Color(0x060d1c), gndCol: new THREE.Color(0x06080c), int: 0.45 },
-  // ch3 signal
-  { sf: 3.20, skyCol: new THREE.Color(0x020608), gndCol: new THREE.Color(0x020408), int: 0.25 },
-  // ch4 fiber — almost total dark
-  { sf: 3.60, skyCol: new THREE.Color(0x010204), gndCol: new THREE.Color(0x010204), int: 0.12 },
-  { sf: 4.80, skyCol: new THREE.Color(0x010204), gndCol: new THREE.Color(0x010204), int: 0.12 },
-  // ch6 ODF — warm data center
-  { sf: 5.14, skyCol: new THREE.Color(0x080810), gndCol: new THREE.Color(0x100808), int: 0.50 },
-  // ch5 final — space return
-  { sf: 5.85, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
+  // Atmospheric ascent
+  { sf: 3.40, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
+  // Planetary orbit return
+  { sf: 5.50, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
   { sf: 6.00, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
 ];
 
@@ -187,17 +178,8 @@ function injectNarrativeDOM() {
   document.body.appendChild(div);
 }
 
-// ── Chapter Transition Flash ──────────────────────────────────────────────────
-const CH_BOUNDARIES = [0.95, 1.70, 2.80, 3.30, 3.60, 5.14, 5.85];
-let _lastSf = 0;
-
-function fireChapterFlash() {
-  if (typeof document === 'undefined') return;
-  const flash = document.getElementById('chapter-flash');
-  if (!flash) return;
-  flash.style.opacity = '0.12';
-  setTimeout(() => { flash.style.opacity = '0'; }, 120);
-}
+// ── Chapter Transition Flash (Totally removed per user request - no flashing) ──
+function fireChapterFlash() {}
 
 let _lastNarrativeIdx = -1;
 
@@ -273,12 +255,6 @@ function updateNarrative(sf) {
 
 // ── Main update called every frame from main.js ───────────────────────────────
 export function updateEnvironment(sf, scene) {
-  // Chapter transition white flash on boundary crossing
-  const crossed = CH_BOUNDARIES.find(b =>
-    (_lastSf < b && sf >= b) || (_lastSf > b && sf <= b)
-  );
-  if (crossed) fireChapterFlash();
-  _lastSf = sf;
   // 1. Sky gradient
   let fromSky = SKY[0], toSky = SKY[SKY.length - 1];
   for (let i = 0; i < SKY.length - 1; i++) {
@@ -302,27 +278,12 @@ export function updateEnvironment(sf, scene) {
   envHemi.groundColor.lerpColors(fromA.gndCol, toA.gndCol, eA);
   envHemi.intensity = lerp(fromA.int, toA.int, eA);
 
-  // 3. Ground plane — visible during tower chapter (sf 1.7 → 3.1)
-  const gndOp = clamp(map(sf, 1.70, 2.10, 0, 1), 0, 1) *
-                clamp(map(sf, 2.90, 3.15, 1, 0), 0, 1);
-  groundMat.opacity = gndOp * 0.85;
-  groundPlane.visible = gndOp > 0.001;
+  // 3. Ground plane & Haze plane — disabled for clean pristine scene
+  groundPlane.visible = false;
+  hazePlane.visible = false;
 
-  // Ground color shifts from dark ochre (dusk) to deep navy (night)
-  const gndHue = clamp(map(sf, 1.70, 2.80, 0, 1), 0, 1);
-  groundMat.color.setHex(gndHue < 0.5 ? 0x0e0c08 : 0x080a10);
-
-  // 4. Haze plane — gives tower a sense of depth/atmosphere
-  const hazeOp = clamp(map(sf, 1.80, 2.20, 0, 1), 0, 1) *
-                 clamp(map(sf, 2.85, 3.10, 1, 0), 0, 1);
-  hazeMat.opacity = hazeOp * 0.45;
-  hazePlane.visible = hazeOp > 0.001;
-
-  // 5. DC floor — visible during ODF chapter
-  const dcOp = clamp(map(sf, 5.14, 5.30, 0, 1), 0, 1) *
-               clamp(map(sf, 5.76, 5.85, 1, 0), 0, 1);
-  gridMat.opacity = dcOp * 0.70;
-  dcFloor.visible = dcOp > 0.001;
+  // 5. DC floor — disabled (erased with downstream chapters)
+  dcFloor.visible = false;
 
   // 6. Narrative overlay
   updateNarrative(sf);

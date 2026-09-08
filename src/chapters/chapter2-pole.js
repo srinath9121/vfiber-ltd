@@ -654,10 +654,10 @@ export function updateChapter2(scrollFloat) {
     waveguidePulseMat.opacity = 0.0;
   }
 
-  // 6. Crown Optical Emitter Ignition (sf 3.05 -> 3.25)
-  const crownProgress = clamp(map(scrollFloat, 3.05, 3.25, 0, 1), 0, 1) * towerFadeOut;
-  crownEmitterMat.opacity = crownProgress;
-  crownEmitterMat.emissiveIntensity = crownProgress * (4.0 + 1.5 * Math.sin(time * 6.0));
+  // 6. Crown Optical Emitter (Totally disabled per user request — no effect, no flash)
+  crownEmitterMesh.visible = false;
+  crownEmitterMat.opacity = 0.0;
+  crownEmitterMat.emissiveIntensity = 0.0;
 
   // Update Tower Photographic Depth Shader
   towerImageMat.uniforms.uTime.value = time;

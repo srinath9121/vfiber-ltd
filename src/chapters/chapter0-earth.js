@@ -48,21 +48,20 @@ earthNightTexture.colorSpace = THREE.SRGBColorSpace;
 const spaceSkyTexture = textureLoader.load('/references/main phtots of background.png');
 spaceSkyTexture.colorSpace = THREE.SRGBColorSpace;
 
-// Helper: Procedural high-resolution radial star glow texture
+// Helper: Procedural crisp pinpoint star texture
 function createStarTexture() {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 64;
+  canvas.width = 32;
+  canvas.height = 32;
   const ctx = canvas.getContext('2d');
-  const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 14);
   grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
-  grad.addColorStop(0.18, 'rgba(235, 245, 255, 0.95)');
-  grad.addColorStop(0.42, 'rgba(120, 205, 255, 0.45)');
-  grad.addColorStop(0.72, 'rgba(40, 120, 220, 0.12)');
+  grad.addColorStop(0.20, 'rgba(240, 248, 255, 0.95)');
+  grad.addColorStop(0.50, 'rgba(160, 215, 255, 0.30)');
   grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 64, 64);
+  ctx.fillRect(0, 0, 32, 32);
   const tex = new THREE.CanvasTexture(canvas);
   return tex;
 }
@@ -143,11 +142,11 @@ starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
 
 const starMat = new THREE.PointsMaterial({
-  size: 2.6,
+  size: 1.2,
   map: createStarTexture(),
   vertexColors: true,
   transparent: true,
-  opacity: 1.0,
+  opacity: 0.90,
   blending: THREE.AdditiveBlending,
   depthWrite: false,
   sizeAttenuation: true

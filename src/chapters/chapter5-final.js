@@ -12,20 +12,9 @@ let statsAnimated = false;
 
 export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, networkGroup, beamsGroup) {
 
-  if (scrollFloat > 5.85) {
-    // Earth returns (sf 5.85 → 6.00)
-    if (earthMesh) {
-      earthMesh.material.transparent = true;
-      earthMesh.material.opacity =
-        clamp(map(scrollFloat, 5.85, 6.00, 0, 1), 0, 1);
-    }
-
-    // Show network + beam groups
-    if (networkGroup) networkGroup.visible = true;
-    if (beamsGroup)   beamsGroup.visible   = true;
-
+  if (scrollFloat > 4.90) {
     // GSAP stat counters — trigger once
-    if (scrollFloat > 5.92 && !statsAnimated) {
+    if (scrollFloat > 5.15 && !statsAnimated) {
       statsAnimated = true;
 
       gsap.to({ val: 0 }, {
@@ -51,7 +40,7 @@ export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, ne
   }
 
   // Reset counters if user scrolls back
-  if (scrollFloat < 5.80 && statsAnimated) {
+  if (scrollFloat < 4.80 && statsAnimated) {
     statsAnimated = false;
     const s1 = document.getElementById('stat1');
     const s2 = document.getElementById('stat2');
@@ -59,10 +48,10 @@ export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, ne
     if (s2) s2.textContent = '0';
   }
 
-  // Chapter 5 text overlay
+  // Chapter 5 text overlay (Contact Us card)
   const t5 = document.getElementById('chapter5-text');
   if (t5) {
-    if (scrollFloat > 5.90) {
+    if (scrollFloat > 5.00) {
       t5.style.opacity       = '1';
       t5.style.pointerEvents = 'all';
     } else {

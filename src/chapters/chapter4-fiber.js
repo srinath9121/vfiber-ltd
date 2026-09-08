@@ -396,33 +396,30 @@ const jacketRimMesh = new THREE.Mesh(jacketRimGeo, jacketMat);
 jacketRimMesh.position.set(frpCenterX, frpCenterY, -1.8);
 cableAssembly.add(jacketRimMesh);
 
-// [F] Extreme Macro Fused Silica Cladding & Internal Photonic Core (SF 4.80 → 5.30)
-// Outer Fused Silica Cladding Wall (125µm scale glass boundary)
+// [F] Extreme Macro Fused Silica Cladding & Internal Photonic Core (Portal scene removed per user request)
 const claddingWallMesh = new THREE.Mesh(
   new THREE.CylinderGeometry(1.65, 1.65, 52, 32, 1, true),
   claddingWallShaderMat
 );
 claddingWallMesh.rotation.x = Math.PI / 2;
 claddingWallMesh.position.set(0.0, 0.0, -21.0);
-tunnel.add(claddingWallMesh);
+claddingWallMesh.visible = false;
 
-// Inner Optical Waveguide Core (9µm scale concentrated traveling photonic pulse)
 const macroCoreMesh = new THREE.Mesh(
   new THREE.CylinderGeometry(0.32, 0.32, 52, 24, 1, true),
   coreWaveShaderMat
 );
 macroCoreMesh.rotation.x = Math.PI / 2;
 macroCoreMesh.position.set(0.0, 0.0, -21.0);
-tunnel.add(macroCoreMesh);
+macroCoreMesh.visible = false;
 
-// Ceramic Zirconia Ferrule Bezel at aperture (z = 4.8)
 const ferruleBezel = new THREE.Mesh(
   new THREE.CylinderGeometry(1.72, 1.72, 0.5, 32, 1, true),
   ferruleMat
 );
 ferruleBezel.rotation.x = Math.PI / 2;
 ferruleBezel.position.set(0.0, 0.0, 4.8);
-tunnel.add(ferruleBezel);
+ferruleBezel.visible = false;
 
 // ── Macro Loose-Tube Photographic Transformation Plane ─────────────────────────
 const fiberTexLoader = new THREE.TextureLoader();
@@ -495,18 +492,18 @@ export function updateChapter4(scrollFloat, camera, signalParticles, renderer, s
 
     // Mechanical outer assembly visibility (Jacket, buffer tubes, aramid, stripped fiber)
     // Full visibility at 3.50 -> 4.65 (SF 3.6 cutaway, SF 4.2 loose tubes, SF 4.6 bare fiber)
-    const extFadeOut = clamp(map(scrollFloat, 4.68, 4.86, 1, 0.0), 0.0, 1.0);
+    const extFadeOut = clamp(map(scrollFloat, 4.85, 5.20, 1, 0.0), 0.0, 1.0);
     const extOpacity = masterOpacity * extFadeOut;
 
-    // CRITICAL FIX: Hide the outer cable assembly (opaque buffer tubes, FRP rod, jacket)
-    // as camera enters the macro core aperture so near-plane geometry clipping is eliminated
-    cableAssembly.visible = (scrollFloat < 4.86);
+    // Physical cable assembly visible throughout macro inspection until demarcation handover
+    cableAssembly.visible = (scrollFloat < 5.20);
 
-    // Macro internal core & cladding shader opacity (activates when entering waveguide at SF 4.80 -> 5.25)
-    const coreIn = clamp(map(scrollFloat, 4.75, 4.95, 0, 1), 0, 1);
-    claddingWallShaderMat.uniforms.uOpacity.value = masterOpacity * coreIn * 0.92;
-    coreWaveShaderMat.uniforms.uOpacity.value = masterOpacity * coreIn * 1.0;
-    coreWaveShaderMat.uniforms.uProgress.value = clamp(map(scrollFloat, 4.85, 5.25, 0, 1), 0, 1);
+    // Portal tunnel meshes completely disabled per user request
+    claddingWallMesh.visible = false;
+    macroCoreMesh.visible = false;
+    ferruleBezel.visible = false;
+    claddingWallShaderMat.uniforms.uOpacity.value = 0.0;
+    coreWaveShaderMat.uniforms.uOpacity.value = 0.0;
 
     jacketMat.opacity = extOpacity;
     aramidMat.opacity = extOpacity;
@@ -522,15 +519,9 @@ export function updateChapter4(scrollFloat, camera, signalParticles, renderer, s
     const pulseMix = 0.5 + 0.5 * Math.sin(time * 6.0);
     coreWireMat.color.set(0xc41e3a).lerp(new THREE.Color(0x00cfff), pulseMix * 0.20);
 
-    // Signal particles: strictly synchronized to traveling photonic wavefront
+    // Signal particles: disabled per user request
     if (signalParticles) {
-      if (scrollFloat >= 3.55 && scrollFloat <= 4.65) {
-        signalParticles.visible = true;
-        const pProgress = clamp(map(scrollFloat, 3.55, 4.50, 0, 1), 0, 1);
-        signalParticles.material.opacity = masterOpacity * (0.35 + 0.65 * pProgress);
-      } else {
-        signalParticles.visible = false;
-      }
+      signalParticles.visible = false;
     }
   } else {
     tunnel.visible = false;

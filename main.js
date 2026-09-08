@@ -12,15 +12,12 @@ import { earthMesh, spaceSkyMesh, starFieldMesh, networkGroup, beamsGroup, updat
 import { usaNodesGroup, updateChapter1 } from './src/chapters/chapter1-usa.js';
 import { poleGroup, atmospherePlane, updateChapter2, disposeChapter2 } from './src/chapters/chapter2-pole.js';
 import { signalParticles, updateChapter3 } from './src/chapters/chapter3-signal.js';
-import { tunnel, fiberMaterial, updateChapter4 } from './src/chapters/chapter4-fiber.js';
 import { updateChapter5 } from './src/chapters/chapter5-final.js';
-import { networkChapterGroup, updateChapter6, handlePortRaycast, hidePortInspection } from './src/chapters/chapter6-network.js';
 import { clamp, map, lerp } from './src/utils/math.js';
 import { audioManager } from './src/utils/audio.js';
 import { assetRegistry } from './src/utils/assets.js';
-import { heroGateEngine } from './src/utils/hero-gate.js';
 import {
-  horizonQuad, groundPlane, hazePlane, dcFloor,
+  horizonQuad, groundPlane, hazePlane,
   envAmbient, envHemi,
   updateEnvironment, initEnvironment
 } from './src/environment.js';
@@ -36,7 +33,6 @@ initEnvironment();
 scene.add(horizonQuad);
 scene.add(groundPlane);
 scene.add(hazePlane);
-scene.add(dcFloor);
 scene.add(envAmbient);
 scene.add(envHemi);
 
@@ -113,12 +109,6 @@ scene.add(atmospherePlane);
 // Chapter 3 — signal particles
 scene.add(signalParticles);
 
-// Chapter 4 — fiber tunnel
-scene.add(tunnel);
-
-// Chapter 6 — optical termination & network infrastructure
-scene.add(networkChapterGroup);
-
 // ── Master Camera Choreography ────────────────────────────────────────────────
 // The camera is the storyteller. A single coherent controller interpolates both
 // camera position and lookAt target across all chapters.
@@ -148,48 +138,16 @@ const CAM = [
   { at: 2.75, pos: new THREE.Vector3(1.6, 5.8, 4.0),    target: new THREE.Vector3(0.4, 6.8, -0.6) },
   // 3.00: Cellular sector array & crown framing
   { at: 3.00, pos: new THREE.Vector3(0.9, 8.4, 3.0),    target: new THREE.Vector3(0.4, 9.2, -0.6) },
-  // 3.20: Crown optical emitter burst & top-down alignment
-  { at: 3.20, pos: new THREE.Vector3(0.4, 10.8, 2.6),   target: new THREE.Vector3(0.4, 10.42, -1.5) },
-  // 3.40: Alignment with particle stream / fiber entry axis
-  { at: 3.40, pos: new THREE.Vector3(0.4, 10.42, 4.0),  target: new THREE.Vector3(0.4, 10.42, -10.0) },
-  // 3.60: Milestone 1 — 3/4 Perspective Reveal of Loose-Tube Cable Cutaway (Jacket, Kevlar, FRP, 6 PBT Tubes)
-  { at: 3.60, pos: new THREE.Vector3(0.4 + 1.8, 10.42 + 1.1, 7.5),  target: new THREE.Vector3(0.4, 10.42 - 0.2, 1.0) },
-  // 3.90: Transition approach gliding towards the helical buffer tube bundle
-  { at: 3.90, pos: new THREE.Vector3(0.4 + 1.1, 10.42 + 0.65, 4.8), target: new THREE.Vector3(0.4, 10.42 - 0.15, 1.2) },
-  // 4.20: Milestone 2 — Macro Framing of Loose-Tube Assembly (6 colored PBT tubes, FRP rod, gel, fibers)
-  { at: 4.20, pos: new THREE.Vector3(0.4 + 0.72, 10.42 + 0.42, 2.6), target: new THREE.Vector3(0.4, 10.42 - 0.1, 1.0) },
-  // 4.40: Approaching the hero blue buffer tube stripped breakout
-  { at: 4.40, pos: new THREE.Vector3(0.4 + 0.35, 10.42 + 0.20, 4.2), target: new THREE.Vector3(0.4, 10.42, 3.2) },
-  // 4.60: Milestone 3 — Extreme Macro of Individual Glass Fiber (matching _9LM94eo...jpg: 250µm stripped coating & 125µm bare silica glass)
-  { at: 4.60, pos: new THREE.Vector3(0.4 + 0.36, 10.42 + 0.18, 5.4), target: new THREE.Vector3(0.4, 10.42, 4.3) },
-  // 4.80: Axial alignment with glass fiber core aperture
-  { at: 4.80, pos: new THREE.Vector3(0.4, 10.42, 4.2), target: new THREE.Vector3(0.4, 10.42, -10.0) },
-  // 5.00: Milestone 4 — Inside Optical Core Waveguide (Traveling Ruby Red #C41E3A / Electric Cyan pulse)
-  { at: 5.00, pos: new THREE.Vector3(0.4, 10.42, -5.0), target: new THREE.Vector3(0.4, 10.42, -30.0) },
-  // 5.15: Waveguide exit approaching demarcation
-  { at: 5.15, pos: new THREE.Vector3(0.40, 10.42, -22.0), target: new THREE.Vector3(0.40, 10.42, -45.0) },
-  // 5.25: 3/4 Macro framing of SFP28 die-cast transceiver cage & blue LC duplex port
-  { at: 5.25, pos: new THREE.Vector3(0.40 + 0.55, 10.42 + 0.35, -45.0), target: new THREE.Vector3(0.40, 10.42, -50.5) },
-  // 5.38: Tracing the yellow OS2 patch cord departing the transceiver boot
-  { at: 5.38, pos: new THREE.Vector3(0.40 + 0.95, 10.42 + 0.10, -55.0), target: new THREE.Vector3(0.40 - 0.15, 10.42 - 0.30, -64.0) },
-  // 5.50: Gliding past drooping catenary cable loops and black cable-management D-rings
-  { at: 5.50, pos: new THREE.Vector3(0.40 + 1.25, 10.42 - 0.35, -67.0), target: new THREE.Vector3(0.40 - 0.10, 10.42 - 0.70, -78.0) },
-  // 5.62: Inspection of white ABS splice organizer tray, racetrack loops, and fusion sleeves
-  { at: 5.62, pos: new THREE.Vector3(0.40 + 0.95, 10.42 - 0.70, -74.0), target: new THREE.Vector3(0.40, 10.42 - 1.50, -80.0) },
-  // 5.72: Ascending to frame 24x blue duplex LC bulkhead adapters and rack mounting ears
-  { at: 5.72, pos: new THREE.Vector3(0.40 + 0.65, 10.42 + 0.45, -72.0), target: new THREE.Vector3(0.40, 10.42 + 0.20, -80.5) },
-  // 5.80: Wide 3/4 architectural perspective of the complete 19-inch ODF equipment rack bay
-  { at: 5.80, pos: new THREE.Vector3(0.40 + 0.35, 10.42 + 1.80, -68.0), target: new THREE.Vector3(0.40, 10.42 - 0.20, -82.0) },
-  // 5.84: Phase 6D Stage 4 — Continuous Macro Pull revealing Regional Backbone Corridor
-  { at: 5.84, pos: new THREE.Vector3(0.15, 3.80, -20.0), target: new THREE.Vector3(0.00, 1.20, -5.0) },
-  // 5.88: Phase 7 Stage 1 — Natural Earth Curvature Re-entry & Orbital Node Ingress
-  { at: 5.88, pos: new THREE.Vector3(0.00, 1.80, 5.0), target: new THREE.Vector3(0.00, 0.00, 0.0) },
-  // 5.92: Phase 7 Stage 2 — Causal Radial Propagation across Global Network Mesh
-  { at: 5.92, pos: new THREE.Vector3(0.00, 1.35, 9.2), target: new THREE.Vector3(0.00, 0.00, 0.0) },
-  // 5.95: Phase 7 Stage 3 — Planetary Mesh Stabilization & Atmospheric Glow Peak
-  { at: 5.95, pos: new THREE.Vector3(0.00, 1.35, 10.4), target: new THREE.Vector3(0.00, -0.25, 0.0) },
-  // 6.00: Phase 7 Stage 4 — Final Planetary Culmination & Subordinate Engineering Metrics
-  { at: 6.00, pos: new THREE.Vector3(0.00, 1.50, 11.2), target: new THREE.Vector3(0.00, -0.30, 0.0) }
+  // 3.40: Ascending above the tower into the empty gap (tower fades out)
+  { at: 3.40, pos: new THREE.Vector3(0.4, 13.0, 4.8),   target: new THREE.Vector3(0.2, 9.0, -1.5) },
+  // 4.00: Empty space gap — quiet clean cosmos ready for custom info
+  { at: 4.00, pos: new THREE.Vector3(0.0, 15.0, 6.5),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 4.60: Empty space gap — gentle drift through pure stars
+  { at: 4.60, pos: new THREE.Vector3(0.0, 15.0, 8.0),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 5.20: Transition from gap into finale
+  { at: 5.20, pos: new THREE.Vector3(0.0, 14.5, 9.0),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 6.00: Final culmination: Contact Us card framed in pristine deep space
+  { at: 6.00, pos: new THREE.Vector3(0.0, 14.0, 9.5),   target: new THREE.Vector3(0.0, 9.0, -2.0) }
 ];
 
 const camTargetPos  = new THREE.Vector3();
@@ -237,14 +195,10 @@ function updateCamera(sf) {
 
   // Responsive camera framing adjustment for narrow portrait screens (mobile)
   if (camera.aspect < 1.0) {
-    // Macro cable transition (sf 3.60 -> 4.80): adapt camera distance along view vector to preserve framing
-    if (sf >= 3.50 && sf <= 4.85) {
+    if (sf >= 2.0 && sf <= 3.2) {
       const portraitDistFactor = (1.0 / camera.aspect) * 0.35;
       const viewDir = camTargetPos.clone().sub(camTargetLook).normalize();
       camTargetPos.add(viewDir.multiplyScalar(portraitDistFactor));
-    } else if (sf >= 5.15 && sf <= 5.40) {
-      const mobileXShift = (camTargetPos.x - 0.40) * 0.55;
-      camTargetPos.x -= mobileXShift;
     }
   }
 
@@ -258,19 +212,14 @@ function updateCamera(sf) {
   lastCameraSf = sf;
 
   // Organic micro-breathe — removes robotic interpolation feel
-  // Two overlapping sine waves at non-harmonic frequencies ensure the camera
-  // never repeats the exact same position — it feels hand-held, not CG.
   const isMobileDevice = window.innerWidth < 768;
   const breatheScale = isMobileDevice ? 0.3 : 1.0;
 
   const breatheT = performance.now() * 0.001;
   const breatheX = (Math.sin(breatheT * 0.31) * 0.008 + Math.sin(breatheT * 0.47) * 0.004) * breatheScale;
   const breatheY = (Math.cos(breatheT * 0.29) * 0.006 + Math.cos(breatheT * 0.53) * 0.003) * breatheScale;
-  // Skip during macro fiber/cable shots where sub-pixel framing matters
-  if (sf < 3.50 || sf > 4.90) {
-    camera.position.x += breatheX;
-    camera.position.y += breatheY;
-  }
+  camera.position.x += breatheX;
+  camera.position.y += breatheY;
 
   camera.lookAt(currentLookAt);
 }
@@ -286,23 +235,18 @@ function animate() {
   const sf = scrollFloat;
   const time = performance.now() * 0.001;
 
-  // Master camera update across all chapters — eliminates conflicts
+  // Master camera update across all chapters
   updateCamera(sf);
 
   // Earth visual dominance & opacity choreography
-  let earthOpacity = 1.0;
+  // Earth is only visible during initial arrival (sf < 2.10); after the tower it is completely hidden
+  let earthOpacity = 0.0;
   if (sf < 1.70) {
     earthOpacity = 1.0;
   } else if (sf <= 2.10) {
-    earthOpacity = clamp(map(sf, 1.70, 2.10, 1.0, 0.22), 0.22, 1.0);
-  } else if (sf < 3.2) {
-    earthOpacity = 0.22; // Preserves dark atmospheric horizon throughout Phase 3
-  } else if (sf < 4.3) {
-    earthOpacity = clamp(map(sf, 3.2, 3.6, 0.22, 0), 0, 0.22);
-  } else if (sf < 5.85) {
-    earthOpacity = 0.0;
+    earthOpacity = clamp(map(sf, 1.70, 2.10, 1.0, 0.0), 0.0, 1.0);
   } else {
-    earthOpacity = clamp(map(sf, 5.85, 6.0, 0, 0.88), 0, 0.88);
+    earthOpacity = 0.0;
   }
 
   if (earthMesh.material.uniforms && earthMesh.material.uniforms.uOpacity) {
@@ -310,12 +254,12 @@ function animate() {
   }
   earthMesh.renderOrder = 0;
 
-  // Network, beams, and USA nodes group visibility: active during initial Earth arrival (sf < 2.10) and Phase 7 planetary culmination (sf > 5.82)
-  earthMesh.visible     = sf < 2.10 || sf > 5.82;
-  usaNodesGroup.visible = sf < 2.10 || sf > 5.82;
-  networkGroup.visible  = sf < 2.10 || sf > 5.82;
+  // After the tower, Earth and orbital nodes are never shown again
+  earthMesh.visible     = sf < 2.10;
+  usaNodesGroup.visible = sf < 2.10;
+  networkGroup.visible  = sf < 2.10;
+
   // Tower Chapter Sun Dynamic Orbit & Color Shift (sf 1.70–3.20)
-  // Sun moves from warm low angle (ground) to cold overhead (crown)
   if (sf >= 1.70 && sf <= 3.20) {
     const towerProgress = clamp(map(sf, 1.70, 3.20, 0, 1), 0, 1);
     const sunAngle = lerp(Math.PI * 0.15, Math.PI * 0.48, towerProgress);
@@ -324,13 +268,12 @@ function animate() {
       Math.sin(sunAngle) * 8 + 2,
       10.0
     );
-    // Color shifts from warm amber (ground) to cold blue-white (crown)
     sun.color.setRGB(
       lerp(1.0, 0.95, towerProgress),
       lerp(0.96, 0.98, towerProgress),
       lerp(0.88, 1.0,  towerProgress)
     );
-  } else if (sf < 1.70) {
+  } else if (sf < 1.70 || sf > 3.20) {
     sun.position.set(12.0, 4.0, 10.0);
     sun.color.setRGB(1.0, 0.98, 0.93);
   }
@@ -339,16 +282,11 @@ function animate() {
   updateEnvironment(sf, scene);
 
   // Per-chapter atmospheric fog density
-  // Target densities: space=0.006, tower=0.018, fiber=0.000, final=0.008
   let targetFogDensity = 0.006;
-  if (sf < 0.95)       targetFogDensity = 0.006;  // ch0: space, wide open
-  else if (sf < 1.70)  targetFogDensity = 0.007;  // ch1: USA grid
-  else if (sf < 2.80)  targetFogDensity = 0.018;  // ch2: tower, atmospheric haze
-  else if (sf < 3.30)  targetFogDensity = 0.010;  // ch3: signal coupling
-  else if (sf < 4.50)  targetFogDensity = 0.000;  // ch4: fiber tunnel, self-lit
-  else if (sf < 5.40)  targetFogDensity = 0.012;  // ch6: ODF rack bay
-  else                 targetFogDensity = 0.008;  // ch5: planetary return
-  // Lerp fog density each frame for smooth transitions
+  if (sf < 0.95)       targetFogDensity = 0.006;  // space, wide open
+  else if (sf < 1.70)  targetFogDensity = 0.007;  // USA grid
+  else if (sf < 2.80)  targetFogDensity = 0.018;  // tower, atmospheric haze
+  else                 targetFogDensity = 0.006;  // clean cosmic space
   if (scene.fog) {
     scene.fog.density += (targetFogDensity - scene.fog.density) * 0.04;
   }
@@ -358,31 +296,15 @@ function animate() {
   updateChapter1(sf, time);
   updateChapter2(sf);
   updateChapter3(sf, camera);
-  updateChapter4(sf, camera, signalParticles, renderer, scene);
-  updateChapter6(sf);
-  updateChapter5(sf, camera, earthMesh, fiberMaterial, networkGroup, beamsGroup);
+  updateChapter5(sf, camera, earthMesh, null, networkGroup, beamsGroup);
 
   // Environmental audio orchestrator update
   audioManager.update(sf);
 
-  // Dispose chapter 2 assets when well past them (Weakness 3)
-  if (sf > 3.70 && !_ch2Disposed) {
+  // Dispose chapter 2 assets when well past them
+  if (sf > 4.50 && !_ch2Disposed) {
     disposeChapter2();
     _ch2Disposed = true;
-  }
-
-  // Safety HUD lifecycle clamp: guarantees Chapter 4 & 6 HUDs never overlap the finale
-  const ch4Hud = document.getElementById('chapter4-text');
-  if (ch4Hud && (sf < 3.60 || sf >= 4.50)) {
-    ch4Hud.style.opacity = '0';
-    ch4Hud.style.pointerEvents = 'none';
-    ch4Hud.style.display = 'none';
-  }
-  const ch6Hud = document.getElementById('chapter6-text');
-  if (ch6Hud && (sf < 5.15 || sf >= 5.82)) {
-    ch6Hud.style.opacity = '0';
-    ch6Hud.style.pointerEvents = 'none';
-    ch6Hud.style.display = 'none';
   }
 
   // Scrubber update
@@ -392,14 +314,10 @@ function animate() {
     scrubber.style.pointerEvents = 'auto';
   }
 
-  // After setting chapter HUD opacity/visibility, always ensure panels don't
-  // intercept touch scroll on mobile (touch events bubble differently than mouse)
+  // Mobile read-only HUD protection
   if (window.innerWidth < 768) {
-    const huds = ['chapter2-text','chapter4-text','chapter6-text'];
-    huds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.pointerEvents = 'none'; // HUDs are read-only on mobile
-    });
+    const el = document.getElementById('chapter2-text');
+    if (el) el.style.pointerEvents = 'none';
   }
 
   // Sync scrubber active node (About us, Services, Contact us)
@@ -409,9 +327,9 @@ function animate() {
     if (section === 'about') {
       isActive = (sf < 1.65);
     } else if (section === 'services') {
-      isActive = (sf >= 1.65 && sf < 5.80);
+      isActive = (sf >= 1.65 && sf < 4.80);
     } else if (section === 'contact') {
-      isActive = (sf >= 5.80);
+      isActive = (sf >= 4.80);
     }
     if (isActive) {
       btn.classList.add('active');
@@ -428,35 +346,7 @@ function animate() {
   }
 
   composer.render();
-
-  // Update Draw-0 Frosted Glass Portal Overlay
-  heroGateEngine.update(time, renderer);
 }
-
-// ── Raycasting & Port Interactivity ───────────────────────────────────────────
-
-const raycaster = new THREE.Raycaster();
-const mouseNdc = new THREE.Vector2();
-
-window.addEventListener('pointermove', (e) => {
-  mouseNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-  if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {
-    raycaster.setFromCamera(mouseNdc, camera);
-    handlePortRaycast(raycaster, false);
-  }
-}, { passive: true });
-
-window.addEventListener('click', (e) => {
-  if (e.target.closest('#chapter-scrubber') || e.target.closest('#odf-port-card')) {
-    return;
-  }
-  if (scrollFloat >= 5.14 && scrollFloat <= 5.86) {
-    raycaster.setFromCamera(mouseNdc, camera);
-    handlePortRaycast(raycaster, true);
-  }
-});
 
 // ── UI Controls & Chapter Quick-Jump Navigation ───────────────────────────────
 
@@ -476,17 +366,9 @@ if (globalHeader) {
   });
 }
 
-const odfCloseBtn = document.getElementById('odf-card-close');
-if (odfCloseBtn) {
-  odfCloseBtn.addEventListener('click', () => {
-    hidePortInspection();
-  });
-}
-
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 initScroll();
-heroGateEngine.init(document.getElementById('hero-gate'));
 animate();
 
 // Auto-dismiss the scroll navigation guide after 6 seconds (5-7 seconds)

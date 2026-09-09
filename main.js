@@ -21,6 +21,7 @@ import {
   envAmbient, envHemi,
   updateEnvironment, initEnvironment
 } from './src/environment.js';
+import { initNarrative, updateNarrative } from './src/narrative.js';
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 
@@ -144,16 +145,16 @@ const CAM = [
   { at: 2.75, pos: new THREE.Vector3(1.6, 5.8, 4.0),    target: new THREE.Vector3(0.4, 6.8, -0.6) },
   // 3.00: Cellular sector array & crown framing
   { at: 3.00, pos: new THREE.Vector3(0.9, 8.4, 3.0),    target: new THREE.Vector3(0.4, 9.2, -0.6) },
-  // 3.40: Ascending above the tower into the empty gap (tower fades out)
+  // 3.40: Ascending above the tower into cosmic space
   { at: 3.40, pos: new THREE.Vector3(0.4, 13.0, 4.8),   target: new THREE.Vector3(0.2, 9.0, -1.5) },
-  // 4.00: Empty space gap — quiet clean cosmos ready for custom info
-  { at: 4.00, pos: new THREE.Vector3(0.0, 15.0, 6.5),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
-  // 4.60: Empty space gap — gentle drift through pure stars
-  { at: 4.60, pos: new THREE.Vector3(0.0, 15.0, 8.0),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
-  // 5.20: Transition from gap into finale
-  { at: 5.20, pos: new THREE.Vector3(0.0, 14.5, 9.0),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
-  // 6.00: Final culmination: Contact Us card framed in pristine deep space
-  { at: 6.00, pos: new THREE.Vector3(0.0, 14.0, 9.5),   target: new THREE.Vector3(0.0, 9.0, -2.0) }
+  // 4.50: Technology showcase — drifting through starfield
+  { at: 4.50, pos: new THREE.Vector3(0.1, 14.5, 7.0),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 5.80: Engineering workflow deep dive — serene cosmic drift
+  { at: 5.80, pos: new THREE.Vector3(-0.1, 15.0, 8.5),  target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 7.20: Purpose & Impact — cinematic starfield framing
+  { at: 7.20, pos: new THREE.Vector3(0.0, 14.5, 9.5),   target: new THREE.Vector3(0.0, 9.0, -2.0) },
+  // 8.50: Final culmination — pristine deep space framing Contact Us
+  { at: 8.50, pos: new THREE.Vector3(0.0, 14.0, 10.0),  target: new THREE.Vector3(0.0, 9.0, -2.0) }
 ];
 
 const camTargetPos  = new THREE.Vector3();
@@ -303,6 +304,7 @@ function animate() {
   updateChapter2(sf);
   updateChapter3(sf, camera);
   updateChapter5(sf, camera, earthMesh, null, networkGroup, beamsGroup);
+  updateNarrative(sf);
 
   // Environmental audio orchestrator update
   audioManager.update(sf);
@@ -330,12 +332,16 @@ function animate() {
   document.querySelectorAll('.scrub-node').forEach((btn) => {
     const section = btn.getAttribute('data-section');
     let isActive = false;
-    if (section === 'about') {
-      isActive = (sf < 1.65);
+    if (section === 'overview') {
+      isActive = (sf < 1.75);
     } else if (section === 'services') {
-      isActive = (sf >= 1.65 && sf < 4.80);
+      isActive = (sf >= 1.75 && sf < 4.30);
+    } else if (section === 'technology') {
+      isActive = (sf >= 4.30 && sf < 7.05);
+    } else if (section === 'about') {
+      isActive = (sf >= 7.05 && sf < 7.85);
     } else if (section === 'contact') {
-      isActive = (sf >= 4.80);
+      isActive = (sf >= 7.85);
     }
     if (isActive) {
       btn.classList.add('active');
@@ -375,6 +381,7 @@ if (globalHeader) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 initScroll();
+initNarrative();
 animate();
 
 // Auto-dismiss the scroll navigation guide after 6 seconds (5-7 seconds)

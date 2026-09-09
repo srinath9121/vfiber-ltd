@@ -592,124 +592,18 @@ poleGroup.add(analysisGroup);
 // ── Update Lifecycle (Controlled by master scrollFloat) ────────────────────────
 
 export function updateChapter2(scrollFloat) {
-  const isVisible = (scrollFloat >= 1.65 && scrollFloat <= 3.45);
-  poleGroup.visible = isVisible;
-  atmospherePlane.visible = isVisible;
-  if (!isVisible) {
-    const ch2Text = document.getElementById('chapter2-text');
-    if (ch2Text) {
-      ch2Text.style.opacity = '0';
-      ch2Text.style.display = 'none';
-      ch2Text.style.pointerEvents = 'none';
-    }
-    return;
-  }
+  // Completely remove 3D tower mesh, atmosphere plane, and structural analysis vectors
+  poleGroup.visible = false;
+  atmospherePlane.visible = false;
+  analysisGroup.visible = false;
 
-  const time = performance.now() * 0.001;
-
-  // 1. Grounded Infrastructure Anchor (statically anchored at y = 0.0)
-  poleGroup.position.set(0.4, 0.0, -0.6);
-
-  // 2. Physical Spatial Occlusion Progression:
-  // tower photograph (sf 1.65->1.85) -> structural silhouette (sf 1.85->2.05) -> physical steel lattice (sf 2.00->2.30)
-  const towerFadeIn  = clamp(map(scrollFloat, 1.80, 2.15, 0, 1), 0, 1);
-  const towerFadeOut = clamp(map(scrollFloat, 3.20, 3.40, 1, 0), 0, 1);
-  const towerOpacity = towerFadeIn * towerFadeOut;
-
-  // Photo appears in background first (sf 1.65->1.85), then smoothly hands over to 3D physical lattice
-  const photoFadeIn  = clamp(map(scrollFloat, 1.65, 1.82, 0, 0.70), 0, 0.70);
-  const photoHandover = clamp(map(scrollFloat, 1.88, 2.18, 1, 0), 0, 1);
-  const photoOpacity = photoFadeIn * photoHandover * towerFadeOut;
-
-  poleGroup.traverse((child) => {
-    if (child.isMesh && child.material && !child.material.isShaderMaterial &&
-        child !== signalTerminalMesh && child !== beaconMesh &&
-        child !== crownEmitterMesh && child !== waveguidePulseMesh) {
-      child.material.transparent = true;
-      child.material.opacity = towerOpacity;
-    }
-  });
-  braceMesh.material.opacity = towerOpacity * 0.85;
-
-  // 3. Red Aviation Beacon Pulse (1 Hz aviation warning standard)
-  const beaconPulse = 2.5 + 2.0 * Math.pow(Math.sin(time * 3.14), 4.0);
-  beaconMat.emissiveIntensity = beaconPulse * towerOpacity;
-
-  // 4. Physical Carrier Signal Coupling (Terminal at junction box)
-  const connectionProgress = clamp(map(scrollFloat, 2.10, 2.45, 0, 1), 0, 1) * towerFadeOut;
-  terminalMat.opacity = connectionProgress;
-  terminalHalo.material.opacity = connectionProgress * 0.40;
-
-  if (connectionProgress > 0) {
-    terminalMat.emissiveIntensity = 3.0 + 2.0 * Math.sin(time * 4.5);
-    terminalHalo.scale.setScalar(1.0 + 0.18 * Math.sin(time * 3.8));
-  }
-
-  // 5. Vertical Waveguide Energy Surge (Signal climbs interior conduit from y = 1.4 to y = 10.42, sf 2.70 -> 3.05)
-  const surgeProgress = clamp(map(scrollFloat, 2.70, 3.05, 0, 1), 0, 1);
-  if (surgeProgress > 0.01 && surgeProgress < 0.99) {
-    waveguidePulseMesh.position.y = 1.4 + surgeProgress * 9.0;
-    waveguidePulseMat.opacity = Math.sin(surgeProgress * Math.PI) * 0.95;
-  } else {
-    waveguidePulseMat.opacity = 0.0;
-  }
-
-  // 6. Crown Optical Emitter (Totally disabled per user request — no effect, no flash)
-  crownEmitterMesh.visible = false;
-  crownEmitterMat.opacity = 0.0;
-  crownEmitterMat.emissiveIntensity = 0.0;
-
-  // Update Tower Photographic Depth Shader
-  towerImageMat.uniforms.uTime.value = time;
-  towerImageMat.uniforms.uProgress.value = clamp(map(scrollFloat, 1.65, 2.15, 0, 1), 0, 1);
-  towerImageMat.uniforms.uOpacity.value = photoOpacity;
-
-  // 7. Analysis Group & Telemetry HUD Overlay (#chapter2-text, sf 2.20 -> 3.10)
-  analysisGroup.visible = (scrollFloat >= 1.85 && scrollFloat <= 3.20);
-  const analysisAlpha = towerOpacity * (0.6 + 0.4 * Math.sin(time * 3.0));
-  tensionVectorMat.opacity = towerOpacity * 0.85;
-  loadVectorMat.opacity = towerOpacity * 0.85;
-  guyLineMat.opacity = towerOpacity * 0.65;
-  clearanceRingMat.opacity = towerOpacity * 0.55;
-
+  // Completely remove O-CALC PRO / NESC C2-2023 AUDIT panel
   const ch2Text = document.getElementById('chapter2-text');
   if (ch2Text) {
-    if (scrollFloat >= 2.15 && scrollFloat <= 3.05) {
-      const tFadeIn  = clamp(map(scrollFloat, 2.15, 2.35, 0, 1), 0, 1);
-      const tFadeOut = clamp(map(scrollFloat, 2.85, 3.05, 1, 0), 0, 1);
-      const op = tFadeIn * tFadeOut;
-      ch2Text.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div class="fiber-label" style="margin-bottom:0; color:#00ffaa;">O-CALC PRO // NESC C2-2023 AUDIT</div>
-          <span style="font-size:0.75rem; color:#00ffaa; border:1px solid rgba(0,255,170,0.4); padding:2px 8px; border-radius:2px; font-weight:600;">PASS 68.4%</span>
-        </div>
-        <div class="fiber-heading" style="font-size:1.3rem; margin-bottom:6px;">POLE LOADING & STRUCTURAL CAPACITY</div>
-        <div class="fiber-sub" style="font-size:0.85rem; line-height:1.5; color:rgba(255,255,255,0.85);">
-          <div>• Bending Moment: <strong style="color:#00cfff;">14,820 ft-lbs</strong> @ Groundline</div>
-          <div>• NESC Loading: <strong style="color:#ffffff;">Grade B Heavy</strong> (40 psf wind + 0.5" radial ice)</div>
-          <div>• Vertical Clearance: <strong style="color:#00ffaa;">18.5 ft AGL</strong> (Compliant)</div>
-          <div>• Guy Wire Tension: <strong style="color:#00cfff;">1,420 lbf</strong> [1/4" EHS Steel]</div>
-        </div>
-        <div class="fiber-tagline" style="margin-top:8px; font-size:0.78rem; color:rgba(0,207,255,0.8);">Katapult Pro field verification · Joint-use makeready engineering</div>
-      `;
-      ch2Text.style.opacity = String(op);
-      ch2Text.style.display = op > 0.01 ? 'block' : 'none';
-      ch2Text.style.pointerEvents = op > 0.01 ? 'auto' : 'none';
-    } else {
-      ch2Text.style.opacity = '0';
-      ch2Text.style.display = 'none';
-      ch2Text.style.pointerEvents = 'none';
-    }
-  }
-
-  // 8. Atmospheric Depth Plane
-  atmosphereMat.uniforms.uOpacity.value = clamp(map(scrollFloat, 1.75, 2.35, 0, 0.88), 0, 0.88) * towerFadeOut;
-
-  // 9. Restrained Architectural Rotation (subtle orientation to reveal 3D depth)
-  if (scrollFloat >= 1.75) {
-    poleGroup.rotation.y = (scrollFloat - 1.75) * 0.20;
-  } else {
-    poleGroup.rotation.y = 0;
+    ch2Text.innerHTML = '';
+    ch2Text.style.opacity = '0';
+    ch2Text.style.display = 'none';
+    ch2Text.style.pointerEvents = 'none';
   }
 }
 

@@ -1,7 +1,7 @@
 // scroll.js — virtual scroll engine
 // Source of truth for story progress: scrollFloat (0 to MAX_SCROLL) and normalized storyProgress (0 to 1)
 
-export const MAX_SCROLL = 6.0;
+export const MAX_SCROLL = 8.50;
 export let scrollFloat = 0;
 export let storyProgress = 0;
 export let isScrollLocked = false;

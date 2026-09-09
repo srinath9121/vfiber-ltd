@@ -68,7 +68,8 @@ const SKY = [
   { sf: 4.20, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
   // Planetary orbit return: back to space
   { sf: 5.50, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
-  { sf: 6.00, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
+  { sf: 7.00, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
+  { sf: 8.50, top: new THREE.Color(0x00050f), bot: new THREE.Color(0x010712) },
 ];
 
 // ── Ground/context planes per chapter ────────────────────────────────────────
@@ -139,7 +140,8 @@ const AMB = [
   { sf: 3.40, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
   // Planetary orbit return
   { sf: 5.50, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
-  { sf: 6.00, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
+  { sf: 7.00, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
+  { sf: 8.50, skyCol: new THREE.Color(0x060810), gndCol: new THREE.Color(0x040404), int: 0.35 },
 ];
 
 // ── Narrative overlay system ──────────────────────────────────────────────────

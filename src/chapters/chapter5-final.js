@@ -48,15 +48,11 @@ export function updateChapter5(scrollFloat, camera, earthMesh, fiberMaterial, ne
     if (s2) s2.textContent = '0';
   }
 
-  // Chapter 5 text overlay (Contact Us card)
+  // Chapter 5 text overlay handled by narrative.js Scene 13
   const t5 = document.getElementById('chapter5-text');
   if (t5) {
-    if (scrollFloat > 5.00) {
-      t5.style.opacity       = '1';
-      t5.style.pointerEvents = 'all';
-    } else {
-      t5.style.opacity       = '0';
-      t5.style.pointerEvents = 'none';
-    }
+    t5.style.opacity       = '0';
+    t5.style.pointerEvents = 'none';
+    t5.style.display       = 'none';
   }
 }

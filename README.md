@@ -30,7 +30,7 @@ The experience flows seamlessly through a unified 6-stage storytelling journey t
 | **Scene 03** | **Services We Offer** | `1.75 – 4.30` | High-impact split-panel showcase paired with structural lattice tower visual:<br>• `01` **Research & Permitting**<br>• `02` **Design / Drafting**<br>• `03` **OSP Fiber**<br>• `04` **Pole Loading Analysis (O-Calc Pro)** |
 | **Scene 04** | **Our Technology Stack** | `4.30 – 7.00` | Focused sequential spotlights for the core industry software ecosystem:<br>• **Frontier** — Spatial data & field planning<br>• **Katapult Pro** — High-precision photogrammetry & pole audits<br>• **AutoCAD** — Construction-grade telecommunication drafting<br>• **O-Calc Pro** — Non-linear finite element structural pole loading |
 | **Scene 05** | **About Us** | `7.05 – 7.85` | Company origin and backend engineering mission statement: delivering precision, accountability, and deployable telecom solutions for operators across the USA. |
-| **Scene 06** | **Contact Us** | `7.85 – 8.50` | Glassmorphic contact card with direct email, regional coverage (Western USA, Texas, California), services breakdown, official LinkedIn link, and interactive CTA. |
+| **Scene 06** | **Contact Us** | `7.85 – 8.50` | Glassmorphic contact card with direct email, regional presence (Madhapur, Hyderabad, Telangana, India), services breakdown, official LinkedIn link, and interactive CTA. |
 
 ---
 

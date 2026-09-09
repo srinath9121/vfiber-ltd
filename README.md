@@ -1,91 +1,103 @@
 # VF Technologies — Powering a Better Tomorrow
 
-An interactive, high-performance 3D WebGL digital experience showcasing the end-to-end telecommunications infrastructure engineering of **VF Technologies (Venkateswara Fiber Technologies Pvt Ltd.)**. 
+An interactive, high-performance 3D WebGL digital experience and engineering narrative showcasing the backend engineering, network design, and telecommunications infrastructure services of **VF Technologies (Venkateswara Fiber Technologies Pvt Ltd.)**.
 
-Built with **Three.js**, **GLSL Shaders**, **GSAP**, and **Vite**, this application transforms complex physical telecom engineering—from transatlantic subsea optical fiber routes and structural tower analysis to macro single-mode waveguide physics and optical distribution frames—into an immersive, bidirectional scroll-driven journey.
+Built with **Three.js**, **GLSL Shaders**, **GSAP**, and **Vite**, this application transforms physical telecom engineering—from planetary orbital routes and structural utility pole analysis to optical waveguide physics and high-density distribution frames—into an immersive, continuous scroll-driven story.
 
 ---
 
-## Key Highlights & Experience Architecture
+## Live Links & Socials
 
-The experience follows the continuous physical propagation of a single carrier photon across six distinct engineering chapters:
+- **Official Website / Deployment**: Hosted on [Vercel](https://vercel.com/)
+- **LinkedIn**: [VF Technologies Company Profile](https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd)
+- **Repository**: [github.com/srinath9121/vfiber-ltd](https://github.com/srinath9121/vfiber-ltd)
+- **Contact Email**: [services@vf-technologies.com](mailto:services@vf-technologies.com)
+
+---
+
+## Continuous Narrative Journey
+
+The experience flows seamlessly through a unified 6-stage storytelling journey tied deterministically to user scroll (`scrollFloat: 0.00 → 8.50`):
 
 ```
-[00: Orbit] ──► [01: Regional] ──► [02: Pole Loading] ──► [03: Coupling] ──► [04: Fiber Core] ──► [05: ODF Bay] ──► [06: Contact]
+[01: Opening] ──► [02: Milestones] ──► [03: Services] ──► [04: Tech Stack] ──► [05: About Us] ──► [06: Contact]
 ```
 
-### 1. Planetary Orbit & Transatlantic Corridor (`Chapter 0`)
-- **Photorealistic Earth Simulation**: Multi-layer planetary shaders featuring photographic day/night terminator transitions, Rayleigh atmospheric limb scattering, specular ocean reflectance, and nocturnal terrestrial illumination.
-- **Level of Detail (LOD)**: Dynamic 3-tier geometric LOD (`THREE.LOD`) dynamically scaling polycount based on camera altitude, reducing GPU vertex overhead by over 75% during close-up operations.
-- **Transoceanic Subsea Cables**: Physically modeled subsea armored cable routes based on international submarine fiber corridors with instanced landing station hubs.
+| Scene | Narrative Stage | Scroll Range (`sf`) | Key Highlights & Engineering Content |
+|:---|:---|:---:|:---|
+| **Scene 01** | **Opening Hero** | `0.00 – 0.70` | Deep space orbital Earth perspective with atmospheric scattering. Brand philosophy: *“Every connection begins with infrastructure.”* |
+| **Scene 02** | **Scale Milestones** | `0.70 – 1.75` | Deterministic count-up metrics for North American infrastructure:<br>• **20,000+** Structures Analyzed<br>• **50,000+** Poles Managed |
+| **Scene 03** | **Services We Offer** | `1.75 – 4.30` | High-impact split-panel showcase paired with structural lattice tower visual:<br>• `01` **Research & Permitting**<br>• `02` **Design / Drafting**<br>• `03` **OSP Fiber**<br>• `04` **Pole Loading Analysis (O-Calc Pro)** |
+| **Scene 04** | **Our Technology Stack** | `4.30 – 7.00` | Focused sequential spotlights for the core industry software ecosystem:<br>• **Frontier** — Spatial data & field planning<br>• **Katapult Pro** — High-precision photogrammetry & pole audits<br>• **AutoCAD** — Construction-grade telecommunication drafting<br>• **O-Calc Pro** — Non-linear finite element structural pole loading |
+| **Scene 05** | **About Us** | `7.05 – 7.85` | Company origin and backend engineering mission statement: delivering precision, accountability, and deployable telecom solutions for operators across the USA. |
+| **Scene 06** | **Contact Us** | `7.85 – 8.50` | Glassmorphic contact card with direct email, regional coverage (Western USA, Texas, California), services breakdown, official LinkedIn link, and interactive CTA. |
 
-### 2. Regional Western Network Infrastructure (`Chapter 1`)
-- **Backbone Routing**: High-precision geographical mapping across North American data hubs, featuring surface-conformal telemetry rings and Bezier interconnect trunks.
-- **Telecommunication Landing Hubs**: Instanced GPU nodes providing high visual density with minimal draw calls.
+---
 
-### 3. Structural Make-Ready Engineering (`Chapter 2`)
-- **4-Leg Tapered Steel Lattice Tower**: Accurate representation conforming to telecommunications standards (NESC C2-2023 Grade B Heavy loading criteria).
-- **Physical Hardware Assemblies**: Sector antennas, microwave dish radomes with riveted aluminium shrouds, coaxial feeder lines, safety climbing ladders, and concrete pier foundations.
-- **Memory Lifecycle Management**: Automatic GPU memory reclamation and geometry disposal when navigating past the structure.
+## 3D Graphics & Physics Architecture
+
+### 1. Planetary Earth & Transatlantic Trunk (`Chapter 0`)
+- **Multi-Layer Earth Shader**: Rayleigh limb scattering, dynamic day/night terminator transitions, specular ocean reflections, and nocturnal city light illumination.
+- **Dynamic 3-Tier LOD**: Geometric Level of Detail (`THREE.LOD`) dynamically scales polygon density according to camera distance, reducing vertex overhead by over 75%.
+- **Transoceanic Subsea Cables**: Accurately mapped subsea fiber routes with instanced landing hubs.
+
+### 2. Regional Topology & Network Routing (`Chapter 1`)
+- **North American Backbone Mapping**: High-precision geographical vectors and telemetry rings connecting major data centers.
+- **Instanced Landing Hubs**: GPU-instanced nodes for maximum performance and minimal draw calls.
+
+### 3. NESC Structural Tower Analysis (`Chapter 2`)
+- **4-Leg Tapered Lattice Mast**: Modeled to telecommunications engineering specifications (NESC C2-2023 Grade B Heavy loading).
+- **Physical Equipment Assemblies**: Sector antennas, microwave dish radomes, coaxial feeder line bundles, and climbing ladders.
 
 ### 4. Waveguide Coupling & Photonic Mode Conversion (`Chapter 3`)
-- **Deterministic Particle Field**: Custom GLSL `ShaderMaterial` simulating lightwave coupling from RF electrical inputs to optical glass waveguides.
-- **Perspective-Correct Size Attenuation**: Dynamic camera-distance-attenuated point sizing maintaining physical particle volume across wide-angle descents.
-- **Dynamic Spectral Shift**: Chromatic position-based color ramp transitioning from electric cyan (`#00CFFF`) to high-energy ruby core pulses (`#C41E3A`).
+- **Deterministic Particle Field**: Custom GLSL `ShaderMaterial` illustrating RF-to-optical signal conversion.
+- **Perspective Size Attenuation & Spectral Shifts**: Smooth chromatic ramp transitions from electric cyan (`#00CFFF`) to high-energy ruby core pulses (`#C41E3A`).
 
 ### 5. Multi-Fiber Cable Cutaway & Internal Waveguide (`Chapter 4`)
-- **Precision Mechanical Cable Cutaway**: Structural cross-section detailing HDPE outer jacket, dielectric aramid/Kevlar tensile yarn, central FRP anti-buckling rod, and helical PBT loose-buffer tubes adhering to TIA-598-C color-coding.
-- **Physical Optical Transmission**: `MeshPhysicalMaterial` transmission utilizing dedicated `WebGLRenderTarget` textures for real-time refractive dispersion (`IOR 1.45`).
-- **Photonic Core Waveguide**: Volumetric raymarching shader illustrating internal total reflection and laser pulse dynamics.
+- **Precision Mechanical Cable Cross-Section**: HDPE outer jacket, dielectric aramid/Kevlar yarn, central FRP strength rod, and color-coded loose-buffer tubes (TIA-598-C).
+- **Physical Optical Transmission**: Real-time refraction and dispersion (`MeshPhysicalMaterial` with IOR 1.45).
 
 ### 6. Optical Distribution Frame (ODF) Bay (`Chapter 5`)
-- **19-Inch Equipment Rack Bay**: 6 rows of 1U patch panels with 72 LC-UPC duplex adapter ports and ceramic alignment sleeves.
-- **GPU Instanced Draw Calls**: Replaced individual port meshes with `THREE.InstancedMesh`, collapsing 144 separate draw calls into 2 draw calls.
-- **Interactive Telemetry Inspection**: Raycasting against instanced adapters with instant lookup of circuit loss, optical return loss, and wavelength specifications.
+- **19-Inch Equipment Rack**: High-density patch panels housing 72 LC-UPC duplex adapter ports with ceramic alignment sleeves rendered via `THREE.InstancedMesh`.
 
 ---
 
-## Technical Stack & Performance Architecture
+## Technical Stack
 
-| Layer | Technology | Description |
+| Layer | Technology | Role |
 | :--- | :--- | :--- |
-| **Core Engine** | [Three.js](https://threejs.org/) (r160+) | 3D scene graph, camera choreography, material pipelines, and rendering. |
-| **Post-Processing** | `EffectComposer` | UnrealBloomPass for physical emissive photonic glow, FXAAShader for edge smoothing. |
-| **Color Management** | ACESFilmic Tone Mapping | sRGB output color space (`THREE.SRGBColorSpace`) with HDR exposure calibration. |
-| **Animation Engine** | [GSAP](https://greensock.com/gsap/) | Deterministic numerical interpolation and timeline management. |
-| **Shader Layer** | GLSL / WebGL 2.0 | Custom vertex/fragment shaders for atmospheric Fresnel, noise dissolve portals, and photonic pulses. |
-| **Build & Tooling** | [Vite](https://vitejs.dev/) | Lightning-fast HMR and optimized production bundling. |
-
-### Engineering Standards
-- **Zero Arbitrary Keyframes**: Every animation is tied to a single source of truth scroll progress (`scrollFloat` 0.00 to 6.00), guaranteeing 100% bidirectional symmetry forwards and backwards.
-- **Draw Call Minimization**: Redundant meshes (landing nodes, ODF adapters, ceramic sleeves) are rendered via `THREE.InstancedMesh`.
-- **Resource Lifecycle**: All chapter transitions implement explicit `.dispose()` routines to prevent WebGL context exhaustion on memory-constrained mobile hardware.
-- **Design System**: Liquid Glass design language featuring frosted glass backdrops (`backdrop-filter`), subtle borders, curated HSL palettes, and modern typography (`Space Grotesk`).
+| **Core 3D Engine** | [Three.js](https://threejs.org/) (r160+) | Scene graph, camera paths, custom shaders, and WebGL rendering |
+| **Motion & Scroll** | [GSAP](https://greensock.com/gsap/) | Deterministic numerical interpolation and bidirectional timeline management |
+| **Shaders** | GLSL / WebGL 2.0 | Custom vertex/fragment shaders for atmospheric scattering, noise portals, and photonic pulses |
+| **Post-Processing** | `three/addons/postprocessing` | UnrealBloomPass for emissive glow, FXAA for anti-aliasing, and ACESFilmic tone mapping |
+| **Styling & UI** | Vanilla CSS / Liquid Glass | Glassmorphic HUD, responsive clamp typography (`Space Grotesk`), and zero SaaS templates |
+| **Build Tool** | [Vite](https://vitejs.dev/) | Lightning-fast development server, asset pipeline, and production rollup bundler |
 
 ---
 
 ## Project Structure
 
 ```
-├── public/                     # Static production assets (branding, textures, models)
-│   ├── logo.jpg                # Authentic VF Technologies corporate insignia
-│   └── references/             # Photographic engineering references
+├── public/                     # Static production assets (branding, textures, references)
+│   ├── logo.jpg                # VF Technologies corporate insignia
+│   └── references/             # Photographic engineering assets & tower imagery
 ├── src/
-│   ├── chapters/               # Isolated modular 3D chapter controllers
-│   │   ├── chapter0-earth.js   # Earth simulation, starfield, LOD, transatlantic subsea trunk
+│   ├── chapters/               # 3D chapter controllers
+│   │   ├── chapter0-earth.js   # Earth simulation, starfield, LOD, transatlantic trunk
 │   │   ├── chapter1-usa.js     # Regional North American network backbones
 │   │   ├── chapter2-pole.js    # NESC lattice tower & structural make-ready assets
 │   │   ├── chapter3-signal.js  # Photonic signal coupling & particle attenuation
-│   │   ├── chapter4-fiber.js   # TIA-598-C fiber cutaway, transmission glass, & waveguide
-│   │   ├── chapter5-final.js   # Network return, animated metrics, & CTA interface
-│   │   └── chapter6-network.js # 19" ODF rack bay & interactive port inspection
-│   ├── shaders/                # Custom GLSL shaders & noise functions
-│   ├── utils/                  # Mathematical utilities, asset registry, audio engine
+│   │   ├── chapter4-fiber.js   # TIA-598-C fiber cutaway, transmission glass & waveguide
+│   │   ├── chapter5-final.js   # Network culmination & deep space framing
+│   │   └── chapter6-network.js # 19" ODF rack bay & adapter inspection
+│   ├── shaders/                # Custom GLSL shader source code
+│   ├── utils/                  # Mathematical utilities, engine hooks, audio controller
 │   ├── environment.js          # Dynamic horizon gradients, haze, and lighting
-│   └── scroll.js               # Smooth unified scroll orchestrator
-├── index.html                  # Main application markup & liquid glass HUD styling
-├── main.js                     # Master entry point, post-processing stack, & render loop
-└── package.json                # Dependencies and build scripts
+│   ├── narrative.js            # 6-scene continuous DOM narrative state engine
+│   └── scroll.js               # Smooth unified scroll orchestrator (0.00 -> 8.50)
+├── index.html                  # Main DOM layout, Liquid Glass styling, and UI overlays
+├── main.js                     # Master entry point, post-processing stack & render loop
+└── package.json                # Project dependencies and npm scripts
 ```
 
 ---
@@ -97,7 +109,7 @@ The experience follows the continuous physical propagation of a single carrier p
 - **Package Manager**: `npm`, `pnpm`, or `yarn`
 
 ### Installation
-Clone the repository and install project dependencies:
+Clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/srinath9121/vfiber-ltd.git
@@ -105,22 +117,23 @@ cd vfiber-ltd
 npm install
 ```
 
-### Development
-Start the local development server:
+### Local Development
+Start the local development server with Hot Module Replacement (HMR):
 
 ```bash
 npm run dev
 ```
-Navigate to `http://localhost:5173/` in your WebGL2-compatible browser.
+
+Open `http://localhost:5173/` in any modern WebGL2-compatible browser.
 
 ### Production Build
-Generate an optimized production bundle:
+Generate an optimized, minified production build:
 
 ```bash
 npm run build
 ```
 
-To preview the built production bundle locally:
+Preview the production build locally:
 
 ```bash
 npm run preview
@@ -130,15 +143,18 @@ npm run preview
 
 ## Deployment
 
-The application is configured for deployment on modern edge hosting platforms such as **Vercel**, **Netlify**, or **AWS Amplify**:
+The repository is pre-configured for automated continuous deployment via **Vercel**:
 
+- **Framework Preset**: Vite
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
-- **Framework Preset**: Vite
+- **Node.js Version**: 18.x or 20.x
+
+Every push to the `main` branch triggers an automated production deployment.
 
 ---
 
-## License & Intellectual Property
+## License & Copyright
 
 &copy; 2026 **VF Technologies (Venkateswara Fiber Technologies Pvt Ltd.)**. All rights reserved.  
 *Powering a Better Tomorrow.*

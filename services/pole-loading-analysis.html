@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pole Loading Analysis (O-Calc Pro) — VF Technologies</title>
+  <meta name="description" content="NESC-compliant 3D structural digital twin modeling, wind/ice load calculations, and pass/fail structural certification reports using O-Calc Pro." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#050a14; color:#fff; font-family:'Space Grotesk',sans-serif; overflow-x:hidden; }
+    .nav { background:rgba(5,10,20,0.95); border-bottom:1px solid rgba(0,207,255,0.15); padding:16px 40px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; backdrop-filter:blur(16px); }
+    .nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+    .nav-logo { width:38px; border-radius:3px; }
+    .nav-title { font-size:0.95rem; font-weight:700; color:#fff; letter-spacing:0.14em; text-transform:uppercase; }
+    .nav-back { color:#00CFFF; font-size:0.8rem; letter-spacing:0.12em; text-decoration:none; text-transform:uppercase; }
+    .container { max-width:1100px; margin:0 auto; padding:80px 30px; }
+    .badge { font-family:'Space Grotesk',monospace; font-size:0.72rem; letter-spacing:0.24em; color:#C41E3A; text-transform:uppercase; font-weight:700; margin-bottom:1rem; display:inline-block; }
+    h1 { font-family:'Playfair Display',serif; font-size:clamp(2.4rem,5vw,3.6rem); font-weight:700; line-height:1.2; margin-bottom:1.5rem; }
+    .lead { font-size:clamp(1.05rem,2vw,1.3rem); color:rgba(255,255,255,0.7); line-height:1.7; margin-bottom:3rem; max-width:800px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+    @media(max-width:768px){ .grid { grid-template-columns:1fr; } }
+    .card { background:rgba(4,10,24,0.85); border:1px solid rgba(0,207,255,0.18); border-top:3px solid #C41E3A; border-radius:6px; padding:2.5rem; }
+    .card-title { font-size:1.1rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#fff; margin-bottom:1.4rem; }
+    .list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px; }
+    .list li { font-size:0.9rem; color:rgba(255,255,255,0.8); line-height:1.6; padding-left:22px; position:relative; }
+    .list li::before { content:'✓'; position:absolute; left:0; color:#C41E3A; font-weight:700; }
+    .tools { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+    .tool { font-family:'Space Grotesk',monospace; font-size:0.75rem; letter-spacing:0.12em; color:#00CFFF; border:1px solid rgba(0,207,255,0.3); padding:4px 12px; border-radius:2px; }
+    .cta-strip { margin-top:60px; background:rgba(4,10,24,0.85); border:1px solid rgba(196,30,58,0.3); border-top:3px solid #C41E3A; border-radius:6px; padding:3rem; text-align:center; }
+    .cta-btn { display:inline-block; margin-top:1.5rem; padding:12px 36px; border:1px solid #C41E3A; background:#C41E3A; color:#fff; font-family:'Space Grotesk',monospace; font-size:0.88rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; text-decoration:none; border-radius:3px; }
+    footer { border-top:1px solid rgba(0,207,255,0.1); padding:30px 40px; text-align:center; font-size:0.75rem; color:rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav-brand">
+      <img src="/logo.jpg" alt="VF Technologies" class="nav-logo" />
+      <span class="nav-title">VF Technologies</span>
+    </a>
+    <a href="/#services" class="nav-back">← Back to Services</a>
+  </nav>
+
+  <main class="container">
+    <span class="badge">Service 04 // Structural Validation &amp; Make-Ready</span>
+    <h1>Pole Loading Analysis (O-Calc Pro)</h1>
+    <p class="lead">Certified 3D digital twin structural loading calculations for utility poles. We verify NESC Grade B/C and GO-95 compliance under strict wind, ice, and tension loading vectors, providing actionable make-ready remediation designs for overloaded structures.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Key Engineering Deliverables</div>
+        <ul class="list">
+          <li>3D digital twin pole modeling in O-Calc Pro with accurate span lengths and wire tensions</li>
+          <li>NESC (National Electrical Safety Code) Grade B/C &amp; California GO-95 compliance verification</li>
+          <li>Pass/Fail structural calculation reports with pole capacity utilization percentages</li>
+          <li>Guying, anchor sizing, and down-guy lead recommendations for structural balance</li>
+          <li>Make-ready remediation designs (pole replacement specs, cross-arm repositioning, riser transfers)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Standards &amp; Tool Ecosystem</div>
+        <ul class="list">
+          <li>Complete integration of Katapult Pro photogrammetry height data into O-Calc Pro</li>
+          <li>Wood species, class, circumference, and setting depth verification against utility records</li>
+          <li>Direct coordination with utility owners for joint-use attachment approvals</li>
+        </ul>
+        <div class="tools">
+          <span class="tool">O-Calc Pro</span>
+          <span class="tool">Katapult Pro</span>
+          <span class="tool">AutoCAD</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-strip">
+      <h2 style="font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:0.6rem;">High Volume of Poles Requiring Analysis?</h2>
+      <p style="color:rgba(255,255,255,0.65); font-size:0.95rem;">We routinely process thousands of poles per month across Texas, California, Florida, and the Midwest.</p>
+      <a href="/#contact" class="cta-btn">Start an RFQ Conversation</a>
+    </div>
+  </main>
+
+  <footer>
+    © 2024 Venkateswara Fiber Technologies Private Limited. All Rights Reserved.
+  </footer>
+</body>
+</html>
+

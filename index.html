@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VF Technologies — Powering a Better Tomorrow</title>
-    <meta name="description" content="Venkateswara Fiber Technologies — Utility pole structural analysis, fiber network design, and broadband deployment across Western USA." />
+    <meta name="description" content="Venkateswara Fiber Technologies Private Limited — High-precision OSP fiber engineering, pole loading analysis (O-Calc Pro), research & permitting, and design/drafting for US broadband providers." />
+    <link rel="canonical" href="https://vf-technologies.com/" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Venkateswara Fiber Technologies Private Limited","alternateName":"VF Technologies","url":"https://vf-technologies.com","email":"services@vf-technologies.com","address":{"@type":"PostalAddress","addressLocality":"Madhapur, Hyderabad","addressRegion":"Telangana","addressCountry":"IN"},"sameAs":["https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd"]}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,21 +15,39 @@
 
       body, html {
         width: 100%;
-        height: 100%;
-        overflow: hidden;
+        min-height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scroll-behavior: smooth;
         background: #050a14;
         font-family: 'Space Grotesk', sans-serif;
       }
 
+      /* ── Hero WebGL Container — scoped 3D canvas ── */
+      #hero-webgl-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        min-height: 600px;
+        overflow: hidden;
+        background: #050a14;
+        flex-shrink: 0;
+      }
+
+      #hero-webgl-container canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+      }
+
       #app {
         width: 100%;
-        height: 100%;
       }
 
       canvas {
         display: block;
-        width: 100%;
-        height: 100%;
       }
 
       /* Clean display — no film grain, no dirty noise overlays */
@@ -1469,256 +1489,1100 @@
         }
       }
 
+
+      /* ── Hero 4-Slide Telemetry Showcase ── */
+      #vf-hero-showcase {
+        position: absolute;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0 30px;
+        pointer-events: none;
+      }
+      .vf-hero-slide {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 880px;
+        animation: heroFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .vf-hero-slide.active {
+        display: flex;
+      }
+      @keyframes heroFade {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .vf-hero-badge {
+        font-family: 'Space Grotesk', monospace;
+        font-size: clamp(0.7rem, 1.4vw, 0.82rem);
+        letter-spacing: 0.24em;
+        color: #00CFFF;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        text-shadow: 0 0 16px rgba(0, 207, 255, 0.6);
+      }
+      .vf-hero-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(2.2rem, 5.8vw, 4.4rem);
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        line-height: 1.08;
+        margin: 0;
+        text-shadow: 0 4px 30px rgba(0,0,0,0.9), 0 0 40px rgba(0,207,255,0.25);
+      }
+      .vf-hero-tagline {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+        font-weight: 400;
+        color: #00CFFF;
+        letter-spacing: 0.12em;
+        margin-top: 0.8rem;
+        text-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
+      }
+      .vf-hero-desc {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 680px;
+        line-height: 1.6;
+        margin: 1.2rem 0 1.8rem;
+      }
+      .vf-hero-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+        pointer-events: auto;
+      }
+      .vf-hero-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 13px 34px;
+        background: #C41E3A;
+        border: 1px solid #C41E3A;
+        color: #ffffff;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-radius: 3px;
+        box-shadow: 0 0 25px rgba(196, 30, 58, 0.5);
+        transition: transform 0.2s, background 0.2s;
+      }
+      .vf-hero-btn-primary:hover {
+        background: #d62846;
+        transform: translateY(-2px);
+      }
+      .vf-hero-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        padding: 13px 34px;
+        background: rgba(4, 10, 24, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 207, 255, 0.35);
+        color: #ffffff;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-radius: 3px;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .vf-hero-btn-secondary:hover {
+        border-color: #00CFFF;
+        transform: translateY(-2px);
+      }
+      .vf-hero-indicators {
+        position: absolute;
+        bottom: 30px;
+        display: flex;
+        gap: 12px;
+        pointer-events: auto;
+      }
+      .vf-hero-indicator-btn {
+        background: rgba(4, 10, 24, 0.85);
+        border: 1px solid rgba(0, 207, 255, 0.25);
+        border-radius: 3px;
+        padding: 8px 16px;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'Space Grotesk', monospace;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+      }
+      .vf-hero-indicator-btn .vf-ind-num {
+        color: #00CFFF;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+      .vf-hero-indicator-btn .vf-ind-label {
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .vf-hero-indicator-btn:hover,
+      .vf-hero-indicator-btn.active {
+        border-color: #00CFFF;
+        background: rgba(0, 207, 255, 0.12);
+        color: #ffffff;
+      }
+      @media(max-width: 600px) {
+        .vf-hero-indicators {
+          bottom: 15px;
+          gap: 6px;
+        }
+        .vf-hero-indicator-btn {
+          padding: 6px 10px;
+        }
+        .vf-hero-indicator-btn .vf-ind-label {
+          display: none;
+        }
+      }
+
+      /* ══════════════════════════════════════════════════════
+         B2B CORPORATE PLATFORM — VF Technologies v2.0
+         Phases 2–4: Utility Bar, Navbar, All Sections
+      ══════════════════════════════════════════════════════ */
+
+      /* ── Utility Bar ── */
+      #vf-utility-bar {
+        background: rgba(4,8,20,0.98);
+        border-bottom: 1px solid rgba(0,207,255,0.15);
+        padding: 7px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        color: rgba(255,255,255,0.7);
+        position: relative;
+        z-index: 500;
+      }
+      .vf-util-left { display:flex; align-items:center; gap:20px; }
+      .vf-util-dot {
+        width:7px; height:7px; border-radius:50%;
+        background:#00CFFF;
+        box-shadow:0 0 8px rgba(0,207,255,0.9);
+        animation: utilPulse 2s ease-in-out infinite;
+        flex-shrink:0;
+      }
+      @keyframes utilPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+      .vf-util-status { color:#00CFFF; font-weight:600; letter-spacing:0.14em; }
+      .vf-util-sep { opacity:0.25; }
+      .vf-util-right { display:flex; align-items:center; gap:18px; }
+      .vf-util-right a { color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s; }
+      .vf-util-right a:hover { color:#00CFFF; }
+      @media(max-width:768px){ #vf-utility-bar{ display:none; } }
+
+      /* ── Sticky Navbar ── */
+      #vf-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 490;
+        background: rgba(5,10,20,0.92);
+        backdrop-filter: blur(20px) saturate(1.4);
+        -webkit-backdrop-filter: blur(20px) saturate(1.4);
+        border-bottom: 1px solid rgba(0,207,255,0.12);
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 70px;
+        transition: background 0.3s;
+      }
+      .vf-nav-brand { display:flex; align-items:center; gap:14px; text-decoration:none; }
+      .vf-nav-logo { width:44px; height:44px; border-radius:4px; object-fit:cover; }
+      .vf-nav-brand-text .vf-co { font-size:1.0rem; font-weight:700; color:#fff; letter-spacing:0.14em; text-transform:uppercase; }
+      .vf-nav-brand-text .vf-tg { font-size:0.68rem; color:#00CFFF; letter-spacing:0.1em; opacity:0.85; }
+      .vf-nav-links { display:flex; align-items:center; gap:6px; }
+      .vf-nav-link {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:0.82rem; font-weight:500;
+        color:rgba(255,255,255,0.75); text-decoration:none;
+        letter-spacing:0.08em; padding:8px 14px;
+        border-radius:3px; transition:color 0.2s,background 0.2s;
+        position:relative;
+      }
+      .vf-nav-link:hover { color:#fff; background:rgba(0,207,255,0.07); }
+      /* Services dropdown */
+      .vf-nav-dropdown { position:relative; }
+      .vf-nav-dropdown-menu {
+        position:absolute; top:calc(100%+8px); left:0;
+        background:rgba(5,10,20,0.97);
+        border:1px solid rgba(0,207,255,0.2);
+        border-top:2px solid #00CFFF;
+        border-radius:4px;
+        min-width:280px;
+        padding:8px 0;
+        opacity:0; pointer-events:none;
+        transform:translateY(-6px);
+        transition:opacity 0.2s,transform 0.2s;
+        box-shadow:0 20px 50px rgba(0,0,0,0.85);
+      }
+      .vf-nav-dropdown:hover .vf-nav-dropdown-menu,
+      .vf-nav-dropdown:focus-within .vf-nav-dropdown-menu {
+        opacity:1; pointer-events:auto; transform:translateY(0);
+      }
+      .vf-dd-item {
+        display:flex; align-items:center; gap:14px;
+        padding:12px 20px; text-decoration:none;
+        color:rgba(255,255,255,0.8);
+        transition:background 0.15s,color 0.15s;
+      }
+      .vf-dd-item:hover { background:rgba(0,207,255,0.07); color:#fff; }
+      .vf-dd-num { font-size:0.68rem; color:#00CFFF; font-weight:700; letter-spacing:0.14em; min-width:20px; }
+      .vf-dd-name { font-size:0.85rem; font-weight:600; letter-spacing:0.06em; }
+      .vf-nav-cta {
+        display:inline-flex; align-items:center;
+        padding:9px 22px;
+        border:1px solid #C41E3A;
+        background:transparent; color:#fff;
+        font-family:'Space Grotesk',monospace;
+        font-size:0.78rem; font-weight:600;
+        letter-spacing:0.14em; text-transform:uppercase;
+        text-decoration:none; border-radius:3px;
+        transition:background 0.25s,box-shadow 0.25s;
+        cursor:pointer;
+      }
+      .vf-nav-cta:hover { background:#C41E3A; box-shadow:0 0 20px rgba(196,30,58,0.5); }
+      /* Hamburger */
+      #vf-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:10px; min-width:44px; min-height:44px; align-items:center; justify-content:center; }
+      #vf-hamburger span { display:block; width:22px; height:2px; background:#fff; transition:0.3s; }
+      @media(max-width:900px){
+        .vf-nav-links { display:none; }
+        #vf-hamburger { display:flex; }
+        #vf-navbar { padding:0 20px; }
+      }
+      /* Mobile drawer */
+      #vf-mobile-drawer {
+        position:fixed; inset:0; z-index:800;
+        background:rgba(5,10,20,0.97);
+        backdrop-filter:blur(20px);
+        display:none; flex-direction:column;
+        padding:24px 28px;
+        overflow-y:auto;
+      }
+      #vf-mobile-drawer.open { display:flex; }
+      .vf-drawer-close {
+        align-self:flex-end; background:none; border:none;
+        color:#fff; font-size:1.5rem; cursor:pointer;
+        min-width:44px; min-height:44px;
+        display:flex; align-items:center; justify-content:center;
+      }
+      .vf-drawer-link {
+        display:block; padding:14px 0;
+        font-family:'Space Grotesk',sans-serif;
+        font-size:1.1rem; font-weight:600;
+        color:rgba(255,255,255,0.85); text-decoration:none;
+        border-bottom:1px solid rgba(0,207,255,0.1);
+        letter-spacing:0.08em;
+      }
+      .vf-drawer-link:hover { color:#00CFFF; }
+      .vf-drawer-services { padding-left:16px; }
+      .vf-drawer-service-link {
+        display:block; padding:10px 0;
+        font-size:0.9rem; color:rgba(255,255,255,0.65);
+        text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05);
+      }
+      .vf-drawer-service-link:hover { color:#00CFFF; }
+
+      /* ══ SECTION BASE ══ */
+      .vf-section {
+        background:#050a14;
+        padding:100px 40px;
+      }
+      .vf-section-alt { background:#081022; }
+      .vf-container { max-width:1280px; margin:0 auto; }
+      .vf-section-badge {
+        display:inline-block;
+        font-family:'Space Grotesk',monospace;
+        font-size:0.72rem; font-weight:700;
+        letter-spacing:0.22em; color:#00CFFF;
+        text-transform:uppercase;
+        margin-bottom:1.2rem;
+      }
+      .vf-section-heading {
+        font-family:'Playfair Display',serif;
+        font-size:clamp(2rem,4vw,3rem);
+        font-weight:700; color:#fff;
+        line-height:1.2; margin:0 0 1rem;
+      }
+      .vf-section-sub {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:clamp(1rem,2vw,1.2rem);
+        color:rgba(255,255,255,0.65);
+        line-height:1.6; margin:0;
+      }
+      @media(max-width:768px){ .vf-section{ padding:70px 20px; } }
+
+      /* ── Glass Card ── */
+      .vf-glass {
+        background:rgba(4,10,24,0.82);
+        backdrop-filter:blur(18px) saturate(1.4);
+        -webkit-backdrop-filter:blur(18px) saturate(1.4);
+        border:1px solid rgba(0,207,255,0.15);
+        border-radius:6px;
+      }
+      .vf-glass-cyan { border-top:3px solid #00CFFF; }
+      .vf-glass-ruby { border-top:3px solid #C41E3A; }
+
+      /* ── Metrics Strip (#metrics) ── */
+      #metrics { background:#081022; }
+      .vf-metrics-grid {
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:24px;
+      }
+      @media(max-width:900px){ .vf-metrics-grid{ grid-template-columns:repeat(2,1fr); } }
+      @media(max-width:500px){ .vf-metrics-grid{ grid-template-columns:1fr; } }
+      .vf-metric-card {
+        padding:2.5rem 2rem;
+        text-align:center;
+      }
+      .vf-metric-num {
+        font-family:'Space Grotesk',monospace;
+        font-size:clamp(2.4rem,5vw,3.5rem);
+        font-weight:800; line-height:1;
+        margin-bottom:0.4rem;
+      }
+      .vf-metric-num.cyan { color:#00CFFF; text-shadow:0 0 30px rgba(0,207,255,0.5); }
+      .vf-metric-num.ruby { color:#C41E3A; text-shadow:0 0 30px rgba(196,30,58,0.5); }
+      .vf-metric-num.white { color:#ffffff; }
+      .vf-metric-label {
+        font-family:'Space Grotesk',monospace;
+        font-size:0.72rem; font-weight:700;
+        letter-spacing:0.22em; color:#00CFFF;
+        text-transform:uppercase; margin-bottom:0.75rem;
+      }
+      .vf-metric-sub {
+        font-size:0.82rem; color:rgba(255,255,255,0.55);
+        line-height:1.5;
+      }
+
+      /* ── About Split (#about) ── */
+      .vf-about-grid {
+        display:grid; grid-template-columns:1fr 1fr;
+        gap:60px; align-items:center;
+      }
+      @media(max-width:800px){ .vf-about-grid{ grid-template-columns:1fr; gap:40px; } }
+      .vf-about-img-wrap { position:relative; border-radius:6px; overflow:hidden; }
+      .vf-about-img-wrap img { width:100%; display:block; filter:brightness(0.85) saturate(1.1); }
+      .vf-about-badge-overlay {
+        position:absolute; bottom:20px; left:20px;
+        padding:12px 18px;
+      }
+      .vf-about-badge-num {
+        font-family:'Space Grotesk',monospace;
+        font-size:2.2rem; font-weight:800; color:#00CFFF;
+        text-shadow:0 0 20px rgba(0,207,255,0.6);
+      }
+      .vf-about-badge-lbl { font-size:0.68rem; letter-spacing:0.18em; color:#fff; opacity:0.8; }
+      .vf-checklist { list-style:none; padding:0; margin:1.6rem 0 0; display:flex; flex-direction:column; gap:12px; }
+      .vf-checklist li {
+        display:flex; align-items:flex-start; gap:12px;
+        font-size:0.95rem; color:rgba(255,255,255,0.85); line-height:1.5;
+      }
+      .vf-check-icon { color:#00CFFF; font-weight:700; flex-shrink:0; margin-top:2px; }
+
+      /* ── Services Matrix (#services) ── */
+      .vf-services-grid {
+        display:grid; grid-template-columns:repeat(2,1fr);
+        gap:24px; margin-top:48px;
+      }
+      @media(max-width:800px){ .vf-services-grid{ grid-template-columns:1fr; } }
+      .vf-service-card { padding:2.5rem; cursor:pointer; transition:transform 0.2s,border-color 0.2s; }
+      .vf-service-card:hover { transform:translateY(-3px); border-color:rgba(0,207,255,0.4); }
+      .vf-svc-num {
+        font-family:'Space Grotesk',monospace;
+        font-size:0.72rem; font-weight:700;
+        letter-spacing:0.22em; color:#00CFFF;
+        margin-bottom:0.6rem;
+      }
+      .vf-svc-title {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:1.25rem; font-weight:700; color:#fff;
+        letter-spacing:0.08em; text-transform:uppercase;
+        margin:0 0 1rem;
+      }
+      .vf-svc-overview { font-size:0.9rem; color:rgba(255,255,255,0.65); line-height:1.6; margin:0 0 1.2rem; }
+      .vf-svc-deliverables { list-style:none; padding:0; margin:0 0 1.4rem; display:flex; flex-direction:column; gap:7px; }
+      .vf-svc-deliverables li { font-size:0.83rem; color:rgba(255,255,255,0.7); padding-left:16px; position:relative; }
+      .vf-svc-deliverables li::before { content:'→'; position:absolute; left:0; color:#00CFFF; font-size:0.75rem; }
+      .vf-svc-tools { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1.4rem; }
+      .vf-svc-tool { font-size:0.68rem; letter-spacing:0.1em; color:#00CFFF; border:1px solid rgba(0,207,255,0.3); padding:3px 10px; border-radius:2px; }
+      .vf-svc-cta {
+        display:inline-flex; align-items:center; gap:8px;
+        font-size:0.78rem; font-weight:600; letter-spacing:0.1em;
+        color:#00CFFF; text-decoration:none;
+        text-transform:uppercase;
+        transition:gap 0.2s;
+      }
+      .vf-svc-cta:hover { gap:14px; }
+
+      /* ── Technology Pipeline (#technology) ── */
+      #technology { background:#081022; }
+      .vf-tech-grid {
+        display:grid; grid-template-columns:repeat(4,1fr);
+        gap:24px; margin-top:48px;
+        position:relative;
+      }
+      @media(max-width:900px){ .vf-tech-grid{ grid-template-columns:repeat(2,1fr); } }
+      @media(max-width:500px){ .vf-tech-grid{ grid-template-columns:1fr; } }
+      .vf-tech-card { padding:2rem 1.5rem; text-align:center; }
+      .vf-tech-stage {
+        font-family:'Space Grotesk',monospace;
+        font-size:0.65rem; letter-spacing:0.2em;
+        color:#00CFFF; font-weight:700;
+        text-transform:uppercase; margin-bottom:1rem;
+      }
+      .vf-tech-img-wrap {
+        height:140px; display:flex; align-items:center;
+        justify-content:center; margin-bottom:1rem;
+        border-radius:4px; overflow:hidden;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(0,207,255,0.15);
+        padding:16px;
+      }
+      .vf-tech-img-wrap img { max-height:100%; max-width:100%; object-fit:contain; }
+      .vf-tech-name {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:1.1rem; font-weight:800; color:#fff;
+        letter-spacing:0.14em; text-transform:uppercase;
+        margin:0 0 0.6rem;
+      }
+      .vf-tech-desc { font-size:0.8rem; color:rgba(255,255,255,0.55); line-height:1.55; }
+      .vf-tech-workflow-banner {
+        margin-top:40px; padding:28px 40px;
+        text-align:center;
+      }
+      .vf-tech-workflow-banner .vf-wf-label { font-size:0.68rem; letter-spacing:0.22em; color:#00CFFF; font-weight:700; text-transform:uppercase; margin-bottom:8px; }
+      .vf-tech-workflow-banner .vf-wf-heading {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:clamp(1.4rem,3vw,2rem);
+        font-weight:800; color:#fff; letter-spacing:0.08em;
+      }
+      .vf-tech-workflow-banner .vf-wf-heading span { color:#00CFFF; }
+
+      /* ── Gallery (#gallery) ── */
+      .vf-gallery-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:32px 0 28px; }
+      .vf-gallery-tab {
+        font-family:'Space Grotesk',monospace;
+        font-size:0.72rem; letter-spacing:0.12em;
+        font-weight:600; color:rgba(255,255,255,0.6);
+        border:1px solid rgba(0,207,255,0.2);
+        background:transparent; padding:7px 14px;
+        border-radius:2px; cursor:pointer;
+        transition:all 0.2s;
+      }
+      .vf-gallery-tab:hover, .vf-gallery-tab.active {
+        color:#00CFFF; border-color:#00CFFF;
+        background:rgba(0,207,255,0.07);
+      }
+      .vf-gallery-grid {
+        display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+        gap:16px;
+      }
+      .vf-gallery-item {
+        position:relative; overflow:hidden;
+        border-radius:4px; cursor:pointer;
+        aspect-ratio:4/3;
+        border:1px solid rgba(0,207,255,0.1);
+      }
+      .vf-gallery-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.4s; display:block; }
+      .vf-gallery-item:hover img { transform:scale(1.04); }
+      .vf-gallery-item-overlay {
+        position:absolute; inset:0;
+        background:linear-gradient(to top,rgba(5,10,20,0.85) 0%,transparent 50%);
+        opacity:0; transition:opacity 0.3s;
+        display:flex; align-items:flex-end;
+        padding:12px;
+      }
+      .vf-gallery-item:hover .vf-gallery-item-overlay { opacity:1; }
+      .vf-gallery-item-caption { font-size:0.72rem; color:rgba(255,255,255,0.85); letter-spacing:0.06em; }
+      /* Lightbox */
+      #vf-lightbox {
+        position:fixed; inset:0; z-index:900;
+        background:rgba(5,10,20,0.97);
+        display:none; align-items:center;
+        justify-content:center; flex-direction:column;
+        gap:20px; padding:40px;
+      }
+      #vf-lightbox.open { display:flex; }
+      #vf-lightbox-img { max-width:90vw; max-height:75vh; border-radius:4px; object-fit:contain; }
+      #vf-lightbox-caption { font-size:0.85rem; color:rgba(255,255,255,0.7); max-width:700px; text-align:center; }
+      #vf-lightbox-close {
+        position:absolute; top:20px; right:28px;
+        background:none; border:none; color:#fff;
+        font-size:2rem; cursor:pointer; line-height:1;
+      }
+
+      /* ── Contact & RFQ (#contact) ── */
+      #contact { background:#081022; }
+      .vf-contact-prelude {
+        text-align:center; margin-bottom:60px;
+      }
+      .vf-contact-prelude .vf-quote {
+        font-family:'Playfair Display',serif;
+        font-size:clamp(1.5rem,3.5vw,2.4rem);
+        font-weight:600; color:#fff;
+        margin:0 0 0.5rem;
+      }
+      .vf-contact-prelude .vf-sub { color:#00CFFF; font-size:1rem; letter-spacing:0.1em; }
+      .vf-contact-grid {
+        display:grid; grid-template-columns:1fr 1.4fr;
+        gap:40px; align-items:start;
+      }
+      @media(max-width:800px){ .vf-contact-grid{ grid-template-columns:1fr; } }
+      .vf-contact-info { padding:2.5rem; }
+      .vf-contact-info-title {
+        font-family:'Space Grotesk',sans-serif;
+        font-size:1.3rem; font-weight:800; color:#fff;
+        letter-spacing:0.14em; text-transform:uppercase;
+        margin:0 0 1.6rem;
+      }
+      .vf-contact-row { margin-bottom:1.2rem; }
+      .vf-contact-label { font-size:0.65rem; letter-spacing:0.2em; color:#00CFFF; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+      .vf-contact-val { font-size:0.92rem; color:rgba(255,255,255,0.8); }
+      .vf-contact-val a { color:rgba(255,255,255,0.8); text-decoration:none; transition:color 0.2s; }
+      .vf-contact-val a:hover { color:#00CFFF; }
+      /* RFQ Form */
+      .vf-rfq-form { padding:2.5rem; }
+      .vf-form-title { font-size:1.3rem; font-weight:800; color:#fff; letter-spacing:0.1em; text-transform:uppercase; margin:0 0 1.6rem; }
+      .vf-form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+      @media(max-width:600px){ .vf-form-row{ grid-template-columns:1fr; } }
+      .vf-field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+      .vf-field label { font-size:0.68rem; letter-spacing:0.18em; color:rgba(255,255,255,0.6); font-weight:600; text-transform:uppercase; }
+      .vf-field input, .vf-field select, .vf-field textarea {
+        background:rgba(255,255,255,0.04);
+        border:1px solid rgba(0,207,255,0.2);
+        border-radius:3px; padding:11px 14px;
+        color:#fff; font-family:'Space Grotesk',sans-serif;
+        font-size:0.9rem; outline:none;
+        transition:border-color 0.2s;
+      }
+      .vf-field input:focus, .vf-field select:focus, .vf-field textarea:focus { border-color:#00CFFF; }
+      .vf-field textarea { resize:vertical; min-height:100px; }
+      .vf-field select option { background:#050a14; }
+      .vf-submit {
+        width:100%; padding:14px;
+        background:transparent; border:1px solid #C41E3A;
+        color:#fff; font-family:'Space Grotesk',monospace;
+        font-size:0.9rem; font-weight:700;
+        letter-spacing:0.18em; text-transform:uppercase;
+        cursor:pointer; border-radius:3px;
+        transition:background 0.25s,box-shadow 0.25s;
+        margin-top:8px;
+      }
+      .vf-submit:hover { background:#C41E3A; box-shadow:0 0 24px rgba(196,30,58,0.5); }
+      .vf-form-error { display:none; color:#C41E3A; font-size:0.82rem; padding:10px 0; }
+      .vf-form-success { display:none; color:#00CFFF; font-size:0.9rem; padding:14px 0; text-align:center; }
+      .vf-honeypot { display:none !important; }
+
+      /* ── Corporate Footer ── */
+      #vf-footer {
+        background:#030710;
+        border-top:1px solid rgba(0,207,255,0.1);
+        padding:60px 40px 30px;
+      }
+      .vf-footer-grid {
+        display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr;
+        gap:40px; max-width:1280px; margin:0 auto 40px;
+      }
+      @media(max-width:900px){ .vf-footer-grid{ grid-template-columns:1fr 1fr; } }
+      @media(max-width:500px){ .vf-footer-grid{ grid-template-columns:1fr; } }
+      .vf-footer-brand-logo { width:48px; border-radius:4px; margin-bottom:12px; }
+      .vf-footer-co { font-size:0.95rem; font-weight:700; letter-spacing:0.14em; color:#fff; text-transform:uppercase; margin-bottom:4px; }
+      .vf-footer-tg { font-size:0.72rem; color:#00CFFF; letter-spacing:0.1em; opacity:0.85; margin-bottom:12px; }
+      .vf-footer-desc { font-size:0.82rem; color:rgba(255,255,255,0.45); line-height:1.6; }
+      .vf-footer-heading { font-size:0.72rem; letter-spacing:0.2em; color:#00CFFF; font-weight:700; text-transform:uppercase; margin:0 0 16px; }
+      .vf-footer-links { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+      .vf-footer-links a { font-size:0.85rem; color:rgba(255,255,255,0.55); text-decoration:none; transition:color 0.2s; }
+      .vf-footer-links a:hover { color:#00CFFF; }
+      .vf-footer-bottom {
+        max-width:1280px; margin:0 auto;
+        border-top:1px solid rgba(255,255,255,0.06);
+        padding-top:20px;
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:0.72rem; color:rgba(255,255,255,0.3);
+        flex-wrap:wrap; gap:12px;
+      }
+      @media(max-width:40px){ #vf-footer{ padding:40px 20px 20px; } }
+
     </style>
   </head>
   <body>
-    <div id="app"></div>
-
-    <!-- Ephemeral Scroll Navigation Guide (Auto-dismisses in 5-7s) -->
-    <div id="scroll-nav-guide">
-      <div class="nav-guide-icon">
-        <svg width="20" height="28" viewBox="0 0 20 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="1" width="18" height="26" rx="9" stroke="#00CFFF" stroke-width="1.5" stroke-opacity="0.8"/>
-          <line class="wheel-anim" x1="10" y1="6" x2="10" y2="11" stroke="#00CFFF" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+    <!-- ── Top Telemetry Utility Bar ── -->
+    <div id="vf-utility-bar" data-testid="topbar">
+      <div class="vf-util-left">
+        <span class="vf-util-dot"></span>
+        <span class="vf-util-status">US TELECOM BACKEND OPS ACTIVE</span>
+        <span class="vf-util-sep">|</span>
+        <span>Madhapur, Hyderabad, Telangana, India</span>
       </div>
-      <div class="nav-guide-content">
-        <div class="nav-guide-label">NAVIGATION GUIDE</div>
-        <div class="nav-guide-title">SCROLL IN &amp; SCROLL OUT</div>
-        <div class="nav-guide-sub">Scroll down to explore &bull; Scroll up to return</div>
+      <div class="vf-util-right">
+        <a href="mailto:services@vf-technologies.com" data-testid="topbar-email">services@vf-technologies.com</a>
+        <a href="tel:+91XXXXXXXXXX" data-testid="topbar-phone" id="vf-util-phone">+91 (XXX) XXX-XXXX</a>
+        <a href="https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#00CFFF"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
       </div>
     </div>
 
-    <!-- Bottom Chapter Scrubber Bar -->
-    <nav id="chapter-scrubber" aria-label="Story Navigation" style="opacity: 1;">
-      <button class="scrub-node active" data-sf="0.00" data-section="overview">1. Overview</button>
-      <button class="scrub-node" data-sf="1.80" data-section="services">2. Services</button>
-      <button class="scrub-node" data-sf="4.35" data-section="technology">3. Technology</button>
-      <button class="scrub-node" data-sf="7.10" data-section="about">4. About us</button>
-      <button class="scrub-node" data-sf="8.15" data-section="contact">5. Contact us</button>
+    <!-- ── Sticky Liquid-Glass Navbar ── -->
+    <nav id="vf-navbar" aria-label="Main Navigation">
+      <a href="/" class="vf-nav-brand">
+        <img src="/logo.jpg" alt="VF Technologies" class="vf-nav-logo" />
+        <div class="vf-nav-brand-text">
+          <div class="vf-co">VF Technologies</div>
+          <div class="vf-tg">Powering a Better Tomorrow</div>
+        </div>
+      </a>
+      <div class="vf-nav-links">
+        <a href="#hero-webgl-container" class="vf-nav-link">Overview</a>
+        <div class="vf-nav-dropdown">
+          <a href="#services" class="vf-nav-link" data-testid="nav-services-trigger">Services ▾</a>
+          <div class="vf-nav-dropdown-menu">
+            <a href="/services/research-permitting.html" class="vf-dd-item"><span class="vf-dd-num">01</span><span class="vf-dd-name">Research &amp; Permitting</span></a>
+            <a href="/services/design-drafting.html" class="vf-dd-item"><span class="vf-dd-num">02</span><span class="vf-dd-name">Design / Drafting</span></a>
+            <a href="/services/osp-fiber.html" class="vf-dd-item"><span class="vf-dd-num">03</span><span class="vf-dd-name">OSP Fiber</span></a>
+            <a href="/services/pole-loading-analysis.html" class="vf-dd-item"><span class="vf-dd-num">04</span><span class="vf-dd-name">Pole Loading Analysis</span></a>
+          </div>
+        </div>
+        <a href="#technology" class="vf-nav-link">Technology Stack</a>
+        <a href="#gallery" class="vf-nav-link">Gallery</a>
+        <a href="#about" class="vf-nav-link">About Us</a>
+        <a href="#contact" class="vf-nav-cta">Let's Connect</a>
+      </div>
+      <button id="vf-hamburger" data-testid="mobile-menu-toggle" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
 
-    <!-- Empty Space Gap container -->
-    <div id="gap-info-container" class="overlay" style="display:none; pointer-events:none;"></div>
-
-    <!-- Persistent Global Brand Header (Locked in top-left across all chapters & scroll positions) -->
-    <header id="global-header" class="global-brand-header" title="VF Technologies — Return to Start">
-      <img src="/logo.jpg" alt="VF Technologies Logo" class="hero-logo" />
-      <div>
-        <div class="company">VF Technologies</div>
-        <div class="tagline">Powering a Better Tomorrow</div>
+    <!-- Mobile Drawer -->
+    <div id="vf-mobile-drawer" data-testid="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+      <button class="vf-drawer-close" id="vf-drawer-close" aria-label="Close menu">✕</button>
+      <a href="#hero-webgl-container" class="vf-drawer-link">Overview</a>
+      <span class="vf-drawer-link" style="cursor:default;color:#00CFFF;">Services</span>
+      <div class="vf-drawer-services">
+        <a href="/services/research-permitting.html" class="vf-drawer-service-link">01 — Research &amp; Permitting</a>
+        <a href="/services/design-drafting.html" class="vf-drawer-service-link">02 — Design / Drafting</a>
+        <a href="/services/osp-fiber.html" class="vf-drawer-service-link">03 — OSP Fiber</a>
+        <a href="/services/pole-loading-analysis.html" class="vf-drawer-service-link">04 — Pole Loading Analysis</a>
       </div>
-    </header>
-
-    <!-- Obsolete chapter lifecycle containers (suppressed) -->
-    <div id="chapter0-text" class="overlay" style="display:none;"></div>
-    <div id="chapter1-text" class="overlay" style="display:none;"></div>
-    <div id="chapter3-text" class="overlay" style="display:none;"></div>
-    <div id="chapter4-text" class="overlay" style="display:none;"></div>
-    <div id="chapter6-text" class="overlay" style="display:none;"></div>
-    <div id="chapter2-text" class="overlay" style="display:none;"></div>
-    <div id="chapter5-text" class="overlay" style="display:none;"></div>
-
-    <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <!-- VF TECHNOLOGIES MASTER NARRATIVE STORY ENGINE (SCENES 01 — 06)            -->
-    <!-- ══════════════════════════════════════════════════════════════════════════ -->
-    <div id="story-narrative-container">
-
-      <!-- SCENE 01: OPENING -->
-      <div id="narrative-s1-hero" class="narrative-beat">
-        <div class="narrative-badge">ENGINEERING &amp; TELECOMMUNICATION INFRASTRUCTURE</div>
-        <h1 class="narrative-title-xl">VF TECHNOLOGIES</h1>
-        <p class="narrative-sub-lg cyan-glow">Powering a Better Tomorrow.</p>
-      </div>
-
-      <div id="narrative-s1-infra" class="narrative-beat">
-        <p class="narrative-quote">“Every connection begins with infrastructure.”</p>
-      </div>
-
-      <div id="narrative-s1-eng" class="narrative-beat">
-        <p class="narrative-quote">“Behind every connection is engineering built to make it possible.”</p>
-      </div>
-
-      <!-- SCENE 02: MILESTONES -->
-      <div id="narrative-s2-structures" class="narrative-beat milestone-card">
-        <div class="milestone-counter">
-          <div id="s2-struct-count" class="milestone-number cyan-glow">0</div>
-          <div class="milestone-label">STRUCTURES ANALYZED</div>
-        </div>
-        <div class="milestone-desc">
-          <p>Thousands of structures.</p>
-          <p class="cyan-accent">Thousands of engineering decisions.</p>
-        </div>
-      </div>
-
-      <div id="narrative-s2-poles" class="narrative-beat milestone-card">
-        <div class="milestone-counter">
-          <div id="s2-poles-count" class="milestone-number crimson-glow">0</div>
-          <div class="milestone-label">POLES MANAGED</div>
-        </div>
-        <div class="milestone-desc">
-          <p>Every pole is part of a network.</p>
-          <p class="cyan-accent">Every network depends on precision.</p>
-          <p class="white-sub" style="margin-top:0.6rem;">Across the United States.</p>
-        </div>
-      </div>
-
-      <!-- SCENE 03: WHAT WE OFFER — All services visible simultaneously -->
-      <div id="narrative-s3-services-panel" class="narrative-beat services-split-panel">
-
-        <!-- LEFT: Service List -->
-        <div class="services-list-col">
-          <div class="services-section-label">SERVICES WE OFFER</div>
-
-          <div class="svc-row">
-            <span class="svc-num">01</span>
-            <div class="svc-name-wrap">
-              <span class="svc-name">RESEARCH &amp; PERMITTING</span>
-            </div>
-          </div>
-          <div class="svc-divider"></div>
-
-          <div class="svc-row">
-            <span class="svc-num">02</span>
-            <div class="svc-name-wrap">
-              <span class="svc-name">DESIGN / DRAFTING</span>
-            </div>
-          </div>
-          <div class="svc-divider"></div>
-
-          <div class="svc-row">
-            <span class="svc-num">03</span>
-            <div class="svc-name-wrap">
-              <span class="svc-name">OSP FIBER</span>
-            </div>
-          </div>
-          <div class="svc-divider"></div>
-
-          <div class="svc-row">
-            <span class="svc-num">04</span>
-            <div class="svc-name-wrap">
-              <span class="svc-name">POLE LOADING ANALYSIS</span>
-              <span class="svc-name svc-name-secondary">(O-CALC PRO)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT: Tower Photo -->
-        <div class="services-photo-col">
-          <img src="/references/tower night.jpg" alt="Telecom Tower at Night" class="services-tower-img" />
-        </div>
-
-      </div>
-
-      <!-- SCENE 04: OUR TECHNOLOGY STACK (APPEARS ONLY ONCE) -->
-      <div id="narrative-s4-tech-intro" class="narrative-beat center-statement">
-        <div class="narrative-badge">ENGINEERING ECOSYSTEM</div>
-        <h2 class="tech-stack-hero-title">OUR TECHNOLOGY STACK</h2>
-        <p class="narrative-quote-lg" style="color:#00CFFF;">“The tools behind the work.”</p>
-      </div>
-
-      <div id="narrative-s4-tech-frontier" class="narrative-beat tech-solo-beat">
-        <div class="tech-solo-badge">01 — FIELD RECONNAISSANCE</div>
-        <div class="tech-solo-visual">
-          <img src="/services/frontier.jpg" alt="Frontier" class="tech-solo-img" />
-        </div>
-        <h3 class="tech-solo-name">FRONTIER</h3>
-      </div>
-
-      <div id="narrative-s4-tech-katapult" class="narrative-beat tech-solo-beat">
-        <div class="tech-solo-badge">02 — WORKFLOW ENGINE</div>
-        <div class="tech-solo-visual">
-          <img src="/services/katapult.jpg" alt="Katapult Pro" class="tech-solo-img" />
-        </div>
-        <h3 class="tech-solo-name">KATAPULT PRO</h3>
-      </div>
-
-      <div id="narrative-s4-tech-autocad" class="narrative-beat tech-solo-beat">
-        <div class="tech-solo-badge">03 — DESIGN DOCUMENTATION</div>
-        <div class="tech-solo-visual">
-          <img src="/services/autocad.jpg" alt="AutoCAD" class="tech-solo-img" />
-        </div>
-        <h3 class="tech-solo-name">AUTOCAD</h3>
-      </div>
-
-      <div id="narrative-s4-tech-ocalc" class="narrative-beat tech-solo-beat">
-        <div class="tech-solo-badge">04 — STRUCTURAL VALIDATION</div>
-        <div class="tech-solo-visual">
-          <img src="/services/ocalc-pro.jpg" alt="O-Calc Pro" class="tech-solo-img" />
-        </div>
-        <h3 class="tech-solo-name">O-CALC PRO</h3>
-      </div>
-
-      <div id="narrative-s4-tech-workflow" class="narrative-beat center-statement">
-        <div class="narrative-badge">INTEGRATED WORKFLOW</div>
-        <h2 class="workflow-heading-top">Different tools.</h2>
-        <h2 class="workflow-heading-bottom cyan-glow">One engineering workflow.</h2>
-      </div>
-
-      <!-- SCENE 05: ABOUT US (INTRODUCED ONLY AFTER TECH STACK) -->
-      <div id="narrative-s5-about-intro" class="narrative-beat about-glass-card">
-        <div class="narrative-badge">COMPANY IDENTITY</div>
-        <h2 class="about-title">ABOUT US</h2>
-        <p class="about-body">Venkateswara Fiber Technologies Private Limited (VF Technologies) provides high-precision backend engineering, planning, and deployment design services for telecom operators and broadband providers.</p>
-      </div>
-
-      <div id="narrative-s5-about-mission" class="narrative-beat about-glass-card">
-        <div class="narrative-badge">BEHIND THE SCENES</div>
-        <p class="about-body" style="margin-bottom:1.2rem;">We work behind the scenes of modern connectivity — turning field information into engineering decisions, construction-ready designs, and deployable network solutions.</p>
-        <p class="about-body cyan-glow">Our work is built around precision, accountability, and the infrastructure that keeps communities connected.</p>
-      </div>
-
-      <!-- SCENE 06: CONTACT US -->
-      <div id="narrative-s6-contact-prelude" class="narrative-beat center-statement">
-        <p class="narrative-quote-lg">“Every project starts with a connection.”</p>
-        <p class="narrative-sub-highlight">Let's build the next one.</p>
-      </div>
-
-      <div id="narrative-s6-contact-card" class="narrative-beat contact-glass-card">
-        <div class="contact-header">
-          <div class="narrative-badge">START A CONVERSATION</div>
-          <h2 class="contact-title">CONTACT US</h2>
-        </div>
-
-        <div class="contact-details-grid">
-          <div class="contact-block">
-            <div class="contact-field-label">EMAIL</div>
-            <a href="mailto:services@vf-technologies.com" class="contact-link">services@vf-technologies.com</a>
-          </div>
-
-          <div class="contact-block">
-            <div class="contact-field-label">REGION</div>
-            <div class="contact-field-val">Madhapur, Hyderabad, Telangana, India.</div>
-          </div>
-
-          <div class="contact-block">
-            <div class="contact-field-label">SERVICES</div>
-            <div class="contact-field-val">Research &amp; Permitting • Design / Drafting • OSP Fiber • Pole Loading (O-Calc Pro)</div>
-          </div>
-
-          <div class="contact-block">
-            <div class="contact-field-label">LINKEDIN</div>
-            <a href="https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd" target="_blank" rel="noopener noreferrer" class="contact-link contact-linkedin-link">
-              <svg class="linkedin-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-              </svg>
-              <span>VF Technologies</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="contact-cta-wrap">
-          <a href="mailto:services@vf-technologies.com" class="contact-cta-btn">LET'S CONNECT.</a>
-        </div>
-
-        <div class="contact-footer">
-          <div class="contact-brand-title">VF TECHNOLOGIES</div>
-          <div class="contact-brand-tag">Powering a Better Tomorrow.</div>
-        </div>
-      </div>
-
+      <a href="#technology" class="vf-drawer-link">Technology Stack</a>
+      <a href="#gallery" class="vf-drawer-link">Gallery</a>
+      <a href="#about" class="vf-drawer-link">About Us</a>
+      <a href="#contact" class="vf-drawer-link" style="color:#C41E3A;">Let's Connect</a>
     </div>
 
-    <script type="module" src="/main.js"></script>
+    <!-- ══ HERO SECTION — Scoped 3D WebGL Canvas + 4-Slide Telemetry Hero ══ -->
+    <section id="hero-webgl-container">
+      <div id="app"></div>
+
+      <!-- Hero 4-Slide Telemetry Showcase Overlay -->
+      <div id="vf-hero-showcase">
+        <div class="vf-hero-slide active" data-slide="0">
+          <div class="vf-hero-badge">ENGINEERING &amp; TELECOMMUNICATION INFRASTRUCTURE</div>
+          <h1 class="vf-hero-title">VF TECHNOLOGIES</h1>
+          <p class="vf-hero-tagline">Powering a Better Tomorrow.</p>
+          <p class="vf-hero-desc">Every connection begins with infrastructure. Behind every connection is engineering built to make it possible.</p>
+          <div class="vf-hero-actions">
+            <a href="#services" class="vf-hero-btn-primary">Explore Services</a>
+            <a href="#contact" class="vf-hero-btn-secondary">Request Engineering Proposal</a>
+          </div>
+        </div>
+
+        <div class="vf-hero-slide" data-slide="1">
+          <div class="vf-hero-badge">02 // OSP FIBER &amp; FTTH ARCHITECTURE</div>
+          <h2 class="vf-hero-title">PRECISION OSP FIBER</h2>
+          <p class="vf-hero-tagline">Across the United States.</p>
+          <p class="vf-hero-desc">Every pole is part of a network. Every network depends on precision. High-capacity FTTH architectures engineered for longevity.</p>
+          <div class="vf-hero-actions">
+            <a href="/services/osp-fiber.html" class="vf-hero-btn-primary">View OSP Fiber Specs</a>
+            <a href="#contact" class="vf-hero-btn-secondary">Get In Touch</a>
+          </div>
+        </div>
+
+        <div class="vf-hero-slide" data-slide="2">
+          <div class="vf-hero-badge">03 // STRUCTURAL POLE LOADING ANALYSIS</div>
+          <h2 class="vf-hero-title">O-CALC PRO VALIDATION</h2>
+          <p class="vf-hero-tagline">NESC-Compliant Structural Integrity.</p>
+          <p class="vf-hero-desc">Thousands of structures. Thousands of engineering decisions. Complete wind, ice, and make-ready load calculations.</p>
+          <div class="vf-hero-actions">
+            <a href="/services/pole-loading-analysis.html" class="vf-hero-btn-primary">Inspect O-Calc Deliverables</a>
+            <a href="#contact" class="vf-hero-btn-secondary">Request Structural Review</a>
+          </div>
+        </div>
+
+        <div class="vf-hero-slide" data-slide="3">
+          <div class="vf-hero-badge">04 // INTEGRATED TELECOM ECOSYSTEM</div>
+          <h2 class="vf-hero-title">INTEGRATED WORKFLOW</h2>
+          <p class="vf-hero-tagline">Different tools. One engineering workflow.</p>
+          <p class="vf-hero-desc">Frontier &bull; Katapult Pro &bull; AutoCAD &bull; O-Calc Pro — smoothly unified into high-precision construction plans.</p>
+          <div class="vf-hero-actions">
+            <a href="#technology" class="vf-hero-btn-primary">View Tech Ecosystem</a>
+            <a href="#contact" class="vf-hero-btn-secondary">Start a Conversation</a>
+          </div>
+        </div>
+
+        <!-- 4-Slide Telemetry Navigation Switcher -->
+        <div class="vf-hero-indicators">
+          <button class="vf-hero-indicator-btn active" data-target-slide="0" data-sf="0.25">
+            <span class="vf-ind-num">01</span>
+            <span class="vf-ind-label">Overview</span>
+          </button>
+          <button class="vf-hero-indicator-btn" data-target-slide="1" data-sf="1.35">
+            <span class="vf-ind-num">02</span>
+            <span class="vf-ind-label">OSP Fiber</span>
+          </button>
+          <button class="vf-hero-indicator-btn" data-target-slide="2" data-sf="2.50">
+            <span class="vf-ind-num">03</span>
+            <span class="vf-ind-label">O-Calc Pro</span>
+          </button>
+          <button class="vf-hero-indicator-btn" data-target-slide="3" data-sf="3.40">
+            <span class="vf-ind-num">04</span>
+            <span class="vf-ind-label">Workflow</span>
+          </button>
+        </div>
+      </div>
+    </section><!-- end #hero-webgl-container -->
+
+    <!-- ══ SECTION: 4-Metric Audited Counter Strip ══ -->
+    <section id="metrics" class="vf-section vf-section-alt">
+      <div class="vf-container">
+        <div class="vf-metrics-grid">
+          <div class="vf-metric-card vf-glass vf-glass-cyan">
+            <div class="vf-metric-num cyan" id="vf-metric-structures" data-target="25000" data-testid="metric-structures">25,000</div>
+            <div class="vf-metric-label">Structures Analyzed</div>
+            <div class="vf-metric-sub">Thousands of structures. Thousands of engineering decisions.</div>
+          </div>
+          <div class="vf-metric-card vf-glass vf-glass-ruby">
+            <div class="vf-metric-num ruby" id="vf-metric-poles" data-target="18500" data-testid="metric-poles">18,500</div>
+            <div class="vf-metric-label">Poles Managed</div>
+            <div class="vf-metric-sub">Every pole is part of a network. Every network depends on precision.</div>
+          </div>
+          <div class="vf-metric-card vf-glass vf-glass-cyan">
+            <div class="vf-metric-num cyan" id="vf-metric-experience" data-target="5" data-testid="metric-experience">5+ Years</div>
+            <div class="vf-metric-label">Engineering Excellence</div>
+            <div class="vf-metric-sub">High-precision backend telecom engineering for US broadband providers.</div>
+          </div>
+          <div class="vf-metric-card vf-glass" style="border-top:3px solid #ffffff22;">
+            <div class="vf-metric-num white" id="vf-metric-footprint" data-target="14" data-testid="metric-footprint">14+ States</div>
+            <div class="vf-metric-label">US Footprint</div>
+            <div class="vf-metric-sub">Supporting fiber &amp; utility deployments across the United States.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: Company Identity — Behind the Scenes ══ -->
+    <section id="about" class="vf-section">
+      <div class="vf-container">
+        <div class="vf-about-grid">
+          <div class="vf-about-img-wrap">
+            <img src="/references/tower night.jpg" alt="Telecom Tower at Night — VF Technologies Engineering" loading="lazy" />
+            <div class="vf-about-badge-overlay vf-glass">
+              <div class="vf-about-badge-num">5+</div>
+              <div class="vf-about-badge-lbl">YEARS OF PRECISION<br>TELECOM ENGINEERING</div>
+            </div>
+          </div>
+          <div>
+            <span class="vf-section-badge">Company Identity // Behind the Scenes</span>
+            <h2 class="vf-section-heading">About Venkateswara<br>Fiber Technologies</h2>
+            <p class="vf-section-sub">Venkateswara Fiber Technologies Private Limited (VF Technologies) provides high-precision backend engineering, planning, and deployment design services for telecom operators and broadband providers. We work behind the scenes of modern connectivity — turning field information into engineering decisions, construction-ready designs, and deployable network solutions.</p>
+            <ul class="vf-checklist">
+              <li><span class="vf-check-icon">✓</span> High-Precision Make-Ready &amp; Pole Loading (O-Calc Pro)</li>
+              <li><span class="vf-check-icon">✓</span> Construction-Ready AutoCAD Plansets &amp; CD Packages</li>
+              <li><span class="vf-check-icon">✓</span> Katapult Pro Photogrammetry Processing &amp; Make-Ready Modeling</li>
+              <li><span class="vf-check-icon">✓</span> Right-of-Way (ROW) &amp; Municipal Permitting</li>
+              <li><span class="vf-check-icon">✓</span> Aerial &amp; Underground OSP Fiber Routing</li>
+              <li><span class="vf-check-icon">✓</span> Dedicated US Time-Zone Alignment</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: Services Matrix ══ -->
+    <section id="services" class="vf-section vf-section-alt">
+      <div class="vf-container">
+        <span class="vf-section-badge">Services We Offer</span>
+        <h2 class="vf-section-heading">Deep B2B Engineering Services</h2>
+        <p class="vf-section-sub">Four specialized telecom engineering disciplines — each with dedicated deliverables, tools, and a dedicated sub-page for enterprise procurement teams.</p>
+        <div class="vf-services-grid">
+          <div class="vf-service-card vf-glass vf-glass-cyan">
+            <div class="vf-svc-num">01</div>
+            <h3 class="vf-svc-title">Research &amp; Permitting</h3>
+            <p class="vf-svc-overview">End-to-end jurisdictional research, right-of-way verification, and permit package preparation for utility pole attachments and fiber route deployments.</p>
+            <ul class="vf-svc-deliverables">
+              <li>Right-of-Way (ROW) verification &amp; landowner contact documentation</li>
+              <li>DOT, Railroad, Municipal, and Tribal authority permits</li>
+              <li>Utility pole ownership audits &amp; joint-use applications</li>
+              <li>Permit package preparation with engineering drawings</li>
+              <li>Make-ready coordination with pole owners</li>
+            </ul>
+            <div class="vf-svc-tools"><span class="vf-svc-tool">GIS Portals</span><span class="vf-svc-tool">AutoCAD</span><span class="vf-svc-tool">Municipal DBs</span></div>
+            <a href="/services/research-permitting.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
+          </div>
+          <div class="vf-service-card vf-glass vf-glass-ruby">
+            <div class="vf-svc-num">02</div>
+            <h3 class="vf-svc-title">Design / Drafting</h3>
+            <p class="vf-svc-overview">High-precision Construction Drawing packages, traffic control plans, strand maps, and as-built redline reconciliation for fiber network deployments.</p>
+            <ul class="vf-svc-deliverables">
+              <li>Construction Drawing (CD) packages — aerial &amp; underground routes</li>
+              <li>Traffic Control Plans (TCP) for public right-of-way</li>
+              <li>Base map drafting, strand maps &amp; OSP fiber layout schematics</li>
+              <li>As-built redline reconciliation &amp; BOM generation</li>
+              <li>Permit schematic drawings meeting DOT and municipal standards</li>
+            </ul>
+            <div class="vf-svc-tools"><span class="vf-svc-tool">AutoCAD</span><span class="vf-svc-tool">Spatial GIS</span><span class="vf-svc-tool">Katapult Pro</span></div>
+            <a href="/services/design-drafting.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
+          </div>
+          <div class="vf-service-card vf-glass vf-glass-cyan">
+            <div class="vf-svc-num">03</div>
+            <h3 class="vf-svc-title">OSP Fiber</h3>
+            <p class="vf-svc-overview">End-to-end Outside Plant FTTH/FTTx network architecture — from aerial route optimization to splice closure diagrams and optical link loss budgeting.</p>
+            <ul class="vf-svc-deliverables">
+              <li>End-to-end FTTH / FTTx network architecture design</li>
+              <li>Aerial &amp; buried route optimization with mid-span clearance validation</li>
+              <li>Splice closure diagrams &amp; optical link loss budget calculations</li>
+              <li>ODF distribution panel mapping &amp; fiber count documentation</li>
+              <li>Make-ready engineering — pole transfer, guying, and riser design</li>
+            </ul>
+            <div class="vf-svc-tools"><span class="vf-svc-tool">Katapult Pro</span><span class="vf-svc-tool">Frontier</span><span class="vf-svc-tool">AutoCAD</span></div>
+            <a href="/services/osp-fiber.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
+          </div>
+          <div class="vf-service-card vf-glass vf-glass-ruby">
+            <div class="vf-svc-num">04</div>
+            <h3 class="vf-svc-title">Pole Loading Analysis (O-Calc Pro)</h3>
+            <p class="vf-svc-overview">NESC-compliant 3D structural digital twin modeling, wind/ice load calculations, and pass/fail structural certification reports using O-Calc Pro.</p>
+            <ul class="vf-svc-deliverables">
+              <li>3D structural digital twin modeling of utility pole assemblies</li>
+              <li>NESC Grade B/C &amp; GO-95 wind and ice load vector calculations</li>
+              <li>Guying &amp; anchor sizing analysis for overloaded structures</li>
+              <li>Pass/fail structural certification reports for pole make-ready</li>
+              <li>Make-ready remediation design — riser height, transfer, replacement specs</li>
+            </ul>
+            <div class="vf-svc-tools"><span class="vf-svc-tool">O-Calc Pro</span><span class="vf-svc-tool">Katapult Pro</span><span class="vf-svc-tool">AutoCAD</span></div>
+            <a href="/services/pole-loading-analysis.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: Technology Stack Pipeline ══ -->
+    <section id="technology" class="vf-section">
+      <div class="vf-container">
+        <span class="vf-section-badge">Engineering Ecosystem</span>
+        <h2 class="vf-section-heading">Our Technology Stack</h2>
+        <p class="vf-section-sub">"The tools behind the work."</p>
+        <div class="vf-tech-grid">
+          <div class="vf-tech-card vf-glass vf-glass-cyan">
+            <div class="vf-tech-stage">01 — Field Reconnaissance</div>
+            <div class="vf-tech-img-wrap"><img src="/services/frontier.jpg" alt="Frontier" loading="lazy" /></div>
+            <div class="vf-tech-name">FRONTIER</div>
+            <div class="vf-tech-desc">Field asset capture, pole reconnaissance, existing attachment documentation, and route verification for OSP fiber deployments.</div>
+          </div>
+          <div class="vf-tech-card vf-glass vf-glass-cyan">
+            <div class="vf-tech-stage">02 — Workflow Engine</div>
+            <div class="vf-tech-img-wrap"><img src="/services/katapult.jpg" alt="Katapult Pro" loading="lazy" /></div>
+            <div class="vf-tech-name">KATAPULT PRO</div>
+            <div class="vf-tech-desc">Photogrammetry processing, mid-span clearance auditing, pole attachment modeling, and make-ready engineering workflows.</div>
+          </div>
+          <div class="vf-tech-card vf-glass vf-glass-cyan">
+            <div class="vf-tech-stage">03 — Design Documentation</div>
+            <div class="vf-tech-img-wrap"><img src="/services/autocad.jpg" alt="AutoCAD" loading="lazy" /></div>
+            <div class="vf-tech-name">AUTOCAD</div>
+            <div class="vf-tech-desc">High-precision construction drawings (CDs), strand maps, traffic control plans, and permit schematics for fiber deployments.</div>
+          </div>
+          <div class="vf-tech-card vf-glass vf-glass-ruby">
+            <div class="vf-tech-stage">04 — Structural Validation</div>
+            <div class="vf-tech-img-wrap"><img src="/services/ocalc-pro.jpg" alt="O-Calc Pro" loading="lazy" /></div>
+            <div class="vf-tech-name">O-CALC PRO</div>
+            <div class="vf-tech-desc">3D structural pole loading analysis, wind/ice vector modeling, NESC Grade B/C certification, and make-ready remediation design.</div>
+          </div>
+        </div>
+        <div class="vf-tech-workflow-banner vf-glass">
+          <div class="vf-wf-label">Integrated Workflow</div>
+          <div class="vf-wf-heading">Different tools. <span>One engineering workflow.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: 7-Stage Infrastructure Gallery ══ -->
+    <section id="gallery" class="vf-section vf-section-alt">
+      <div class="vf-container">
+        <span class="vf-section-badge">Infrastructure Portfolio</span>
+        <h2 class="vf-section-heading">From Subsea Backbone to<br>Optical Demarcation</h2>
+        <div class="vf-gallery-tabs" id="vf-gallery-tabs">
+          <button class="vf-gallery-tab active" data-stage="all">All Stages</button>
+          <button class="vf-gallery-tab" data-stage="submarine-cable">01. Submarine Cable</button>
+          <button class="vf-gallery-tab" data-stage="loose-tube" data-testid="gallery-tab-loose-tube">02. Loose-Tube Bundle</button>
+          <button class="vf-gallery-tab" data-stage="optical-fiber-macro">03. Optical Fiber Macro</button>
+          <button class="vf-gallery-tab" data-stage="ocean-floor">04. Ocean Floor</button>
+          <button class="vf-gallery-tab" data-stage="cable-landing">05. Cable Landing Station</button>
+          <button class="vf-gallery-tab" data-stage="splice-closure">06. Splice Closure</button>
+          <button class="vf-gallery-tab" data-stage="odf-panel">07. ODF Distribution Panel</button>
+        </div>
+        <div class="vf-gallery-grid" id="vf-gallery-grid"></div>
+      </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div id="vf-lightbox" role="dialog" aria-modal="true" aria-label="Image Lightbox">
+      <button id="vf-lightbox-close" aria-label="Close lightbox">✕</button>
+      <img id="vf-lightbox-img" src="" alt="" />
+      <div id="vf-lightbox-caption"></div>
+    </div>
+
+    <!-- ══ SECTION: B2B RFQ Contact ══ -->
+    <section id="contact" class="vf-section">
+      <div class="vf-container">
+        <div class="vf-contact-prelude">
+          <p class="vf-quote">"Every project starts with a connection."</p>
+          <p class="vf-sub">Let's build the next one.</p>
+        </div>
+        <div class="vf-contact-grid">
+          <div class="vf-contact-info vf-glass vf-glass-cyan">
+            <div class="vf-contact-info-title">Direct Contact</div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">Email</div>
+              <div class="vf-contact-val"><a href="mailto:services@vf-technologies.com">services@vf-technologies.com</a></div>
+            </div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">Phone</div>
+              <div class="vf-contact-val"><a href="tel:+91XXXXXXXXXX" id="vf-contact-phone">+91 (XXX) XXX-XXXX</a></div>
+            </div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">Office</div>
+              <div class="vf-contact-val">Madhapur, Hyderabad, Telangana, India.</div>
+            </div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">Operating Hours</div>
+              <div class="vf-contact-val">Mon – Sat | US &amp; IST Overlapping Engineering Shifts</div>
+            </div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">Services</div>
+              <div class="vf-contact-val">Research &amp; Permitting • Design / Drafting • OSP Fiber • Pole Loading (O-Calc Pro)</div>
+            </div>
+            <div class="vf-contact-row">
+              <div class="vf-contact-label">LinkedIn</div>
+              <div class="vf-contact-val"><a href="https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd" target="_blank" rel="noopener">VF Technologies on LinkedIn</a></div>
+            </div>
+          </div>
+          <div class="vf-rfq-form vf-glass vf-glass-ruby">
+            <div class="vf-form-title">Start a Conversation</div>
+            <form id="vf-rfq-form-el" data-testid="rfq-form" novalidate>
+              <input type="text" name="_gotcha" class="vf-honeypot" tabindex="-1" autocomplete="off" />
+              <div class="vf-form-row">
+                <div class="vf-field">
+                  <label for="rfq-name">Full Name *</label>
+                  <input type="text" id="rfq-name" name="name" placeholder="Alex Mercer" required />
+                </div>
+                <div class="vf-field">
+                  <label for="rfq-email">Work Email *</label>
+                  <input type="email" id="rfq-email" name="email" placeholder="amercer@isp.com" required />
+                </div>
+              </div>
+              <div class="vf-form-row">
+                <div class="vf-field">
+                  <label for="rfq-company">Company / ISP / Contractor *</label>
+                  <input type="text" id="rfq-company" name="company" placeholder="Western Fiber Corp" required />
+                </div>
+                <div class="vf-field">
+                  <label for="rfq-phone">Phone Number</label>
+                  <input type="tel" id="rfq-phone" name="phone" placeholder="+1 (555) 000-0000" />
+                </div>
+              </div>
+              <div class="vf-field">
+                <label for="rfq-service">Required Service *</label>
+                <select id="rfq-service" name="service" required>
+                  <option value="" disabled selected>Select a service…</option>
+                  <option>Research &amp; Permitting</option>
+                  <option>Design / Drafting</option>
+                  <option>OSP Fiber</option>
+                  <option>Pole Loading Analysis (O-Calc Pro)</option>
+                  <option>Full Turnkey Engineering</option>
+                </select>
+              </div>
+              <div class="vf-field">
+                <label for="rfq-volume">Estimated Pole / Mileage Volume</label>
+                <input type="text" id="rfq-volume" name="volume" placeholder="e.g. 1,200 poles across 3 counties" />
+              </div>
+              <div class="vf-field">
+                <label for="rfq-message">Project Details *</label>
+                <textarea id="rfq-message" name="message" placeholder="Briefly describe your project scope, timeline, and state/region…" required></textarea>
+              </div>
+              <div class="vf-form-error" id="vf-form-error" data-testid="form-error">Please fill in all required fields.</div>
+              <div class="vf-form-success" id="vf-form-success" data-testid="form-success">✓ Message sent! We'll respond within 24 hours. You can also reach us directly at services@vf-technologies.com</div>
+              <button type="submit" class="vf-submit">Submit Engineering Inquiry</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CORPORATE FOOTER ══ -->
+    <footer id="vf-footer">
+      <div class="vf-footer-grid">
+        <div>
+          <img src="/logo.jpg" alt="VF Technologies" class="vf-footer-brand-logo" />
+          <div class="vf-footer-co">VF Technologies</div>
+          <div class="vf-footer-tg">Powering a Better Tomorrow.</div>
+          <div class="vf-footer-desc">High-precision OSP fiber engineering, structural pole loading analysis, and make-ready services for US broadband providers and telecom operators.</div>
+        </div>
+        <div>
+          <div class="vf-footer-heading">Quick Links</div>
+          <ul class="vf-footer-links">
+            <li><a href="#hero-webgl-container">Overview</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#technology">Technology Stack</a></li>
+            <li><a href="#gallery">Infrastructure Gallery</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="vf-footer-heading">Core Services</div>
+          <ul class="vf-footer-links">
+            <li><a href="/services/research-permitting.html">01 Research &amp; Permitting</a></li>
+            <li><a href="/services/design-drafting.html">02 Design / Drafting</a></li>
+            <li><a href="/services/osp-fiber.html">03 OSP Fiber</a></li>
+            <li><a href="/services/pole-loading-analysis.html">04 Pole Loading (O-Calc Pro)</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="vf-footer-heading">Corporate Office</div>
+          <ul class="vf-footer-links">
+            <li><a href="mailto:services@vf-technologies.com">services@vf-technologies.com</a></li>
+            <li><a href="tel:+91XXXXXXXXXX" id="vf-footer-phone">+91 (XXX) XXX-XXXX</a></li>
+            <li><span style="color:rgba(255,255,255,0.4);">Madhapur, Hyderabad<br>Telangana, India</span></li>
+            <li><a href="https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd" target="_blank" rel="noopener">LinkedIn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="vf-footer-bottom">
+        <span>© 2024 Venkateswara Fiber Technologies Private Limited. All Rights Reserved.</span>
+        <span style="color:rgba(0,207,255,0.5);">ENGINEERING &amp; TELECOMMUNICATION INFRASTRUCTURE</span>
+      </div>
+    </footer>
+
+    </div><!-- /hero-webgl-container is closed above; this closes nothing extra -->
+    <script type="module" src="/src/site.js"></script>
   </body>
 </html>

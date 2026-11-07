@@ -83,11 +83,16 @@ composer.addPass(fxaa);
 // Initialize Centralized Asset Registry with WebGLRenderer for KTX2 support detection
 assetRegistry.initRenderer(renderer);
 
-// WebGL Context Loss & Mobile Fallback Handling
+// WebGL Context Loss & Mobile Fallback Handling (scoped to hero container)
 renderer.domElement.addEventListener('webglcontextlost', (e) => {
   e.preventDefault();
   console.warn('WebGL Context Lost. Displaying high-quality visual fallback.');
-  document.body.style.background = '#050a14 url("/references/earth 3.jpg") center/cover no-repeat';
+  const heroEl = document.getElementById('hero-webgl-container');
+  if (heroEl) {
+    heroEl.style.background = '#050a14 url("/references/earth 3.jpg") center/cover no-repeat';
+  } else {
+    document.body.style.background = '#050a14 url("/references/earth 3.jpg") center/cover no-repeat';
+  }
 }, false);
 
 // ── Lights ────────────────────────────────────────────────────────────────────
@@ -355,6 +360,11 @@ function animate() {
   if (navGuide && !navGuide.classList.contains('dismissed') && sf > 0.08) {
     navGuide.classList.add('dismissed');
     setTimeout(() => { navGuide.style.display = 'none'; }, 900);
+  }
+
+  // EC-04 Optimization: Skip render if hero is offscreen or tab is hidden
+  if (window.__VF_HERO_VISIBLE__ === false || window.__VF_TAB_VISIBLE__ === false) {
+    return;
   }
 
   composer.render();

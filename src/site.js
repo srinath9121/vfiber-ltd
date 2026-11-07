@@ -259,6 +259,104 @@ function initWebGLObserver() {
   });
 }
 
+// ── 7. MAGNETIC BUTTON INTERACTION ENGINE ──
+// Gives interactive controls a natural magnetic pull towards the cursor,
+// with elastic physics relaxation and subtle tilt feedback.
+function initMagneticButtons() {
+  // Select buttons and interactive pills across the platform
+  const magneticSelectors = [
+    '.vf-nav-cta',
+    '.vf-nav-link',
+    '.vf-hero-btn-primary',
+    '.vf-hero-btn-secondary',
+    '.vf-hero-indicator-btn',
+    '.vf-submit',
+    '.vf-svc-cta'
+  ];
+
+  const targets = document.querySelectorAll(magneticSelectors.join(', '));
+  if (!targets.length) return;
+
+  // Check if touch device - keep magnetic interaction active for pointer mouse devices
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+  if (isTouch) return;
+
+  targets.forEach((el) => {
+    // Add magnetic class for styling hook
+    el.classList.add('vf-magnetic');
+
+    let isHovered = false;
+    let boundRect = null;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let rafId = null;
+
+    // Pull intensity factor based on element size
+    const pullFactor = el.classList.contains('.vf-submit') ? 0.18 : 0.28;
+
+    function renderSpring() {
+      if (!isHovered && Math.abs(currentX) < 0.1 && Math.abs(currentY) < 0.1) {
+        currentX = 0;
+        currentY = 0;
+        el.style.transform = '';
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        return;
+      }
+
+      // Smooth lerp easing for physics weight
+      currentX += (targetX - currentX) * 0.16;
+      currentY += (targetY - currentY) * 0.16;
+
+      const tiltRotX = -(currentY * 0.25).toFixed(2);
+      const tiltRotY = (currentX * 0.25).toFixed(2);
+
+      el.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0px) rotateX(${tiltRotX}deg) rotateY(${tiltRotY}deg) scale3d(1.025, 1.025, 1)`;
+
+      rafId = requestAnimationFrame(renderSpring);
+    }
+
+    el.addEventListener('mouseenter', () => {
+      isHovered = true;
+      boundRect = el.getBoundingClientRect();
+      if (!rafId) {
+        rafId = requestAnimationFrame(renderSpring);
+      }
+    });
+
+    el.addEventListener('mousemove', (e) => {
+      if (!boundRect) boundRect = el.getBoundingClientRect();
+      const centerX = boundRect.left + boundRect.width / 2;
+      const centerY = boundRect.top + boundRect.height / 2;
+
+      // Distance from center
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
+
+      targetX = deltaX * pullFactor;
+      targetY = deltaY * pullFactor;
+
+      if (!rafId) {
+        rafId = requestAnimationFrame(renderSpring);
+      }
+    });
+
+    el.addEventListener('mouseleave', () => {
+      isHovered = false;
+      boundRect = null;
+      targetX = 0;
+      targetY = 0;
+    });
+
+    // Handle scroll or resize refreshing bounding box
+    window.addEventListener('scroll', () => {
+      if (isHovered) boundRect = el.getBoundingClientRect();
+    }, { passive: true });
+  });
+}
+
 // ── INIT ALL ──
 document.addEventListener('DOMContentLoaded', () => {
   initHeroShowcase();
@@ -268,5 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileDrawer();
   initRfqForm();
   initWebGLObserver();
+  initMagneticButtons();
 });
 

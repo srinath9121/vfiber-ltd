@@ -2032,6 +2032,56 @@
         font-size:2rem; cursor:pointer; line-height:1;
       }
 
+      /* ── Section 6: Testimonials (#testimonials) ── */
+      #testimonials { background: #050a14; }
+      .vf-testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-top: 48px;
+      }
+      @media(max-width: 900px) { .vf-testimonials-grid { grid-template-columns: 1fr; } }
+      .vf-testimonial-card {
+        padding: 2.2rem 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+      }
+      .vf-testimonial-quote-icon {
+        color: #00CFFF;
+        font-size: 2rem;
+        line-height: 1;
+        opacity: 0.6;
+        margin-bottom: 0.8rem;
+        font-family: 'Playfair Display', serif;
+      }
+      .vf-testimonial-text {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.82);
+        margin-bottom: 1.6rem;
+      }
+      .vf-testimonial-author {
+        border-top: 1px solid rgba(0, 207, 255, 0.12);
+        padding-top: 1rem;
+      }
+      .vf-testimonial-name {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.06em;
+      }
+      .vf-testimonial-role {
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.72rem;
+        color: #00CFFF;
+        letter-spacing: 0.1em;
+        margin-top: 2px;
+      }
+
       /* ── Contact & RFQ (#contact) ── */
       #contact { background:#081022; }
       .vf-contact-prelude {
@@ -2140,6 +2190,7 @@
       </a>
       <div class="vf-nav-links">
         <a href="#hero-webgl-container" class="vf-nav-link">Overview</a>
+        <a href="#about" class="vf-nav-link">About Us</a>
         <div class="vf-nav-dropdown">
           <a href="#services" class="vf-nav-link" data-testid="nav-services-trigger">Services ▾</a>
           <div class="vf-nav-dropdown-menu">
@@ -2149,9 +2200,9 @@
             <a href="/services/pole-loading-analysis.html" class="vf-dd-item"><span class="vf-dd-num">04</span><span class="vf-dd-name">Pole Loading Analysis</span></a>
           </div>
         </div>
+        <a href="#metrics" class="vf-nav-link">Impact</a>
         <a href="#technology" class="vf-nav-link">Technology Stack</a>
-        <a href="#gallery" class="vf-nav-link">Gallery</a>
-        <a href="#about" class="vf-nav-link">About Us</a>
+        <a href="#testimonials" class="vf-nav-link">What People Say</a>
         <a href="#contact" class="vf-nav-cta">Let's Connect</a>
       </div>
       <button id="vf-hamburger" data-testid="mobile-menu-toggle" aria-label="Open menu">
@@ -2163,6 +2214,7 @@
     <div id="vf-mobile-drawer" data-testid="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
       <button class="vf-drawer-close" id="vf-drawer-close" aria-label="Close menu">✕</button>
       <a href="#hero-webgl-container" class="vf-drawer-link">Overview</a>
+      <a href="#about" class="vf-drawer-link">About Us</a>
       <span class="vf-drawer-link" style="cursor:default;color:#00CFFF;">Services</span>
       <div class="vf-drawer-services">
         <a href="/services/research-permitting.html" class="vf-drawer-service-link">01 — Research &amp; Permitting</a>
@@ -2170,9 +2222,9 @@
         <a href="/services/osp-fiber.html" class="vf-drawer-service-link">03 — OSP Fiber</a>
         <a href="/services/pole-loading-analysis.html" class="vf-drawer-service-link">04 — Pole Loading Analysis</a>
       </div>
+      <a href="#metrics" class="vf-drawer-link">Impact</a>
       <a href="#technology" class="vf-drawer-link">Technology Stack</a>
-      <a href="#gallery" class="vf-drawer-link">Gallery</a>
-      <a href="#about" class="vf-drawer-link">About Us</a>
+      <a href="#testimonials" class="vf-drawer-link">What People Say</a>
       <a href="#contact" class="vf-drawer-link" style="color:#C41E3A;">Let's Connect</a>
     </div>
 
@@ -2248,35 +2300,7 @@
       </div>
     </section><!-- end #hero-webgl-container -->
 
-    <!-- ══ SECTION: 4-Metric Audited Counter Strip ══ -->
-    <section id="metrics" class="vf-section vf-section-alt">
-      <div class="vf-container">
-        <div class="vf-metrics-grid">
-          <div class="vf-metric-card vf-glass vf-glass-cyan">
-            <div class="vf-metric-num cyan" id="vf-metric-structures" data-target="25000" data-testid="metric-structures">25,000</div>
-            <div class="vf-metric-label">Structures Analyzed</div>
-            <div class="vf-metric-sub">Thousands of structures. Thousands of engineering decisions.</div>
-          </div>
-          <div class="vf-metric-card vf-glass vf-glass-ruby">
-            <div class="vf-metric-num ruby" id="vf-metric-poles" data-target="18500" data-testid="metric-poles">18,500</div>
-            <div class="vf-metric-label">Poles Managed</div>
-            <div class="vf-metric-sub">Every pole is part of a network. Every network depends on precision.</div>
-          </div>
-          <div class="vf-metric-card vf-glass vf-glass-cyan">
-            <div class="vf-metric-num cyan" id="vf-metric-experience" data-target="5" data-testid="metric-experience">5+ Years</div>
-            <div class="vf-metric-label">Engineering Excellence</div>
-            <div class="vf-metric-sub">High-precision backend telecom engineering for US broadband providers.</div>
-          </div>
-          <div class="vf-metric-card vf-glass" style="border-top:3px solid #ffffff22;">
-            <div class="vf-metric-num white" id="vf-metric-footprint" data-target="14" data-testid="metric-footprint">14+ States</div>
-            <div class="vf-metric-label">US Footprint</div>
-            <div class="vf-metric-sub">Supporting fiber &amp; utility deployments across the United States.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ SECTION: Company Identity — Behind the Scenes ══ -->
+    <!-- ══ SECTION 2: Know Our Company — Behind the Scenes ══ -->
     <section id="about" class="vf-section">
       <div class="vf-container">
         <div class="vf-about-grid">
@@ -2304,11 +2328,11 @@
       </div>
     </section>
 
-    <!-- ══ SECTION: Services Matrix ══ -->
+    <!-- ══ SECTION 3: Our Services ══ -->
     <section id="services" class="vf-section vf-section-alt">
       <div class="vf-container">
         <span class="vf-section-badge">Services We Offer</span>
-        <h2 class="vf-section-heading">Deep B2B Engineering Services</h2>
+        <h2 class="vf-section-heading">Our Services</h2>
         <p class="vf-section-sub">Four specialized telecom engineering disciplines — each with dedicated deliverables, tools, and a dedicated sub-page for enterprise procurement teams.</p>
         <div class="vf-services-grid">
           <div class="vf-service-card vf-glass vf-glass-cyan">
@@ -2371,8 +2395,36 @@
       </div>
     </section>
 
-    <!-- ══ SECTION: Technology Stack Pipeline ══ -->
-    <section id="technology" class="vf-section">
+    <!-- ══ SECTION 4: 25,000+ Structures / Metrics ══ -->
+    <section id="metrics" class="vf-section">
+      <div class="vf-container">
+        <div class="vf-metrics-grid">
+          <div class="vf-metric-card vf-glass vf-glass-cyan">
+            <div class="vf-metric-num cyan" id="vf-metric-structures" data-target="25000" data-testid="metric-structures">25,000+</div>
+            <div class="vf-metric-label">Structures Analyzed</div>
+            <div class="vf-metric-sub">Thousands of structures. Thousands of engineering decisions.</div>
+          </div>
+          <div class="vf-metric-card vf-glass vf-glass-ruby">
+            <div class="vf-metric-num ruby" id="vf-metric-poles" data-target="18500" data-testid="metric-poles">18,500+</div>
+            <div class="vf-metric-label">Poles Managed</div>
+            <div class="vf-metric-sub">Every pole is part of a network. Every network depends on precision.</div>
+          </div>
+          <div class="vf-metric-card vf-glass vf-glass-cyan">
+            <div class="vf-metric-num cyan" id="vf-metric-experience" data-target="5" data-testid="metric-experience">5+ Years</div>
+            <div class="vf-metric-label">Engineering Excellence</div>
+            <div class="vf-metric-sub">High-precision backend telecom engineering for US broadband providers.</div>
+          </div>
+          <div class="vf-metric-card vf-glass" style="border-top:3px solid #ffffff22;">
+            <div class="vf-metric-num white" id="vf-metric-footprint" data-target="14" data-testid="metric-footprint">14+ States</div>
+            <div class="vf-metric-label">US Footprint</div>
+            <div class="vf-metric-sub">Supporting fiber &amp; utility deployments across the United States.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 5: Engineering Ecosystem — Our Technology Stack ══ -->
+    <section id="technology" class="vf-section vf-section-alt">
       <div class="vf-container">
         <span class="vf-section-badge">Engineering Ecosystem</span>
         <h2 class="vf-section-heading">Our Technology Stack</h2>
@@ -2410,20 +2462,48 @@
       </div>
     </section>
 
-    <!-- ══ SECTION: 7-Stage Infrastructure Gallery ══ -->
-    <section id="gallery" class="vf-section vf-section-alt" style="min-height: 200px;">
+    <!-- ══ SECTION 6: What People Say ══ -->
+    <section id="testimonials" class="vf-section">
       <div class="vf-container">
+        <span class="vf-section-badge">Client Testimonials</span>
+        <h2 class="vf-section-heading">What People Say</h2>
+        <p class="vf-section-sub">Trusted by regional broadband operators, joint-use program managers, and turnkey OSP contractors across the United States.</p>
+        <div class="vf-testimonials-grid">
+          <div class="vf-testimonial-card vf-glass vf-glass-cyan">
+            <div>
+              <div class="vf-testimonial-quote-icon">“</div>
+              <p class="vf-testimonial-text">VF Technologies turned our pole loading queue around in record time. Their O-Calc Pro deliverables passed utility reviews on the first submission with zero make-ready discrepancies.</p>
+            </div>
+            <div class="vf-testimonial-author">
+              <div class="vf-testimonial-name">Director of OSP Engineering</div>
+              <div class="vf-testimonial-role">Regional Broadband Provider • Texas &amp; Gulf Coast</div>
+            </div>
+          </div>
+          <div class="vf-testimonial-card vf-glass vf-glass-ruby">
+            <div>
+              <div class="vf-testimonial-quote-icon">“</div>
+              <p class="vf-testimonial-text">The overnight time difference became our greatest competitive advantage. We upload raw Katapult photogrammetry before leaving the field, and full construction-ready AutoCAD plansets are waiting for us the next morning.</p>
+            </div>
+            <div class="vf-testimonial-author">
+              <div class="vf-testimonial-name">VP of Network Deployment</div>
+              <div class="vf-testimonial-role">FTTH Turnkey Infrastructure Contractor • Midwest</div>
+            </div>
+          </div>
+          <div class="vf-testimonial-card vf-glass vf-glass-cyan">
+            <div>
+              <div class="vf-testimonial-quote-icon">“</div>
+              <p class="vf-testimonial-text">Rigorous NESC Grade B and C compliance, clean strand mapping, and seamless joint-use attachment applications. They function as a true high-precision extension of our internal engineering staff.</p>
+            </div>
+            <div class="vf-testimonial-author">
+              <div class="vf-testimonial-name">Joint-Use Permitting Manager</div>
+              <div class="vf-testimonial-role">Electric Cooperative &amp; Fiber Operator • Southeast</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Lightbox -->
-    <div id="vf-lightbox" role="dialog" aria-modal="true" aria-label="Image Lightbox">
-      <button id="vf-lightbox-close" aria-label="Close lightbox">✕</button>
-      <img id="vf-lightbox-img" src="" alt="" />
-      <div id="vf-lightbox-caption"></div>
-    </div>
-
-    <!-- ══ SECTION: B2B RFQ Contact ══ -->
+    <!-- ══ SECTION 7: Direct Contact and Start a Conversation ══ -->
     <section id="contact" class="vf-section">
       <div class="vf-container">
         <div class="vf-contact-prelude">
@@ -2524,8 +2604,10 @@
           <ul class="vf-footer-links">
             <li><a href="#hero-webgl-container">Overview</a></li>
             <li><a href="#about">About Us</a></li>
+            <li><a href="#services">Our Services</a></li>
+            <li><a href="#metrics">Impact &amp; Metrics</a></li>
             <li><a href="#technology">Technology Stack</a></li>
-            <li><a href="#gallery">Infrastructure Gallery</a></li>
+            <li><a href="#testimonials">What People Say</a></li>
             <li><a href="#contact">Contact Us</a></li>
           </ul>
         </div>

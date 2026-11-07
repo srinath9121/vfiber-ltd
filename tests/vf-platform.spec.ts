@@ -130,3 +130,4 @@ test.describe('VF Technologies — B2B Corporate & Multi-Page Platform Suite', (
     await expect(page.locator('[data-testid="rfq-form"]')).toBeVisible();
   });
 });
+

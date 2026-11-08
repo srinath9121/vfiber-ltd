@@ -3,6 +3,7 @@
 
 import { SITE_CONFIG } from './config/siteMetrics.js';
 import { GALLERY_STAGES } from './config/galleryManifest.js';
+import './config/embeddedAssets.js';
 
 // ── 0. HERO 4-SLIDE SHOWCASE CONTROLS ──
 function initHeroShowcase() {
@@ -425,8 +426,41 @@ function initMagneticButtons() {
   });
 }
 
+// ── 8. HYDRATE ASSETS GUARANTEED ──
+function hydrateAssets() {
+  if (typeof window === 'undefined') return;
+
+  if (window.__PARTNER_IMGS__) {
+    const p = window.__PARTNER_IMGS__;
+    const fImg = document.querySelector('.vf-tech-card:nth-child(1) .vf-tech-img-wrap img');
+    if (fImg && p.frontier) fImg.src = p.frontier;
+
+    const kImg = document.querySelector('.vf-tech-card:nth-child(2) .vf-tech-img-wrap img');
+    if (kImg && p.katapult) kImg.src = p.katapult;
+
+    const aImg = document.querySelector('.vf-tech-card:nth-child(3) .vf-tech-img-wrap img');
+    if (aImg && p.acad) aImg.src = p.acad;
+
+    const oImg = document.querySelector('.vf-tech-card:nth-child(4) .vf-tech-img-wrap img');
+    if (oImg && p.ocalc) oImg.src = p.ocalc;
+  }
+
+  if (window.__TESTIMONIAL_AVATARS__) {
+    const a = window.__TESTIMONIAL_AVATARS__;
+    const p1 = document.querySelector('.vf-testimonials-grid .vf-testimonial-card:nth-child(1) .vf-testimonial-avatar');
+    if (p1 && a.p1) p1.src = a.p1;
+
+    const p2 = document.querySelector('.vf-testimonials-grid .vf-testimonial-card:nth-child(2) .vf-testimonial-avatar');
+    if (p2 && a.p2) p2.src = a.p2;
+
+    const p3 = document.querySelector('.vf-testimonials-grid .vf-testimonial-card:nth-child(3) .vf-testimonial-avatar');
+    if (p3 && a.p3) p3.src = a.p3;
+  }
+}
+
 // ── INIT ALL ──
 document.addEventListener('DOMContentLoaded', () => {
+  hydrateAssets();
   initHeroShowcase();
   syncConfig();
   initCounters();

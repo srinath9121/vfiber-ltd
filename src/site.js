@@ -205,7 +205,7 @@ function initMobileDrawer() {
   });
 }
 
-// ── 5. RFQ FORM VALIDATION ──
+// ── 5. RFQ FORM VALIDATION & SECURITY SANITIZATION ──
 function initRfqForm() {
   const form = document.getElementById('vf-rfq-form-el');
   const errEl = document.getElementById('vf-form-error');
@@ -213,27 +213,95 @@ function initRfqForm() {
 
   if (!form) return;
 
+  // Strict Sanitization function to prevent XSS injection
+  function sanitizeInput(str) {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/[<>]/g, '') // Strip angle brackets
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+=/gi, '')
+      .trim();
+  }
+
+  // Rate Limiting guard (max 3 submissions per 2 minutes)
+  const SUBMIT_KEY = 'vf_rfq_submits';
+  function isRateLimited() {
+    try {
+      const now = Date.now();
+      const raw = sessionStorage.getItem(SUBMIT_KEY);
+      const history = raw ? JSON.parse(raw) : [];
+      const valid = history.filter(ts => (now - ts) < 120000);
+      if (valid.length >= 3) {
+        return true;
+      }
+      valid.push(now);
+      sessionStorage.setItem(SUBMIT_KEY, JSON.stringify(valid));
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  // Form submit timing protection against bots (human usually takes > 3s)
+  const formMountTime = Date.now();
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // Honeypot check
+    // 1. Anti-Bot Honeypot check
     const honeypot = form.querySelector('[name="_gotcha"]');
-    if (honeypot && honeypot.value) return;
+    if (honeypot && honeypot.value.trim() !== '') {
+      console.warn('Bot submission blocked via honeypot');
+      return;
+    }
 
-    const name = form.querySelector('[name="name"]')?.value.trim();
-    const email = form.querySelector('[name="email"]')?.value.trim();
-    const company = form.querySelector('[name="company"]')?.value.trim();
-    const service = form.querySelector('[name="service"]')?.value;
-    const message = form.querySelector('[name="message"]')?.value.trim();
+    // 2. Speed bot trap (< 1.5 seconds from page render)
+    if (Date.now() - formMountTime < 1500) {
+      console.warn('Automated fast-submission detected');
+      return;
+    }
 
-    if (!name || !email || !company || !service || !message) {
+    // 3. Rate limiting check
+    if (isRateLimited()) {
       if (errEl) {
+        errEl.textContent = 'Too many requests. Please wait a minute before submitting again.';
         errEl.style.display = 'block';
         errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
       return;
     }
 
+    // 4. Retrieve & sanitize inputs
+    const name = sanitizeInput(form.querySelector('[name="name"]')?.value);
+    const email = sanitizeInput(form.querySelector('[name="email"]')?.value);
+    const company = sanitizeInput(form.querySelector('[name="company"]')?.value);
+    const phone = sanitizeInput(form.querySelector('[name="phone"]')?.value);
+    const service = sanitizeInput(form.querySelector('[name="service"]')?.value);
+    const volume = sanitizeInput(form.querySelector('[name="volume"]')?.value);
+    const message = sanitizeInput(form.querySelector('[name="message"]')?.value);
+
+    // 5. Strict Email Regex validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+    if (!name || !email || !company || !service || !message) {
+      if (errEl) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.style.display = 'block';
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid work email address.';
+        errEl.style.display = 'block';
+        errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      return;
+    }
+
+    // Safe execution
     if (errEl) errEl.style.display = 'none';
     if (succEl) succEl.style.display = 'block';
     form.reset();

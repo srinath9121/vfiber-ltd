@@ -9,11 +9,36 @@ import './config/embeddedAssets.js';
 function initHeroShowcase() {
   const slides = document.querySelectorAll('.vf-hero-slide');
   const buttons = document.querySelectorAll('.vf-hero-indicator-btn');
-  if (!slides.length || !buttons.length) return;
+  const prevBtn = document.getElementById('vf-hero-prev-btn');
+  const nextBtn = document.getElementById('vf-hero-next-btn');
+  const currLabel = document.getElementById('vf-arrow-curr');
+  if (!slides.length) return;
+
+  let currentIdx = 0;
+  const slideTitles = ['Overview', 'OSP Fiber', 'O-Calc Pro', 'Workflow'];
+
+  function updateStatus(idx) {
+    currentIdx = idx;
+    if (currLabel) {
+      currLabel.textContent = String(idx + 1).padStart(2, '0');
+    }
+    if (prevBtn) {
+      const prevIdx = (idx - 1 + slides.length) % slides.length;
+      prevBtn.setAttribute('title', `Previous: 0${prevIdx + 1} ${slideTitles[prevIdx]}`);
+      prevBtn.setAttribute('aria-label', `Previous Slide: ${slideTitles[prevIdx]}`);
+    }
+    if (nextBtn) {
+      const nextIdx = (idx + 1) % slides.length;
+      nextBtn.setAttribute('title', `Next: 0${nextIdx + 1} ${slideTitles[nextIdx]}`);
+      nextBtn.setAttribute('aria-label', `Next Slide: ${slideTitles[nextIdx]}`);
+    }
+  }
 
   function setSlide(idx) {
-    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
-    buttons.forEach((b, i) => b.classList.toggle('active', i === idx));
+    const targetIdx = (idx + slides.length) % slides.length;
+    slides.forEach((s, i) => s.classList.toggle('active', i === targetIdx));
+    buttons.forEach((b, i) => b.classList.toggle('active', i === targetIdx));
+    updateStatus(targetIdx);
   }
 
   buttons.forEach((btn, idx) => {
@@ -21,6 +46,36 @@ function initHeroShowcase() {
       setSlide(idx);
     });
   });
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setSlide(currentIdx - 1);
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setSlide(currentIdx + 1);
+    });
+  }
+
+  // Keyboard navigation when user presses Arrow keys while hero is in view
+  window.addEventListener('keydown', (e) => {
+    const hero = document.getElementById('hero-webgl-container');
+    if (!hero) return;
+    const rect = hero.getBoundingClientRect();
+    if (rect.bottom > 100 && rect.top < window.innerHeight - 100) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        setSlide(currentIdx + 1);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        setSlide(currentIdx - 1);
+      }
+    }
+  });
+
+  updateStatus(0);
 }
 
 // ── 1. SYNC SITE_CONFIG TO DOM ──

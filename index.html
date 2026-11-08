@@ -1663,6 +1663,75 @@
         }
       }
 
+      /* ── Hero Right-Side Arrow Navigation (Matching User Reference) ── */
+      .vf-hero-arrow-nav {
+        position: absolute;
+        right: 36px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        pointer-events: auto;
+      }
+      .vf-hero-arrow-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: rgba(1, 75, 170, 0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 2px solid rgba(255, 255, 255, 0.85);
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        outline: none;
+        padding: 0;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      }
+      .vf-hero-arrow-prev {
+        border-color: rgba(255, 255, 255, 0.85);
+        color: #ffffff;
+      }
+      .vf-hero-arrow-next {
+        border-color: rgba(255, 255, 255, 0.85);
+        color: #ffffff;
+      }
+      .vf-hero-arrow-btn:hover {
+        background: #014BAA;
+        border-color: #ffffff;
+        color: #ffffff;
+        box-shadow: 0 0 24px rgba(1, 75, 170, 0.9), 0 0 12px rgba(255, 255, 255, 0.6);
+        transform: scale(1.1);
+      }
+      .vf-hero-arrow-btn:active {
+        transform: scale(0.92);
+      }
+      .vf-hero-arrow-btn svg {
+        transition: transform 0.2s ease;
+      }
+      .vf-hero-arrow-prev:hover svg {
+        transform: translateX(-3px);
+      }
+      .vf-hero-arrow-next:hover svg {
+        transform: translateX(3px);
+      }
+      @media(max-width: 768px) {
+        .vf-hero-arrow-nav {
+          right: 14px;
+          gap: 12px;
+        }
+        .vf-hero-arrow-btn {
+          width: 42px;
+          height: 42px;
+        }
+      }
+
       /* ══════════════════════════════════════════════════════
          ITERATION 3: ROYAL BLUE FOUNDATION (#014BAA)
          WITH FROSTED LIGHT CREAM CARD SURFACES (#F8F3F0)
@@ -2393,6 +2462,20 @@
           <button class="vf-hero-indicator-btn" data-target-slide="3" data-sf="3.40">
             <span class="vf-ind-num">04</span>
             <span class="vf-ind-label">Workflow</span>
+          </button>
+        </div>
+
+        <!-- Right-Side Floating Arrow Navigation Controls (Matching Reference) -->
+        <div class="vf-hero-arrow-nav" aria-label="Hero Slide Navigation">
+          <button class="vf-hero-arrow-btn vf-hero-arrow-prev" id="vf-hero-prev-btn" aria-label="Previous Slide" title="Previous: 04 Workflow">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11 6L5 12L11 18V13.5H19V10.5H11V6Z"/>
+            </svg>
+          </button>
+          <button class="vf-hero-arrow-btn vf-hero-arrow-next" id="vf-hero-next-btn" aria-label="Next Slide" title="Next: 02 OSP Fiber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 6L19 12L13 18V13.5H5V10.5H13V6Z"/>
+            </svg>
           </button>
         </div>
       </div>

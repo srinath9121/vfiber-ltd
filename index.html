@@ -32,6 +32,7 @@
         width: 100%;
         height: calc(100vh - 84px);
         min-height: 560px;
+        margin-top: 84px;
         overflow: hidden;
         background: #050a14;
         flex-shrink: 0;
@@ -1777,17 +1778,21 @@
 
       /* ── Sticky Navbar: Deep Royal Blue with Crisp Cream Outlines ── */
       #vf-navbar {
-        position: sticky;
+        position: fixed;
         top: 0;
-        z-index: 490;
-        background: #014BAA;
+        left: 0;
+        width: 100%;
+        z-index: 999;
+        background: rgba(1, 75, 170, 0.96);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-bottom: 2px solid rgba(248, 243, 240, 0.25);
         padding: 0 40px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         height: 84px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
       }
       .vf-nav-brand {
         display: inline-flex;
@@ -1909,6 +1914,7 @@
         color: #F8F3F0;
         padding:110px 40px;
         position: relative;
+        scroll-margin-top: 84px;
       }
       .vf-section-alt {
         background: #F8F3F0;

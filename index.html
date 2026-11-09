@@ -1851,6 +1851,152 @@
         transform-style: preserve-3d;
       }
       .vf-nav-link:hover { color:#014BAA; background:#F8F3F0; }
+
+      /* Nav Dropdown for Services */
+      .vf-nav-dropdown {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+      .vf-nav-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 12px;
+        min-width: 250px;
+        background: rgba(1, 62, 142, 0.96);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1.5px solid rgba(248, 243, 240, 0.25);
+        border-radius: 8px;
+        padding: 10px 0;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+      }
+      .vf-nav-dropdown:hover .vf-nav-dropdown-menu,
+      .vf-nav-dropdown:focus-within .vf-nav-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .vf-nav-dropdown-item {
+        display: block;
+        padding: 10px 20px;
+        color: #F8F3F0;
+        text-decoration: none;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: background 0.2s, color 0.2s;
+      }
+      .vf-nav-dropdown-item:hover {
+        background: #F8F3F0;
+        color: #014BAA;
+      }
+
+      /* Services Interactive Filter Pills */
+      .vf-filter-pills {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 1.6rem 0 2.2rem;
+      }
+      .vf-filter-pill {
+        padding: 8px 18px;
+        background: rgba(248, 243, 240, 0.08);
+        border: 1px solid rgba(248, 243, 240, 0.2);
+        border-radius: 20px;
+        color: #F8F3F0;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .vf-filter-pill:hover,
+      .vf-filter-pill.active {
+        background: #F8F3F0;
+        color: #014BAA;
+        border-color: #F8F3F0;
+        box-shadow: 0 0 15px rgba(248, 243, 240, 0.3);
+      }
+
+      /* Back to Top Floating Button */
+      #vf-back-to-top {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(1, 62, 142, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(248, 243, 240, 0.4);
+        color: #F8F3F0;
+        cursor: pointer;
+        z-index: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(14px);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      #vf-back-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      #vf-back-to-top:hover {
+        background: #F8F3F0;
+        color: #014BAA;
+        border-color: #F8F3F0;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      }
+      #vf-back-to-top svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+        transition: transform 0.2s;
+      }
+      #vf-back-to-top:hover svg {
+        transform: translateY(-2px);
+      }
+
+      /* Copy Feedback Toast */
+      .vf-copy-toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #014BAA;
+        color: #F8F3F0;
+        border: 1.5px solid #00CFFF;
+        padding: 10px 22px;
+        border-radius: 24px;
+        font-family: 'Space Grotesk', monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        z-index: 9999;
+        box-shadow: 0 8px 25px rgba(0, 207, 255, 0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .vf-copy-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
       .vf-nav-cta {
         display:inline-flex; align-items:center;
         padding:11px 26px;
@@ -2408,6 +2554,26 @@
       .vf-footer-links a:hover { color:#ffffff; text-decoration:underline; }
       .vf-footer-bottom {
         max-width:1280px; margin:0 auto;
+        padding-top:25px; border-top:1px solid rgba(248, 243, 240, 0.2);
+        display:flex; justify-content:space-between; align-items:center;
+        flex-wrap:wrap; gap:16px; font-size:0.8rem; color:rgba(248, 243, 240, 0.7);
+      }
+
+      /* Gentle frosted unblur reveal on scroll */
+      .vf-reveal-node {
+        opacity: 0.18;
+        filter: blur(6px);
+        transform: translateY(22px);
+        transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, filter, transform;
+      }
+      .vf-reveal-node.is-revealed {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0);
+      }
         border-top:1px solid rgba(248, 243, 240, 0.2);
         padding-top:24px;
         display:flex; align-items:center; justify-content:center;
@@ -2432,6 +2598,17 @@
       <div class="vf-nav-links">
         <a href="#hero-webgl-container" class="vf-nav-link">Home</a>
         <a href="#about" class="vf-nav-link">About Us</a>
+        <div class="vf-nav-dropdown">
+          <a href="#services" class="vf-nav-link">Services ▾</a>
+          <div class="vf-nav-dropdown-menu">
+            <a href="/services/osp-fiber.html" class="vf-nav-dropdown-item">01 // OSP Fiber &amp; FTTH</a>
+            <a href="/services/pole-loading-analysis.html" class="vf-nav-dropdown-item">02 // Pole Loading (O-Calc Pro)</a>
+            <a href="/services/design-drafting.html" class="vf-nav-dropdown-item">03 // Design / Drafting (AutoCAD)</a>
+            <a href="/services/research-permitting.html" class="vf-nav-dropdown-item">04 // Research &amp; Permitting</a>
+          </div>
+        </div>
+        <a href="#technology" class="vf-nav-link">Tech Stack</a>
+        <a href="#metrics" class="vf-nav-link">Metrics</a>
         <a href="#contact" class="vf-nav-cta">Let's Connect</a>
       </div>
       <button id="vf-hamburger" data-testid="mobile-menu-toggle" aria-label="Open menu">
@@ -2444,6 +2621,13 @@
       <button class="vf-drawer-close" id="vf-drawer-close" aria-label="Close menu">✕</button>
       <a href="#hero-webgl-container" class="vf-drawer-link">Home</a>
       <a href="#about" class="vf-drawer-link">About Us</a>
+      <a href="#services" class="vf-drawer-link">Services</a>
+      <a href="/services/osp-fiber.html" class="vf-drawer-link" style="font-size:0.85rem; padding-left:1.5rem; opacity:0.85;">— OSP Fiber</a>
+      <a href="/services/pole-loading-analysis.html" class="vf-drawer-link" style="font-size:0.85rem; padding-left:1.5rem; opacity:0.85;">— Pole Loading (O-Calc)</a>
+      <a href="/services/design-drafting.html" class="vf-drawer-link" style="font-size:0.85rem; padding-left:1.5rem; opacity:0.85;">— Design / Drafting</a>
+      <a href="/services/research-permitting.html" class="vf-drawer-link" style="font-size:0.85rem; padding-left:1.5rem; opacity:0.85;">— Permitting</a>
+      <a href="#technology" class="vf-drawer-link">Tech Stack</a>
+      <a href="#metrics" class="vf-drawer-link">Metrics</a>
       <a href="#contact" class="vf-drawer-link" style="color:#C41E3A;">Let's Connect</a>
     </div>
 
@@ -2584,8 +2768,18 @@
         <span class="vf-section-badge">Services We Offer</span>
         <h2 class="vf-section-heading">Our Services</h2>
         <p class="vf-section-sub">Four specialized telecom engineering disciplines — each with dedicated deliverables, tools, and a dedicated sub-page for enterprise procurement teams.</p>
+        
+        <!-- Filter Tabs for Instant Procurement Filtering -->
+        <div class="vf-filter-pills" id="vf-services-filters" role="tablist" aria-label="Services filter">
+          <button class="vf-filter-pill active" data-filter="all" role="tab" aria-selected="true">All Disciplines</button>
+          <button class="vf-filter-pill" data-filter="permitting" role="tab" aria-selected="false">01 Permitting</button>
+          <button class="vf-filter-pill" data-filter="drafting" role="tab" aria-selected="false">02 Drafting</button>
+          <button class="vf-filter-pill" data-filter="osp" role="tab" aria-selected="false">03 OSP Fiber</button>
+          <button class="vf-filter-pill" data-filter="ocalc" role="tab" aria-selected="false">04 O-Calc Pro</button>
+        </div>
+
         <div class="vf-services-grid">
-          <div class="vf-service-card vf-glass vf-glass-cyan">
+          <div class="vf-service-card vf-glass vf-glass-cyan" data-service-category="permitting">
             <div class="vf-svc-num">01</div>
             <h3 class="vf-svc-title">Research &amp; Permitting</h3>
             <p class="vf-svc-overview">End-to-end jurisdictional research, right-of-way verification, and permit package preparation for utility pole attachments and fiber route deployments.</p>
@@ -2599,7 +2793,7 @@
             <div class="vf-svc-tools"><span class="vf-svc-tool">GIS Portals</span><span class="vf-svc-tool">AutoCAD</span><span class="vf-svc-tool">Municipal DBs</span></div>
             <a href="/services/research-permitting.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
           </div>
-          <div class="vf-service-card vf-glass vf-glass-ruby">
+          <div class="vf-service-card vf-glass vf-glass-ruby" data-service-category="drafting">
             <div class="vf-svc-num">02</div>
             <h3 class="vf-svc-title">Design / Drafting</h3>
             <p class="vf-svc-overview">High-precision Construction Drawing packages, traffic control plans, strand maps, and as-built redline reconciliation for fiber network deployments.</p>
@@ -2613,7 +2807,7 @@
             <div class="vf-svc-tools"><span class="vf-svc-tool">AutoCAD</span><span class="vf-svc-tool">Spatial GIS</span><span class="vf-svc-tool">Katapult Pro</span></div>
             <a href="/services/design-drafting.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
           </div>
-          <div class="vf-service-card vf-glass vf-glass-cyan">
+          <div class="vf-service-card vf-glass vf-glass-cyan" data-service-category="osp">
             <div class="vf-svc-num">03</div>
             <h3 class="vf-svc-title">OSP Fiber</h3>
             <p class="vf-svc-overview">End-to-end Outside Plant FTTH/FTTx network architecture — from aerial route optimization to splice closure diagrams and optical link loss budgeting.</p>
@@ -2627,7 +2821,7 @@
             <div class="vf-svc-tools"><span class="vf-svc-tool">Katapult Pro</span><span class="vf-svc-tool">Frontier</span><span class="vf-svc-tool">AutoCAD</span></div>
             <a href="/services/osp-fiber.html" class="vf-svc-cta">Inspect Deliverables &amp; Specs →</a>
           </div>
-          <div class="vf-service-card vf-glass vf-glass-ruby">
+          <div class="vf-service-card vf-glass vf-glass-ruby" data-service-category="ocalc">
             <div class="vf-svc-num">04</div>
             <h3 class="vf-svc-title">Pole Loading Analysis (O-Calc Pro)</h3>
             <p class="vf-svc-overview">NESC-compliant 3D structural digital twin modeling, wind/ice load calculations, and pass/fail structural certification reports using O-Calc Pro.</p>
@@ -2894,7 +3088,16 @@
       </div>
     </footer>
 
-    </div><!-- /hero-webgl-container is closed above; this closes nothing extra -->
+    <!-- Back to Top Floating Button -->
+    <button id="vf-back-to-top" aria-label="Back to top" title="Back to top">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 4L4 12L5.41 13.41L11 7.83V20H13V7.83L18.58 13.42L20 12L12 4Z"/>
+      </svg>
+    </button>
+
+    <!-- Copy Feedback Toast Notification -->
+    <div id="vf-copy-toast" class="vf-copy-toast" role="status" aria-live="polite">✓ Copied to clipboard!</div>
+
     <script type="module" src="/src/site.js"></script>
   </body>
 </html>

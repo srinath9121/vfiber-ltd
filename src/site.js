@@ -503,6 +503,110 @@ function initMagneticButtons() {
   });
 }
 
+// ── 7.5. GENTLE FROSTED SCROLL REVEAL ──
+function initProgressiveScrollReveal() {
+  if (typeof window === 'undefined') return;
+
+  const revealTargets = document.querySelectorAll(
+    '.vf-section-heading, .vf-section-sub, .vf-about-grid, .vf-service-card, .vf-metric-card, .vf-tech-card, .vf-gallery-grid, .vf-testimonial-card, .vf-contact-grid'
+  );
+
+  revealTargets.forEach(el => {
+    el.classList.add('vf-reveal-node');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+      }
+    });
+  }, {
+    rootMargin: '0px 0px -8% 0px',
+    threshold: 0.12
+  });
+
+  revealTargets.forEach(el => observer.observe(el));
+}
+
+// ── 7.6. BACK TO TOP BUTTON ──
+function initBackToTop() {
+  const btn = document.getElementById('vf-back-to-top');
+  if (!btn) return;
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 420) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// ── 7.7. COPY-TO-CLIPBOARD WITH TOAST ──
+function initClipboardHelper() {
+  const toast = document.getElementById('vf-copy-toast');
+  let toastTimer = null;
+
+  function showToast(msg = '✓ Copied to clipboard!') {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+
+  // Find all email links and add quick copy functionality with toast
+  const emailLinks = document.querySelectorAll('a[href^="mailto:"]');
+  emailLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const email = link.getAttribute('href').replace('mailto:', '').split('?')[0];
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(() => {
+          showToast(`✓ Copied ${email}`);
+        }).catch(() => {});
+      }
+    });
+  });
+}
+
+// ── 7.8. SERVICES FILTER TABS ──
+function initServicesFilter() {
+  const filterBtns = document.querySelectorAll('#vf-services-filters .vf-filter-pill');
+  const serviceCards = document.querySelectorAll('.vf-services-grid .vf-service-card');
+  if (!filterBtns.length || !serviceCards.length) return;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-filter');
+
+      filterBtns.forEach(b => {
+        const isCurrent = (b === btn);
+        b.classList.toggle('active', isCurrent);
+        b.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+      });
+
+      serviceCards.forEach(card => {
+        const cat = card.getAttribute('data-service-category');
+        if (filter === 'all' || cat === filter) {
+          card.style.display = 'flex';
+          setTimeout(() => {
+            card.classList.add('is-revealed');
+          }, 40);
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+}
+
 // ── 8. HYDRATE ASSETS GUARANTEED ──
 function hydrateAssets() {
   if (typeof window === 'undefined') return;
@@ -546,5 +650,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initRfqForm();
   initWebGLObserver();
   initMagneticButtons();
+  initProgressiveScrollReveal();
+  initBackToTop();
+  initClipboardHelper();
+  initServicesFilter();
 });
 

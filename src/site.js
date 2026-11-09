@@ -9,6 +9,7 @@ import './config/embeddedAssets.js';
 function initHeroShowcase() {
   const slides = document.querySelectorAll('.vf-hero-slide');
   const buttons = document.querySelectorAll('.vf-hero-indicator-btn');
+  const videos = document.querySelectorAll('.vf-hero-video-item');
   const prevBtn = document.getElementById('vf-hero-prev-btn');
   const nextBtn = document.getElementById('vf-hero-next-btn');
   const currLabel = document.getElementById('vf-arrow-curr');
@@ -38,6 +39,27 @@ function initHeroShowcase() {
     const targetIdx = (idx + slides.length) % slides.length;
     slides.forEach((s, i) => s.classList.toggle('active', i === targetIdx));
     buttons.forEach((b, i) => b.classList.toggle('active', i === targetIdx));
+
+    // Synchronize video background with active slide
+    if (videos.length) {
+      videos.forEach((vid, i) => {
+        const isCurrent = (i === targetIdx);
+        vid.classList.toggle('active', isCurrent);
+        if (isCurrent) {
+          if (vid.paused) {
+            vid.play().catch(() => {});
+          }
+        } else {
+          // Pause background videos when inactive to optimize GPU and CPU performance
+          setTimeout(() => {
+            if (!vid.classList.contains('active')) {
+              vid.pause();
+            }
+          }, 600);
+        }
+      });
+    }
+
     updateStatus(targetIdx);
   }
 

@@ -30,8 +30,8 @@
       #hero-webgl-container {
         position: relative;
         width: 100%;
-        height: 100vh;
-        min-height: 600px;
+        height: calc(100vh - 84px);
+        min-height: 560px;
         overflow: hidden;
         background: #050a14;
         flex-shrink: 0;
@@ -1493,6 +1493,44 @@
       }
 
 
+      /* ── Hero Background Video Layer ── */
+      .vf-hero-video-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 10;
+        pointer-events: none;
+      }
+      .vf-hero-video-item {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1;
+      }
+      .vf-hero-video-item.active {
+        opacity: 1;
+        z-index: 2;
+      }
+      .vf-hero-video-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        background: linear-gradient(
+          180deg,
+          rgba(2, 6, 14, 0.72) 0%,
+          rgba(2, 6, 14, 0.52) 40%,
+          rgba(2, 6, 14, 0.68) 80%,
+          rgba(2, 6, 14, 0.94) 100%
+        );
+        pointer-events: none;
+      }
+
       /* ── Hero 4-Slide Telemetry Showcase ── */
       #vf-hero-showcase {
         position: absolute;
@@ -2398,6 +2436,23 @@
     <!-- ══ HERO SECTION — Scoped 3D WebGL Canvas + 4-Slide Telemetry Hero ══ -->
     <section id="hero-webgl-container">
       <div id="app"></div>
+
+      <!-- Hero Video Background Layer (Synchronized with 4 Slides) -->
+      <div class="vf-hero-video-bg" aria-hidden="true">
+        <video class="vf-hero-video-item active" data-video-slide="0" autoplay muted loop playsinline preload="auto">
+          <source src="/videos/hero-1-overview.mp4" type="video/mp4" />
+        </video>
+        <video class="vf-hero-video-item" data-video-slide="1" autoplay muted loop playsinline preload="metadata">
+          <source src="/videos/hero-2-osp-fiber.mp4" type="video/mp4" />
+        </video>
+        <video class="vf-hero-video-item" data-video-slide="2" autoplay muted loop playsinline preload="metadata">
+          <source src="/videos/hero-3-ocalc.mp4" type="video/mp4" />
+        </video>
+        <video class="vf-hero-video-item" data-video-slide="3" autoplay muted loop playsinline preload="metadata">
+          <source src="/videos/hero-4-ecosystem.mp4" type="video/mp4" />
+        </video>
+        <div class="vf-hero-video-overlay"></div>
+      </div>
 
       <!-- Hero 4-Slide Telemetry Showcase Overlay -->
       <div id="vf-hero-showcase">

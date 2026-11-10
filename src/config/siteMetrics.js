@@ -39,8 +39,8 @@ export const SITE_CONFIG = {
 
   // ── UPDATE CONTACT DETAILS HERE ──
   contact: {
-    phoneDisplay:   '+91 (XXX) XXX-XXXX',
-    phoneHref:      'tel:+91XXXXXXXXXX',
+    phoneDisplay:   '+91 91210 67876',
+    phoneHref:      'tel:+919121067876',
     email:          'services@vf-technologies.com',
     address:        'Madhapur, Hyderabad, Telangana, India.',
     linkedinUrl:    'https://www.linkedin.com/company/venkateswara-fiber-technologies-pvt-ltd',
